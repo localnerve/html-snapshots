@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+var path = require("path");
+var ss = require(path.join(__dirname, "../html-snapshots"));
+
+function displayHelp() {
+  var pkg = require(path.join(__dirname, "../../package.json"));
+  console.log(
+    "\n"+
+    pkg.name + " Version - " + pkg.version + "\n"+
+    "Usage:\n"+
+    "  "+pkg.name+" <path to robots.txt> <hostname> <snapshot directory> <selector>\n\n"+
+    "Optional arguments:\n"+
+    "  6: clean snapshot directory (default is 'false')\n"+
+    "  7: protocol (default is 'http')\n"+
+    "  8: timeout (default is 5000 ms)\n"+
+    "  9: waitForAll (default is 100000 polls, 0 will skip waiting)\n"+
+    "  10: phantomjs (default a global reference to 'phantomjs')\n\n"+
+    "For more options, or to use input other than robots.txt, see the readme and use the node module directly.\n"
+  );
+  return;
+}
+
+// Immediately display help screen if no arguments.
+if (process.argv.length < 6) {
+  return displayHelp();
+} else {
+  ss.run({
+    //inputGenerator: "robots",
+    inputFile: process.argv[2],
+    protocol: (typeof process.argv[7] === "undefined" ? undefined : process.argv[7]),
+    hostname: process.argv[3],
+    snapshotDirClean: (typeof process.argv[6] === "undefined" ? undefined : process.argv[6]),
+    snapshotDir: process.argv[4],
+    selector: process.argv[5],
+    timeout: (typeof process.argv[6] === "undefined" ? undefined : process.argv[6]),
+    //checkInterval: 250,
+    //snapshotScript: "../lib/phantom/snapshotSingle.js",
+    phantomjs: (typeof process.argv[10] === "undefined" ? undefined : process.argv[10]),
+    waitForAll: (typeof process.argv[9] === "undefined" ? undefined : process.argv[9])
+  });
+}
