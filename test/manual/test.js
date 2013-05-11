@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 var ss = require("../../lib/html-snapshots");
-ss.run({
+var result = ss.run({
   //inputGenerator: "robots",
-  inputFile: "./robots.txt",
+  inputFile: "./ro.txt",
   //protocol: "http",
   hostname: "northstar.local",
   snapshotDirClean: true,
-  snapshotDir: "./tmp/snapshots"//,
-  //selector: function(url) { return "#dynamic-content"; },
+  snapshotDir: "./tmp/snapshots",
+  selector: function(url) { return "#dynamic-content"; }//,
   //timeout: function(url) { return 5000; },
   //selector: "#dynamic-content",
   //timeout: 5000,
@@ -19,3 +19,5 @@ ss.run({
 });
 
 console.log("END");
+console.log("results = "+result);
+return result;

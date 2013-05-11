@@ -18,14 +18,15 @@ function displayHelp() {
     "  10: phantomjs (default a global reference to 'phantomjs')\n\n"+
     "For more options, or to use input other than robots.txt, see the readme and use the node module directly.\n"
   );
-  return;
+  return false;
 }
 
+var result = false;
 // Immediately display help screen if no arguments.
 if (process.argv.length < 6) {
-  return displayHelp();
+  result = displayHelp();
 } else {
-  ss.run({
+  result = ss.run({
     //inputGenerator: "robots",
     inputFile: process.argv[2],
     protocol: (typeof process.argv[7] === "undefined" ? undefined : process.argv[7]),
@@ -40,3 +41,5 @@ if (process.argv.length < 6) {
     waitForAll: (typeof process.argv[9] === "undefined" ? undefined : process.argv[9])
   });
 }
+
+process.exit(result ? 0 : -1);
