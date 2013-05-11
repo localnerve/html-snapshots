@@ -3,7 +3,7 @@
 var ss = require("../../lib/html-snapshots");
 var result = ss.run({
   //inputGenerator: "robots",
-  inputFile: "./ro.txt",
+  inputFile: "./robots.txt",
   //protocol: "http",
   hostname: "northstar.local",
   snapshotDirClean: true,
@@ -19,5 +19,5 @@ var result = ss.run({
 });
 
 console.log("END");
-console.log("results = "+result);
+console.log("result = "+result);
 return result;

@@ -1,9 +1,13 @@
 var assert = require("assert");
 var ss = require("../../../lib/html-snapshots");
 
-/*describe('Too Few Arguments', function(){
-  it('should present the Usage', function(){
-    assert(-1, "../../../lib/cli/html-snapshots 1 2 3 4");
+describe("html-snapshots library module", function() {
+
+  describe("No Arguments", function(){
+    it("should return false", function(){
+      var result = ss.run();
+      assert.equal(false, result);
+    });
   });
+
 });
-*/
