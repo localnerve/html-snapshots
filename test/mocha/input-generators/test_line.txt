@@ -1,0 +1,5 @@
+/
+/contact
+/services/carpets
+/services/test?arg=one
+/services/#hash
