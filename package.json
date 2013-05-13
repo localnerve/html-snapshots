@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "author": "Alex Grant <alex@localnerve.com>",
   "description": "A simple, flexible html snapshot tool for better SEO. Sources robots.txt and waits for your selector to become visible before taking a snapshot.",
-  "contributors": [ 
+  "contributors": [
     {
       "name": "Alex Grant",
       "email": "alex@localnerve.com"
-    } 
+    }
   ],
   "scripts": {
     "test": "mocha test/mocha/*.js"
@@ -23,17 +23,18 @@
     "snapshots",
     "selector"
   ],
-  "dependencies" : {
-    "phantomjs":  ">= 1.7.1"
+  "dependencies": {
+    "phantomjs": ">= 1.7.1"
   },
   "analyze": false,
   "devDependencies": {
-    "mocha":  "0.5.x"
+    "mocha": "0.5.x",
+    "grunt-contrib-jshint": "~0.4.3"
   },
   "bundledDependencies": [
     "union",
     "ecstatic"
-  ],  
+  ],
   "licenses": [
     {
       "type": "MIT",

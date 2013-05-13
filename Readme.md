@@ -9,16 +9,16 @@ You can reference PhantomJS globally or supply a path to a specific version.
 See [PhantomJS](http://phantomjs.org/) for more information.
 
 ## Overview
-html-snapshots is a flexible, extensible html snapshotting library and command line interface that uses PhantomJS to take html snapshots of your webpages as served from your website.
+html-snapshots is a flexible, extensible html snapshot library and command line interface that uses PhantomJS to take html snapshots of your webpages as served from your website.
 By default, it iterates the pages listed in your robots.txt file and produces an html snapshot for each allowed url. The html snapshot is only taken when a specified selector is detected visible in the output.
 
 ### Input Generators
-Input generators supply html-snapshots with the host-relative pages it needs to crawl to generate the snapshots for your site. The html-snapshot node module allows an input generator to be selected, but defaults to robots if none is supplied. Here are all the input generators currently supported:
+Input generators supply html-snapshots with the input it needs to crawl and generate the snapshots for your site. The html-snapshot node module allows an input generator to be selected, but defaults to robots if none is supplied. Here are all the input generators currently supported:
 + "robots", used for supplying input from a robots.txt file
 + "textfile", used for supplying input from a simple, line-oriented text file
-+ "json", used for supplying input from a json object
++ "array", used for supplying input from a javascript array
 
-Right now, just the these input generators are supported. However, the robots input generator should be useful, since robots.txt is the practical source of truth for listing your site's crawlable webpages. Let me know if you can think of better or more useful use case for supplying pages to html-snapshots.
+The robots input generator should be useful, since robots.txt is the practical source of truth for listing your site's crawlable webpages. Let me know if you can think of better or more useful use case for supplying input to html-snapshots.
 
 ### Parallel Processing
 html-snapshots processes all the pages in parallel and waits (by default) for all pages to finish processing before returning. Each page is run in a separate phantomJS process, which can be expensive and will not scale for very large websites. html-snapshots can be configured to not wait at all, but (currently) cannot be configured to not parallel process.
