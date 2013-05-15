@@ -34,8 +34,7 @@ describe("input-generator", function(){
     });
   });
 
-  var urls = 5; // dependent on how many urls are in the test files
-  var googleurls = 42;
+  var urls = 5; // dependent on how many urls are in the test files  
 
   var inputGenerators = [
     { name: "robots", input: factory.create("robots"), source: path.join(__dirname, "test_robots.txt") },
@@ -398,6 +397,8 @@ describe("input-generator", function(){
       });
     });
 
+/*  
+    var googleurls = 42;  
     if (inputGenerators[a].name === "robots") {
       describe ("robots", function(){        
         var gen = inputGenerators[a].input;
@@ -418,5 +419,6 @@ describe("input-generator", function(){
         });
       });
     }
+*/
   }
 });

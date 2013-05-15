@@ -15,5 +15,4 @@ var result = ss.run({
   //checkInterval: 250,
   //snapshotScript: "../lib/phantom/snapshotSingle.js",
   //phantomjs: "phantomjs",
-  //waitForAll: 110000
 });
