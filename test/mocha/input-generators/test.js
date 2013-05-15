@@ -36,6 +36,7 @@ describe("input-generator", function(){
 
   // dependent on how many urls are in the test files
   var urls = 5;
+  var googleurls = 42;
   var inputGenerators = [
     { name: "robots", input: factory.create("robots"), source: path.join(__dirname, "test_robots.txt") },
     { name: "textfile", input: factory.create("textfile"), source: path.join(__dirname, "test_line.txt") },
@@ -84,6 +85,44 @@ describe("input-generator", function(){
         assert.equal(true, result);
       });
 
+      // this test has to match the base generator defaults
+      it("base defaults should exist in input when requested", function(done){
+        var defaults = {
+          protocol: "http",
+          hostname: "localhost",
+          outputDir: "snapshots",
+          selector: "body",
+          timeout: 5000,
+          checkInterval: 250
+        };
+        var counter = { count: 0 };
+        var result = gen.run({ source: source }, (function(counter, defaults){
+            return function(input) {
+              //console.log("input.url = "+input.url);
+              //console.log("input.outputFile = "+input.outputFile);
+              //console.log("defaults.protocol = "+defaults.protocol);
+              //console.log("defaults.outputDir = "+defaults.outputDir);
+              //console.log("selector = "+ input.selector);
+              //console.log("timeout = "+input.timeout);
+              //console.log("checkInterval = "+input.checkInterval);
+              var re1 = new RegExp("^("+defaults.protocol+")://("+defaults.hostname+")/");
+              var re2 = new RegExp("^("+defaults.outputDir+")/");
+              var m1 = re1.exec(input.url);
+              var m2 = re2.exec(input.outputFile);
+              assert.equal(m1[1], defaults.protocol);
+              assert.equal(m1[2], defaults.hostname);
+              assert.equal(m2[1], defaults.outputDir);
+              assert.equal(defaults.selector, input.selector);
+              assert.equal(defaults.timeout, input.timeout);
+              assert.equal(defaults.checkInterval, input.checkInterval);
+              counter.count++;
+              if (counter.count===urls)
+                done();
+            };
+          })(counter, defaults)
+        );
+      });
+
       it("should accept scalar timeout and apply globally", function(done) {
         var counter = { count: 0 };
         var result = gen.run({ source: source, timeout: 1}, (function(counter){
@@ -100,9 +139,9 @@ describe("input-generator", function(){
       // requires source to contain specific urls
       it("should accept function timeout and apply per url", function(done) {
         var timeouts = {
-          "http://localhost/": 1,
-          "http://localhost/contact": 2,
-          "http://localhost/services/carpets": 3
+          "/": 1,
+          "/contact": 2,
+          "/services/carpets": 3
         };
         var timeout = function(url) {
           return timeouts[url];
@@ -110,7 +149,7 @@ describe("input-generator", function(){
         var counter = { count: 0 };
         var result = gen.run({ source: source, timeout: timeout }, (function(counter, timeouts){
           return function(input) {
-            assert.equal(input.timeout, timeouts[input.url]);
+            assert.equal(input.timeout, timeouts[input.__page]);
             counter.count++;
             if (counter.count===urls)
               done();
@@ -136,9 +175,9 @@ describe("input-generator", function(){
       // requires source to contain specific urls
       it("should accept function selector and apply per url", function(done) {
         var selectors = {
-          "http://localhost/": "1",
-          "http://localhost/contact": "2",
-          "http://localhost/services/carpets": "3"
+          "/": "1",
+          "/contact": "2",
+          "/services/carpets": "3"
         };
         var selector = function(url) {
           return selectors[url];
@@ -146,7 +185,7 @@ describe("input-generator", function(){
         var counter = { count: 0 };
         var result = gen.run({ source: source, selector: selector }, (function(counter, selectors){
           return function(input) {
-            assert.equal(input.selector, selectors[input.url]);
+            assert.equal(input.selector, selectors[input.__page]);
             counter.count++;
             //console.log("count = "+counter.count);
             if (counter.count===urls)
@@ -189,64 +228,6 @@ describe("input-generator", function(){
         assert.equal(true, result);
       });
 
-      it("should replace the default checkInterval in results", function(done) {
-        var checkInterval = 1;
-        var counter = { count: 0 };
-        var result = gen.run({ source: source, checkInterval: checkInterval }, (function(counter, checkInterval){
-          return function(input) {
-            assert.equal(input.checkInterval, checkInterval);
-            counter.count++;
-            if (counter.count===urls)
-              done();
-          };
-        })(counter, checkInterval));
-        assert.equal(true, result);
-      });
-
-      it("should contain the snapshot directory in output outfile spec", function(done){
-        var snapshotDir = "foo";
-        var counter = { count: 0 };
-        var result = gen.run({ source: source, outputDir: snapshotDir }, (function(counter, snapshotDir){
-          return function(input) {
-            var re = new RegExp("^("+snapshotDir+")/");
-              //console.log("outputFile ="+input.outputFile)
-            var match = re.exec(input.outputFile);
-            assert.equal(match[1], snapshotDir);
-            counter.count++;
-            if (counter.count===urls)
-              done();
-          };
-        })(counter, snapshotDir));
-        assert.equal(true, result);
-      });
-
-      // requires inputFile to contain specific urls
-      it("should contain the page structure in the output file spec", function(done) {
-        var snapshotDir = "foo";
-        var pages = {
-          "http://localhost/": "/",
-          "http://localhost/contact": "/contact",
-          "http://localhost/services/carpets": "/services/carpets",
-          "http://localhost/services/test%3Farg=one": "/services/test",
-          "http://localhost/services/%23hash": "/services"
-        };
-        var counter = { count: 0 };
-        var result = gen.run({ source: source, outputDir: snapshotDir }, (function(counter, snapshotDir, pages){
-          return function(input) {
-            //console.log("input url = "+input.url);
-            //console.log("test url = "+pages[input.url]);
-            //console.log("outputFile = "+input.outputFile);
-            var re = new RegExp("^("+snapshotDir+")("+pages[input.url]+")");
-            var match = re.exec(input.outputFile);
-            assert.equal(true, match[1] === snapshotDir && match[2] === pages[input.url]);
-            counter.count++;
-            if (counter.count===urls)
-              done();
-          };
-        })(counter, snapshotDir, pages));
-        assert.equal(true, result);
-      });
-
       it("should contain a port in the url if one is specified", function(done) {
         var port = 8080;
         var counter = { count: 0 };
@@ -278,6 +259,150 @@ describe("input-generator", function(){
         })(counter, auth));
         assert.equal(true, result);
       });
+
+      it("should replace the default checkInterval in results", function(done) {
+        var checkInterval = 1;
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, checkInterval: checkInterval }, (function(counter, checkInterval){
+          return function(input) {
+            //console.log("checkInterval="+input.checkInterval);
+            assert.equal(input.checkInterval, checkInterval);
+            counter.count++;
+            if (counter.count===urls)
+              done();
+          };
+        })(counter, checkInterval));
+        assert.equal(true, result);
+      });
+
+      it("should contain the snapshot directory in output outfile spec", function(done){
+        var snapshotDir = "foo";
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, outputDir: snapshotDir }, (function(counter, snapshotDir){
+          return function(input) {
+            var re = new RegExp("^("+snapshotDir+")/");
+            //console.log("dir - outputFile ="+input.outputFile);
+            var match = re.exec(input.outputFile);
+            assert.equal(match[1], snapshotDir);
+            counter.count++;
+            if (counter.count===urls)
+              done();
+          };
+        })(counter, snapshotDir));
+        assert.equal(true, result);
+      });
+
+      // requires inputFile to contain specific urls
+      it("should contain the page structure in the output file spec", function(done) {
+        var snapshotDir = "foo";
+        var pages = {
+          "/": "/",
+          "/contact": "/contact",
+          "/services/carpets": "/services/carpets",
+          "/services/test?arg=one": "/services/test",
+          "/services/#hash": "/services"
+        };
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, outputDir: snapshotDir }, (function(counter, snapshotDir, pages){
+          return function(input) {
+            //console.log("input url = "+input.url);
+            //console.log("test url = "+pages[input.__page);
+            //console.log("page - outputFile = "+input.outputFile);
+            var re = new RegExp("^("+snapshotDir+")("+pages[input.__page]+")");
+            var match = re.exec(input.outputFile);
+            assert.equal(true, match[1] === snapshotDir && match[2] === pages[input.__page]);
+            counter.count++;
+            if (counter.count===urls)
+              done();
+          };
+        })(counter, snapshotDir, pages));
+        assert.equal(true, result);
+      });
+
+      it("should lookup an outputPath (per page from a function) if one is specified", function(done){
+        var argOne = "/services/test/arg/one";
+        var hash = "/services/hash";
+        var pages = {
+          "/": "/",
+          "/contact": "/contact",
+          "/services/carpets": "/services/carpets",
+          "/services/test?arg=one": argOne,
+          "/services/#hash": hash
+        };
+        var counter = { count: 0 };
+        var result = gen.run({
+            source: source,
+            // just override two output paths
+            outputPath: (function(testData){
+              return function(p){
+                return testData[p];
+              };
+            })(pages)
+          }, (function(counter, pages){
+            return function(input) {
+              //console.log("hash - outputFile = "+input.outputFile);
+              var re = new RegExp("("+pages[input.__page]+")");
+              var match = re.exec(input.outputFile);
+              assert.equal(true, match[1] === pages[input.__page]);
+              counter.count++;
+              if (counter.count===urls)
+                done();
+            };
+          })(counter, pages)
+        );
+        assert.equal(true, result);
+      });
+
+      it("should lookup an outputPath (from a hash) and find it in the outputFile spec", function(done){
+        var argOne = "/services/test/arg/one";
+        var hash = "/services/hash";
+        var pages = {
+          "/": "/",
+          "/contact": "/contact",
+          "/services/carpets": "/services/carpets",
+          "/services/test?arg=one": argOne,
+          "/services/#hash": hash
+        };
+        var counter = { count: 0 };
+        var result = gen.run({
+            source: source,
+            // just override two output paths
+            outputPath: { "/services/test?arg=one": argOne, "/services/#hash": hash }
+          }, (function(counter, pages){
+            return function(input) {
+              //console.log("hash - outputFile = "+input.outputFile);
+              var re = new RegExp("("+pages[input.__page]+")");
+              var match = re.exec(input.outputFile);
+              assert.equal(true, match[1] === pages[input.__page]);
+              counter.count++;
+              if (counter.count===urls)
+                done();
+            };
+          })(counter, pages)
+        );
+        assert.equal(true, result);
+      });
     });
+
+    if (inputGenerators[a].name === "robots") {
+      describe ("robots", function(){        
+        var gen = inputGenerators[a].input;
+        var source = inputGenerators[a].source;
+
+        it("should produce input using a remote robots.txt", function(done){
+          var counter = { count: 0 };
+          var result = gen.run({ source: "http://www.google.com/robots.txt", hostname: "google.com" }, (function(counter){
+              return function(input) {
+                //console.log("google["+counter.count+"] - url = "+input.url);
+                //console.log("google["+counter.count+"] - outputFile = "+input.outputFile);
+                counter.count++;
+                if (counter.count === googleurls)
+                  done();
+              };
+            })(counter)
+          );
+        });
+      });
+    }
   }
 });

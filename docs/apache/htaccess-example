@@ -1,0 +1,8 @@
+#
+# Redirect _escaped_fragment_ requests to your snapshots directory
+#
+<ifModule mod_rewrite.c>
+  RewriteCond %{QUERY_STRING} ^_escaped_fragment_=(.*)$
+  RewriteCond %{REQUEST_URI} !^/snapshots [NC]
+  RewriteRule ^(.*)/?$ /snapshots/$1 [L]
+</ifModule>

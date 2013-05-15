@@ -12,7 +12,7 @@
   "scripts": {
     "test": "mocha test/mocha/*.js"
   },
-  "main": "./lib/snapshots",
+  "main": "./src/lib/html-snapshots",
   "repository": {
     "type": "git",
     "url": "https://github.com/localnerve/html-snapshots.git"
@@ -21,20 +21,19 @@
     "SEO",
     "html",
     "snapshots",
-    "selector"
+    "selector",
+    "ajax",
+    "SPA"
   ],
   "dependencies": {
     "phantomjs": ">= 1.7.1"
   },
   "analyze": false,
   "devDependencies": {
-    "mocha": "0.5.x",
+    "grunt": "~0.4.1",
+    "grunt-mocha-test": "~0.2.2",
     "grunt-contrib-jshint": "~0.4.3"
   },
-  "bundledDependencies": [
-    "union",
-    "ecstatic"
-  ],
   "licenses": [
     {
       "type": "MIT",

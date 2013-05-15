@@ -1,5 +1,5 @@
 /**
- * _common.js
+ * _base.js
  *
  * The common, base functionality of an input generator.
  *
@@ -9,39 +9,105 @@
  */
 
 var common = require("../common");
+var events = require("events");
+var path = require("path");
+var urlm = require("url");
+
+var emitter = new events.EventEmitter();
 
 var defaults = {
   protocol: "http",
   hostname: "localhost",
   port: undefined,
   auth: undefined,
+  outputPath: undefined,
   outputDir: "./snapshots",
-  selector: function(url) { return "body"; }, // definitely override this
-  timeout: function(url) { return 5000; },
+  selector: "body", // definitely override this
+  timeout: 5000,
   checkInterval: 250
 };
 
+// normalize the given object to a function
+// if the input is undefined, then a passthru function is generated.
+// if the input is a scalar, then a function returns that scalar.
+// if the input is an object, then a function receives a key and returns the property value if it exists, otherwise return the key (passthru).
+function normalize(obj) {
+  var result = obj;
+  if (typeof obj !== "function") {
+    if (typeof obj !== "undefined") {
+      if (typeof obj !== "object")
+        result = (function(value) { return function() { return value; }; })(obj);
+      else
+        result = (function(o) { return function(key) { if (o[key]===void 0) return key; else return o[key]; }; })(obj);
+    } else {
+      result = function(passthru) { return passthru; };
+    }
+  }
+  return result;
+}
+
+// to be used by input generators only
 module.exports = {
 
+  /**
+   * add specific items to the defaults
+   * call first or second
+   * not required if the generator has no defaults
+   */
+  defaults: function(specific) {
+    return common.extend(defaults, specific);
+  },
+
+  /**
+   * attach the listener
+   * call first or second
+   */
+  listener: function(listener) {
+    emitter.removeAllListeners("input");
+    emitter.on("input", listener);
+  },
+
+  /**
+   * run the generator
+   * supply the input generator function
+   * call second
+   */
   run: function(options, generator) {
     options = options || {};
 
     // ensure defaults are represented
     common.ensure(options, defaults);
 
-    // fix selector and timeout arguments if they are not functions.
-    if (typeof options.selector !== "function")
-      options.selector = (function(selector) { return function() { return selector; }; })(options.selector);
-    if (typeof options.timeout !== "function")
-      options.timeout = (function(timeout) { return function() { return timeout; }; })(options.timeout);
+    // normalize certain arguments if they are not functions.
+    options.selector = normalize(options.selector);
+    options.timeout = normalize(options.timeout);
+    options.outputPath = normalize(options.outputPath);
 
     return generator(options);
   },
 
   /**
-   * add specific items to the defaults
+   * generate the input
+   * emit the event that contains the input hash
+   * call third
    */
-  defaults: function(specific) {
-    return common.extend(defaults, specific);
+  input: function(options, page) {
+    emitter.emit("input", {
+      // map the input page to an outputPath
+      outputFile: path.join(options.outputDir, options.outputPath(page), "index.html"),
+      url: urlm.format({
+              protocol: options.protocol,
+              auth: options.auth,
+              hostname: options.hostname,
+              port: options.port,
+              pathname: page
+            }),
+      // map the input page to a selector
+      selector: options.selector(page),
+      // map the input page to a timeout
+      timeout: options.timeout(page),
+      checkInterval: options.checkInterval,
+      __page: page
+    });
   }
 };

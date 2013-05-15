@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var ss = require("../../src/lib/html-snapshots");
+var ss = require("../../../src/lib/html-snapshots");
 var result = ss.run({
   //input: "robots",
-  source: "http://ns1.localnerve.com/robots.txt",
+  //source: "http://ns1.localnerve.com/robots.txt",
   //protocol: "http",
   hostname: "northstar.local",
   outputDirClean: true,
