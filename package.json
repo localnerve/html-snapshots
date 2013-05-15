@@ -26,7 +26,8 @@
     "SPA"
   ],
   "dependencies": {
-    "phantomjs": ">= 1.7.1"
+    "phantomjs": ">= 1.7.1",
+    "xml2js": "~0.2.7"
   },
   "analyze": false,
   "devDependencies": {

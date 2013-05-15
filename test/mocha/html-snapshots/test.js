@@ -1,7 +1,7 @@
 var assert = require("assert");
 var path = require("path");
 var fs = require("fs");
-var ss = require("../../../src/lib/html-snapshots");
+var ss = require("../../../lib/html-snapshots");
 
 describe("html-snapshots", function() {
 
