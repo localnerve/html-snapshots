@@ -59,7 +59,7 @@ htmlSnapshots.run({
   selector: "#dynamic-content"
 });
 ```
-This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have to have a rewrite rule that reflects this same mapping when '_escaped_fragment_' shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
+This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have to have a rewrite rule that reflects this same mapping when `_escaped_fragment_` shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
 
 ### Example - Array
 ```javascript
@@ -111,7 +111,7 @@ Apart from the default settings, there are a number of options that can be speci
   + Specifies if html-snapshots should clean the output directory before it creates the snapshots.
 + `outputPath`
   + default: none
-  + Specifies per url overrides to the generated snapshot output path. The default output path for a snapshot file is rooted at outputDir, but is simply an echo of the input path - plus any arguments. Depending on your urls, your _escaped_fragment_ rewrite rule (see below), or the characters allowed in directory names in your environment, it might be necessary to use this option to change the output paths.
+  + Specifies per url overrides to the generated snapshot output path. The default output path for a snapshot file is rooted at outputDir, but is simply an echo of the input path - plus any arguments. Depending on your urls, your `_escaped_fragment_` rewrite rule (see below), or the characters allowed in directory names in your environment, it might be necessary to use this option to change the output paths.
 
       The value can be one of these *javascript types*:
 
