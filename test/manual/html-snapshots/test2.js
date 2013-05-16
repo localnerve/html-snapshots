@@ -10,6 +10,9 @@ var result = ss.run({
   hostname: "northstar.local",
   outputDirClean: true,
   outputDir: "./tmp/snapshots",
+  outputPath: {
+    "http://northstar.local/services/faq?arg=one": "services/faq/arg/one"
+  },
   selector: "#dynamic-content"//,
   //timeout: function(url) { return 5000; },
   //selector: "#dynamic-content",

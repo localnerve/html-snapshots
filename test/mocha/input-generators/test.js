@@ -51,6 +51,7 @@ describe("input-generator", function(){
     describe(inputGenerators[a].name, function() {
 
       var globalUrl = inputGenerators[a].name === "robots" || inputGenerators[a].name === "textfile";
+      var remoteUrl = inputGenerators[a].name === "robots" || inputGenerators[a].name === "sitemap";
       var gen = inputGenerators[a].input;
       var source = inputGenerators[a].source;
 
@@ -124,6 +125,7 @@ describe("input-generator", function(){
             };
           })(counter, defaults)
         );
+        assert(true, result);
       });
 
       it("should accept scalar timeout and apply globally", function(done) {
@@ -395,6 +397,15 @@ describe("input-generator", function(){
           "/services/test?arg=one": "/services/test",
           "/services/#hash": "/services"
         };
+        if (!globalUrl) {
+          pages = {
+            "http://northstar.local/": "/",
+            "http://northstar.local/contact": "/contact",
+            "http://northstar.local/services/carpets": "/services/carpets",
+            "http://northstar.local/services/test?arg=one": "/services/test",
+            "https://northstar.local/services/#hash": "/services"
+          };
+        }
         var counter = { count: 0 };
         var result = gen.run({ source: source, outputDir: snapshotDir }, (function(counter, snapshotDir, pages){
           return function(input) {
@@ -423,10 +434,18 @@ describe("input-generator", function(){
           "/services/test?arg=one": argOne,
           "/services/#hash": hash
         };
+        if (!globalUrl) {
+          pages = {
+            "http://northstar.local/": "/",
+            "http://northstar.local/contact": "/contact",
+            "http://northstar.local/services/carpets": "/services/carpets",
+            "http://northstar.local/services/test?arg=one": argOne,
+            "https://northstar.local/services/#hash": hash
+          };
+        }
         var counter = { count: 0 };
         var result = gen.run({
             source: source,
-            // just override two output paths
             outputPath: (function(testData){
               return function(p){
                 return testData[p];
@@ -434,10 +453,10 @@ describe("input-generator", function(){
             })(pages)
           }, (function(counter, pages){
             return function(input) {
-              //console.log("hash - outputFile = "+input.outputFile);
+              //console.log("function - outputFile = "+input.outputFile);
               var re = new RegExp("("+pages[input.__page]+")");
               var match = re.exec(input.outputFile);
-              assert.equal(true, match[1] === pages[input.__page]);
+              assert.equal(match[1], pages[input.__page]);
               counter.count++;
               if (counter.count===urls)
                 done();
@@ -450,6 +469,7 @@ describe("input-generator", function(){
       it("should lookup an outputPath (from a hash) and find it in the outputFile spec", function(done){
         var argOne = "/services/test/arg/one";
         var hash = "/services/hash";
+        var outputPath = { "/services/test?arg=one": argOne, "/services/#hash": hash };
         var pages = {
           "/": "/",
           "/contact": "/contact",
@@ -457,17 +477,28 @@ describe("input-generator", function(){
           "/services/test?arg=one": argOne,
           "/services/#hash": hash
         };
+        if (!globalUrl) {
+          outputPath = {
+            "http://northstar.local/services/test?arg=one": argOne,
+            "https://northstar.local/services/#hash": hash
+          };
+          pages = {
+            "http://northstar.local/": "/",
+            "http://northstar.local/contact": "/contact",
+            "http://northstar.local/services/carpets": "/services/carpets",
+            "http://northstar.local/services/test?arg=one": argOne,
+            "https://northstar.local/services/#hash": hash
+          };
+        }
         var counter = { count: 0 };
         var result = gen.run({
-            source: source,
-            // just override two output paths
-            outputPath: { "/services/test?arg=one": argOne, "/services/#hash": hash }
+            source: source, outputPath: outputPath
           }, (function(counter, pages){
             return function(input) {
               //console.log("hash - outputFile = "+input.outputFile);
               var re = new RegExp("("+pages[input.__page]+")");
               var match = re.exec(input.outputFile);
-              assert.equal(true, match[1] === pages[input.__page]);
+              assert.equal(match[1], pages[input.__page]);
               counter.count++;
               if (counter.count===urls)
                 done();
@@ -475,6 +506,48 @@ describe("input-generator", function(){
           })(counter, pages)
         );
         assert.equal(true, result);
+      });
+
+      it("should return false if a snapshot can't be created", function(done){
+        var argOne = "/services/test/arg/one";
+        var hash = "/services/hash";
+        var pages = {
+          //"/": "/",
+          "/contact": "/contact",
+          "/services/carpets": "/services/carpets",
+          "/services/test?arg=one": argOne,
+          "/services/#hash": hash
+        };
+        if (!globalUrl) {
+          pages = {
+            //"http://northstar.local/": "/",
+            "http://northstar.local/contact": "/contact",
+            "http://northstar.local/services/carpets": "/services/carpets",
+            "http://northstar.local/services/test?arg=one": argOne,
+            "https://northstar.local/services/#hash": hash
+          };
+        }
+        var counter = { count: 0 };
+        var result = gen.run({
+            source: source,
+            outputPath: (function(testData){
+              return function(p){
+                return testData[p];
+              };
+            })(pages)
+          }, (function(counter, pages){
+            return function(input) {
+              //console.log("function - outputFile = "+input.outputFile);
+              var re = new RegExp("("+pages[input.__page]+")");
+              var match = re.exec(input.outputFile);
+              assert.equal(match[1], pages[input.__page]);
+              counter.count++;
+              if (counter.count===urls-1)
+                done();
+            };
+          })(counter, pages)
+        );
+        assert.equal(false, result);
       });
 
     });
