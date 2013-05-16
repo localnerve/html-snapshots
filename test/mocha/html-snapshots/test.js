@@ -2,6 +2,8 @@ var assert = require("assert");
 var path = require("path");
 var fs = require("fs");
 var ss = require("../../../lib/html-snapshots");
+var server = require("../../server");
+var port = 8034;
 
 describe("html-snapshots", function() {
 
@@ -33,11 +35,22 @@ describe("html-snapshots", function() {
       assert.equal(true, fs.existsSync(options.snapshotScript) && result===false);
     });
 
-    // environment dependent, also depends on inputFile
-    it("real run", function(){
+    var urls = 3;
+    // environment dependent, also depends on inputFile and server files
+    it("real run, local robots file, local webserver", function(done){
+      var counter = { count: 0 };
+      server.start(path.join(__dirname, "./server"), port, (function(counter){
+        return function() {
+          counter.count++;
+          if (counter.count===urls) {
+            done();
+          }
+        };
+      })(counter));
       var options = {
         source: inputFile,
-        hostname: "northstar.local",
+        hostname: "localhost",
+        port: port,
         selector: "#dynamic-content",
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true

@@ -1,6 +1,9 @@
 var assert = require("assert");
 var path = require("path");
 var factory = require("../../../lib/input-generators");
+var common = require("../../../lib/common");
+var server = require("../../server");
+var port = 8033;
 
 describe("input-generator", function(){
 
@@ -34,16 +37,33 @@ describe("input-generator", function(){
     });
   });
 
-  var urls = 5; // dependent on how many urls are in the test files  
+  server.start(path.join(__dirname, "./server"), port);
 
+  var urls = 5; // dependent on how many urls are in the test files    
   var inputGenerators = [
-    { name: "robots", input: factory.create("robots"), source: path.join(__dirname, "test_robots.txt") },
+    {
+      name: "robots",
+      input: factory.create("robots"),
+      source: path.join(__dirname, "test_robots.txt"),
+      remote: "http://localhost:"+port+"/test_robots.txt"
+    },
     { name: "textfile", input: factory.create("textfile"), source: path.join(__dirname, "test_line.txt") },
     { name: "array", input: factory.create("array"), source:
       // same as urls in sitemap
-      ["http://northstar.local/", "http://northstar.local/contact", "http://northstar.local/services/carpets", "http://northstar.local/services/test?arg=one", "https://northstar.local/services/#hash"]
+      [
+        "http://northstar.local/",
+        "http://northstar.local/contact",
+        "http://northstar.local/services/carpets",
+        "http://northstar.local/services/test?arg=one",
+        "https://northstar.local/services/#hash"
+      ]
     },
-    { name: "sitemap", input: factory.create("sitemap"), source: path.join(__dirname, "test_sitemap.xml") }
+    {
+      name: "sitemap",
+      input: factory.create("sitemap"),
+      source: path.join(__dirname, "test_sitemap.xml"),
+      remote: "http://localhost:"+port+"/test_sitemap.xml"
+    }
   ];
 
   for (var a in inputGenerators) {
@@ -51,7 +71,7 @@ describe("input-generator", function(){
     describe(inputGenerators[a].name, function() {
 
       var globalUrl = inputGenerators[a].name === "robots" || inputGenerators[a].name === "textfile";
-      var remoteUrl = inputGenerators[a].name === "robots" || inputGenerators[a].name === "sitemap";
+      var remote = inputGenerators[a].remote;
       var gen = inputGenerators[a].input;
       var source = inputGenerators[a].source;
 
@@ -550,30 +570,21 @@ describe("input-generator", function(){
         assert.equal(false, result);
       });
 
-    });
-
-/*  
-    var googleurls = 42;  
-    if (inputGenerators[a].name === "robots") {
-      describe ("robots", function(){        
-        var gen = inputGenerators[a].input;
-        var source = inputGenerators[a].source;
-
-        it("should produce input using a remote robots.txt", function(done){
+      if (remote) {
+        it("should process remote source urls", function(done){
           var counter = { count: 0 };
-          var result = gen.run({ source: "http://www.google.com/robots.txt", hostname: "google.com" }, (function(counter){
-              return function(input) {
-                //console.log("google["+counter.count+"] - url = "+input.url);
-                //console.log("google["+counter.count+"] - outputFile = "+input.outputFile);
-                counter.count++;
-                if (counter.count === googleurls)
-                  done();
-              };
-            })(counter)
-          );
+          var result = gen.run({ source: remote }, function(input){
+            //console.log("remote = "+input.url);
+            assert(true, common.isUrl(input.url));
+            counter.count++;
+            if (counter.count===urls)
+              done();
+          });
+          assert(true, result);
         });
-      });
-    }
-*/
+      }
+
+    });
   }
+
 });

@@ -1,0 +1,17 @@
+User-agent: *
+
+Allow: /
+Allow: /contact
+Allow: /services/carpets
+Allow: /services/test?arg=one
+Allow: /services/#hash
+
+Disallow: /api/
+Disallow: /vendor/
+Disallow: /fonts/
+Disallow: /images/
+
+Sitemap: http://northstarcleaningme.com/sitemap.xml
+
+User-agent: ia_archiver
+Disallow: /
