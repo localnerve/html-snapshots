@@ -1,7 +1,12 @@
 {
   "name": "html-snapshots",
   "version": "0.1.0",
-  "author": "Alex Grant <alex@localnerve.com>",
+  "author": {
+    "name": "Alex Grant",
+    "email": "alex@localnerve.com",
+    "url": "http://www.localnerve.com"
+  },
+  "homepage": "https://github.com/localnerve/html-snapshots",  
   "description": "A selector-based html snapshot tool using PhantomJS that sources sitemap.xml, robots.txt, or arbitrary input",
   "contributors": [
     {
@@ -9,10 +14,13 @@
       "email": "alex@localnerve.com"
     }
   ],
+  "bugs": {
+    "url": "https://github.com/localnerve/html-snapshots/issues"
+  },
   "scripts": {
     "test": "mocha test/mocha/*"
   },
-  "main": "./src/lib/html-snapshots",
+  "main": "./lib/html-snapshots",
   "repository": {
     "type": "git",
     "url": "https://github.com/localnerve/html-snapshots.git"
@@ -23,13 +31,14 @@
     "snapshots",
     "selector",
     "ajax",
-    "SPA"
+    "SPA",
+    "robots.txt",
+    "sitemap.xml"
   ],
   "dependencies": {
     "phantomjs": ">= 1.7.1",
     "xml2js": "~0.2.7"
   },
-  "analyze": false,
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-mocha-test": "~0.2.2",
