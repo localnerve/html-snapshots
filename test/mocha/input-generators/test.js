@@ -40,18 +40,17 @@ describe("input-generator", function(){
     { name: "robots", input: factory.create("robots"), source: path.join(__dirname, "test_robots.txt") },
     { name: "textfile", input: factory.create("textfile"), source: path.join(__dirname, "test_line.txt") },
     { name: "array", input: factory.create("array"), source:
-      // same as urls in test files
-      ["/", "/contact", "/services/carpets", "/services/test?arg=one", "/services/#hash"]
+      // same as urls in sitemap
+      ["http://northstar.local/", "http://northstar.local/contact", "http://northstar.local/services/carpets", "http://northstar.local/services/test?arg=one", "https://northstar.local/services/#hash"]
     },
     { name: "sitemap", input: factory.create("sitemap"), source: path.join(__dirname, "test_sitemap.xml") }
   ];
 
   for (var a in inputGenerators) {
 
-    var globalUrl = inputGenerators[a].name === "robots" || inputGenerators[a].name === "line";
-
     describe(inputGenerators[a].name, function() {
 
+      var globalUrl = inputGenerators[a].name === "robots" || inputGenerators[a].name === "textfile";
       var gen = inputGenerators[a].input;
       var source = inputGenerators[a].source;
 
@@ -142,23 +141,60 @@ describe("input-generator", function(){
 
       // requires source to contain specific urls
       it("should accept function timeout and apply per url", function(done) {
-        var timeouts = {
+        var globalTimeouts = {
           "/": 1,
           "/contact": 2,
           "/services/carpets": 3
         };
-        var timeout = function(url) {
-          return timeouts[url];
+        var localTimeouts = {
+          "http://northstar.local": 1,
+          "http://northstar.local/contact": 2,
+          "http://northstar.local/services/carpets": 3
         };
+        var timeout = (function(timeouts){
+          return function(url) {
+            return timeouts[url];
+          };
+        })(globalUrl ? globalTimeouts : localTimeouts);
         var counter = { count: 0 };
         var result = gen.run({ source: source, timeout: timeout }, (function(counter, timeouts){
           return function(input) {
-            assert.equal(input.timeout, timeouts[input.__page]);
+            var testTimeout =
+                timeouts[input.__page] ? timeouts[input.__page] : undefined;
+            assert.equal(input.timeout, testTimeout);
             counter.count++;
             if (counter.count===urls)
               done();
           };
-        })(counter, timeouts));
+        })(counter, globalUrl ? globalTimeouts : localTimeouts));
+        assert.equal(result, true);
+      });
+
+      it("should accept object timeout and apply per url", function(done){
+        var globalTimeouts = {
+          "/": 1,
+          "/contact": 2,
+          "/services/carpets": 3,
+          "__default": 4
+        };
+        var localTimeouts = {
+          "http://northstar.local": 1,
+          "http://northstar.local/contact": 2,
+          "http://northstar.local/services/carpets": 3,
+          "__default": 4
+        };
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, timeout: globalUrl ? globalTimeouts : localTimeouts },
+          (function(counter, timeouts){
+            return function(input) {
+              var testTimeout =
+                  timeouts[input.__page] ? timeouts[input.__page] : timeouts.__default;
+              assert.equal(input.timeout, testTimeout);
+              counter.count++;
+              if (counter.count===urls)
+                done();
+            };
+          })(counter, globalUrl ? globalTimeouts : localTimeouts));
         assert.equal(result, true);
       });
 
@@ -178,99 +214,144 @@ describe("input-generator", function(){
 
       // requires source to contain specific urls
       it("should accept function selector and apply per url", function(done) {
-        var selectors = {
+        var globalSelectors = {
           "/": "1",
           "/contact": "2",
           "/services/carpets": "3"
         };
-        var selector = function(url) {
-          return selectors[url];
+        var localSelectors = {
+          "http://northstar.local/": "1",
+          "http://northstar.local/contact": "2",
+          "http://northstar.local/services/carpets": "3"
         };
+        var selector = (function(selectors){
+          return function(url) {
+            return selectors[url];
+          };
+        })(globalUrl ? globalSelectors : localSelectors);
         var counter = { count: 0 };
         var result = gen.run({ source: source, selector: selector }, (function(counter, selectors){
           return function(input) {
-            assert.equal(input.selector, selectors[input.__page]);
+            var testSelector =
+                selectors[input.__page] ? selectors[input.__page] : undefined;
+            //console.log("function - test selector = "+testSelector);
+            //console.log("function - input selector = "+input.selector);
+            assert.equal(input.selector, testSelector);
             counter.count++;
             //console.log("count = "+counter.count);
             if (counter.count===urls)
               done();
           };
-        })(counter, selectors));
+        })(counter, globalUrl ? globalSelectors : localSelectors));
         assert.equal(true, result);
       });
 
-      if (globalUrl) {
-        it("should replace the default hostname in results", function(done){
-          var hostname = "foo";
-          var counter = { count: 0 };
-          var result = gen.run({ source: source, hostname: hostname }, (function(counter, hostname){
+      it("should accept object selector and apply per url", function(done){
+        var globalSelectors = {
+          "/": "1",
+          "/contact": "2",
+          "/services/carpets": "3",
+          "__default": "50"
+        };
+        var localSelectors = {
+          "http://northstar.local/": "1",
+          "http://northstar.local/contact": "2",
+          "http://northstar.local/services/carpets": "3",
+          "__default": "50"
+        };
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, selector: globalUrl ? globalSelectors : localSelectors },
+          (function(counter, selectors){
             return function(input) {
-              //console.log("url="+input.url);
-              var re = new RegExp("http://("+hostname+")/");
-              var match = re.exec(input.url);
+              var testSelector =
+                selectors[input.__page] ? selectors[input.__page] : selectors.__default;
+              assert.equal(input.selector, testSelector);
+              counter.count++;
+              //console.log("count = "+counter.count);
+              if (counter.count===urls)
+                done();
+            };
+          })(counter, globalUrl ? globalSelectors : localSelectors));
+        assert.equal(true, result);
+      });
+
+      it("should replace the default hostname in results", function(done){
+        var hostname = "foo";
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, hostname: hostname }, (function(counter, hostname, globalUrl){
+          return function(input) {
+            //console.log("url="+input.url);
+            //console.log("in globalUrl="+globalUrl);
+            var re = new RegExp("http://("+hostname+")/");
+            var match = re.exec(input.url);
+            if (globalUrl)
               assert.equal(match[1], hostname);
-              counter.count++;
-              if (counter.count===urls)
-                done();
-            };
-          })(counter, hostname));
-          assert.equal(true, result);
-        });
-      }
+            else
+              assert.equal(match === null, true);
+            counter.count++;
+            if (counter.count===urls)
+              done();
+          };
+        })(counter, hostname, globalUrl));
+        assert.equal(true, result);
+      });
 
-      if (globalUrl) {
-        it("should replace the default protocol in results", function(done){
-          var proto = "https";
-          var counter = { count: 0 };
-          var result = gen.run({ source: source, protocol: proto }, (function(counter, proto){
-            return function(input) {
-              var re = new RegExp("^("+proto+")://");
-              var match = re.exec(input.url);
+      it("should replace the default protocol in results", function(done){
+        var proto = "file";
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, protocol: proto }, (function(counter, proto, globalUrl){
+          return function(input) {
+            var re = new RegExp("^("+proto+")://");
+            var match = re.exec(input.url);
+            if (globalUrl)
               assert.equal(match[1], proto);
-              counter.count++;
-              if (counter.count===urls)
-                done();
-            };
-          })(counter, proto));
-          assert.equal(true, result);
-        });
-      }
+            else
+              assert.equal(match === null, true);
+            counter.count++;
+            if (counter.count===urls)
+              done();
+          };
+        })(counter, proto, globalUrl));
+        assert.equal(true, result);
+      });
 
-      if (globalUrl) {
-        it("should contain a port in the url if one is specified", function(done) {
-          var port = 8080;
-          var counter = { count: 0 };
-          var result = gen.run({ source: source, port: port }, (function(counter, port){
-            return function(input) {
-              var re = new RegExp("^http://localhost\\:("+port+")/");
-              var match = re.exec(input.url);
+      it("should contain a port in the url if one is specified", function(done) {
+        var port = 8080;
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, port: port }, (function(counter, port, globalUrl){
+          return function(input) {
+            var re = new RegExp("^http://localhost\\:("+port+")/");
+            var match = re.exec(input.url);
+            if (globalUrl)
               assert.equal(match[1], port);
-              counter.count++;
-              if (counter.count===urls)
-                done();
-            };
-          })(counter, port));
-          assert.equal(true, result);
-        });
-      }
+            else
+              assert.equal(match === null, true);
+            counter.count++;
+            if (counter.count===urls)
+              done();
+          };
+        })(counter, port, globalUrl));
+        assert.equal(true, result);
+      });
 
-      if (globalUrl) {
-        it("should contain an auth in the url if one is specified", function(done) {
-          var auth = "user:pass";
-          var counter = { count: 0 };
-          var result = gen.run({ source: source, auth: auth }, (function(counter, auth){
-            return function(input) {
-              var re = new RegExp("^http://("+auth+")@localhost/");
-              var match = re.exec(input.url);
+      it("should contain an auth in the url if one is specified", function(done) {
+        var auth = "user:pass";
+        var counter = { count: 0 };
+        var result = gen.run({ source: source, auth: auth }, (function(counter, auth, globalUrl){
+          return function(input) {
+            var re = new RegExp("^http://("+auth+")@localhost/");
+            var match = re.exec(input.url);
+            if (globalUrl)
               assert.equal(match[1], auth);
-              counter.count++;
-              if (counter.count===urls)
-                done();
-            };
-          })(counter, auth));
-          assert.equal(true, result);
-        });
-      }
+            else
+              assert.equal(match ===null, true);
+            counter.count++;
+            if (counter.count===urls)
+              done();
+          };
+        })(counter, auth, globalUrl));
+        assert.equal(true, result);
+      });
 
       it("should replace the default checkInterval in results", function(done) {
         var checkInterval = 1;
@@ -395,6 +476,7 @@ describe("input-generator", function(){
         );
         assert.equal(true, result);
       });
+
     });
 
 /*  

@@ -2,31 +2,31 @@
 
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"> 
   <url>
-    <loc>http://northstarcleaningme.com/</loc>
+    <loc>http://northstar.local/</loc>
     <lastmod>2012-08-11T12:16:09+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>http://northstarcleaningme.com/contact</loc>
+    <loc>http://northstar.local/contact</loc>
     <lastmod>2012-11-02T02:53:40+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://northstarcleaningme.com/services/carpets</loc>
+    <loc>http://northstar.local/services/carpets</loc>
     <lastmod>2012-10-19T10:45:23+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://northstarcleaningme.com/services/test?arg=one</loc>
+    <loc>http://northstar.local/services/test?arg=one</loc>
     <lastmod>2012-10-19T10:20:36+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://northstarcleaningme.com/services/#hash</loc>
+    <loc>https://northstar.local/services/#hash</loc>
     <lastmod>2012-09-16T21:28:48+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
