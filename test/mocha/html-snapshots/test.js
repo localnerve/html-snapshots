@@ -11,6 +11,23 @@ describe("html-snapshots", function() {
     this.timeout(40000);
     var inputFile = path.join(__dirname, "./test_robots.txt");
 
+    /**
+     * Utility to recursively delete a folder
+     */
+    function deleteFolderRecursive(p) {
+      if(fs.existsSync(p)) {
+        fs.readdirSync(p).forEach(function(file,index){
+          var curPath = path.join(p,"/" + file);
+          if(fs.statSync(curPath).isDirectory()) { // recurse
+            deleteFolderRecursive(curPath);
+          } else { // delete file
+            fs.unlinkSync(curPath);
+          }
+        });
+        fs.rmdirSync(p);
+      }
+    }
+
     it("no arguments should return false", function(){
       assert.equal(false, ss.run());
     });
@@ -61,7 +78,7 @@ describe("html-snapshots", function() {
     });
 
     it("run async, all snapshots should succeed", function(done){
-      //var counter = { count: 0 };
+      deleteFolderRecursive(path.join(__dirname, "./tmp/snapshots"));
       var ourport = ++port;
       server.start(path.join(__dirname, "./server"), ourport);
       var options = {

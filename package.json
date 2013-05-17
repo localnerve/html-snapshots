@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -37,7 +37,8 @@
   ],
   "dependencies": {
     "phantomjs": ">= 1.7.1",
-    "xml2js": "~0.2.7"
+    "xml2js": "~0.2.7",
+    "mkdirp": "~0.3.5"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
