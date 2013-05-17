@@ -8,7 +8,7 @@ var port = 8034;
 describe("html-snapshots", function() {
 
   describe("library", function(){
-    this.timeout(10000);
+    this.timeout(40000);
     var inputFile = path.join(__dirname, "./test_robots.txt");
 
     it("no arguments should return false", function(){
@@ -39,7 +39,8 @@ describe("html-snapshots", function() {
     // environment dependent, also depends on inputFile and server files
     it("real run, local robots file, local webserver", function(done){
       var counter = { count: 0 };
-      server.start(path.join(__dirname, "./server"), port, (function(counter){
+      var ourport = port; // first one
+      server.start(path.join(__dirname, "./server"), ourport, (function(counter){
         return function() {
           counter.count++;
           if (counter.count===urls) {
@@ -50,7 +51,7 @@ describe("html-snapshots", function() {
       var options = {
         source: inputFile,
         hostname: "localhost",
-        port: port,
+        port: ourport,
         selector: "#dynamic-content",
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true
@@ -58,6 +59,58 @@ describe("html-snapshots", function() {
       var result = ss.run(options);
       assert.equal(true, result);
     });
-  });
 
+    it("run async, all snapshots should succeed", function(done){
+      //var counter = { count: 0 };
+      var ourport = ++port;
+      server.start(path.join(__dirname, "./server"), ourport);
+      var options = {
+        source: inputFile,
+        hostname: "localhost",
+        port: ourport,
+        selector: "#dynamic-content",
+        outputDir: path.join(__dirname, "./tmp/snapshots"),
+        outputDirClean: true
+      };
+      var result = ss.run(options, done);
+      assert.equal(true, result);
+    });
+
+    it("run asnyc, all snapshots should fail", function(done){
+      var ourport = ++port;
+      server.start(path.join(__dirname, "./server"), ourport);
+      var options = {
+        source: inputFile,
+        hostname: "localhost",
+        port: ourport,
+        selector: "#dynamic-content-notexist",
+        outputDir: path.join(__dirname, "./tmp/snapshots"),
+        outputDirClean: true
+      };
+      var result = ss.run(options, function(nonerr) {
+        assert.equal(false, nonerr);
+        setTimeout(done, 500);
+      });
+      assert.equal(true, result);
+    });
+
+    it("run async, one snapshot should fail", function(done){
+        var ourport = ++port;
+        server.start(path.join(__dirname, "./server"), ourport);
+        var options = {
+          source: inputFile,
+          hostname: "localhost",
+          port: ourport,
+          selector: { "__default": "#dynamic-content", "/": "#dynamic-content-notexist" },
+          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDirClean: true
+        };
+        var result = ss.run(options, function(nonerr) {
+          assert.equal(false, nonerr);
+          setTimeout(done, 500);
+        });
+        assert.equal(true, result);
+    });
+
+  });
 });

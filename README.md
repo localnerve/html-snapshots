@@ -74,6 +74,27 @@ htmlSnapshots.run({
 ```
 Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol.
 
+### Example - Completion callback, Remote robots.txt
+```javascript
+var htmlSnapshots = require('html-snapshots');
+htmlSnapshots.run({
+  input: "robots",      // default, so not required
+  source: "http://localhost/robots.txt",
+  hostname: "localhost",
+  outputDir: "./snapshots",
+  outputDirClean: true,  
+  selector: "#dynamic-content"
+}, function(nonError) { 
+  /* 
+     do something when html-snapshots has completed. 
+     nonError is undefined if all snapshots were generated successfully, 
+     otherwise it is false. 
+     This makes it compatible with mocha and grunt "done".
+  */ 
+});
+```
+Generates snapshots in the ./snapshots directory for paths found in http://localhost/robots.txt. Uses those paths against "localhost" to get the actual html output. Expects "#dynamic-content" to appear in all output. The callback function is called when snapshots concludes.
+
 ## Options
 Apart from the default settings, there are a number of options that can be specified. Options are specified in an object to the module's run method ``htmlSnapshots.run({ optionName: value })``.
 

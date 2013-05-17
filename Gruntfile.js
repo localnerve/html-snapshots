@@ -6,20 +6,16 @@ module.exports = function(grunt) {
 
     jshint: {
       all: [
-        "src/**/*.js"
+        "lib/**/*.js"
+        //, "test/mocha/**/*.js"
       ]
     },
 
     mochaTest: {
       normal: [ "test/mocha/**/*.js" ]
-    },
-    mochaTestConfig: {
-      normal: {
-        options: {
-        }
-      }
     }
   });
 
   grunt.registerTask("default", ["jshint", "mochaTest"]);
+  grunt.registerTask("lint", ["jshint"]);
 };
