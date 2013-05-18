@@ -1,4 +1,4 @@
-# [html-snapshots v0.1.2](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.1.3](http://github.com/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
 ## Overview
@@ -170,8 +170,8 @@ Apart from the default settings, there are a number of options that can be speci
   + default: this library's phantom/snapshotSingle.js file
   + Specifies the PhantomJS script to run to actually produce the snapshot. Override this if you need to supply your own snapshot script. This script is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
 + `phantomjs`
-  + default: "phantomjs", a reference to phantomjs installed globally.
-  + Specifies the phantomjs executable to run. Override this if you need to supply a path to a local version of phantomjs. So you can reference PhantomJS globally (by default), or supply a path to a specific version.
+  + default: A package local reference to phantomjs.
+  + Specifies the phantomjs executable to run. Override this if you want to supply a path to a different version of phantomjs. To reference PhantomJS globally in your environment, just use "phantomjs".
 See [PhantomJS](http://phantomjs.org/) for more information.
 
 ## Example Rewrite Rule
