@@ -8,7 +8,7 @@ var port = 8034;
 describe("html-snapshots", function() {
 
   describe("library", function(){
-    this.timeout(40000);
+    this.timeout(30000);
     var inputFile = path.join(__dirname, "./test_robots.txt");
 
     /**
@@ -77,7 +77,7 @@ describe("html-snapshots", function() {
       assert.equal(true, result);
     });
 
-    it("run async, all snapshots should succeed", function(done){
+    it("run async, all snapshots should succeed, no output dir pre-exists", function(done){
       deleteFolderRecursive(path.join(__dirname, "./tmp/snapshots"));
       var ourport = ++port;
       server.start(path.join(__dirname, "./server"), ourport);
@@ -93,6 +93,22 @@ describe("html-snapshots", function() {
       assert.equal(true, result);
     });
 
+    it("run async, all snapshots should succeed, output dir does pre-exist", function(done){
+      var ourport = ++port;
+      server.start(path.join(__dirname, "./server"), ourport);
+      var options = {
+        source: inputFile,
+        hostname: "localhost",
+        port: ourport,
+        selector: "#dynamic-content",
+        outputDir: path.join(__dirname, "./tmp/snapshots"),
+        outputDirClean: true
+      };
+      var result = ss.run(options, done);
+      assert.equal(true, result);
+    });
+
+/*
     it("run asnyc, all snapshots should fail", function(done){
       var ourport = ++port;
       server.start(path.join(__dirname, "./server"), ourport);
@@ -110,7 +126,7 @@ describe("html-snapshots", function() {
       });
       assert.equal(true, result);
     });
-
+*/
     it("run async, one snapshot should fail", function(done){
         var ourport = ++port;
         server.start(path.join(__dirname, "./server"), ourport);
