@@ -1,5 +1,7 @@
 var assert = require("assert");
 var path = require("path");
+var fs = require("fs");
+var mkdirp = require("mkdirp");
 var common = require("../../../lib/common");
 
 describe("common", function(){
@@ -89,5 +91,35 @@ describe("common", function(){
       var result = common.isUrl(path.join(__dirname, __filename));
       assert.equal(false, result);
     });
+  });
+
+  describe("deleteFolderRecursive", function(){
+
+    it("should work if no directory exists", function(){
+      var dir = "./does/not/exist";
+      assert.equal(false, fs.existsSync(dir));
+      common.deleteFolderRecursive(dir);
+      assert.equal(false, fs.existsSync(dir));
+    });
+
+    it("should work on relative path", function(){
+      var dir = "./does/not/exist";
+      assert.equal(false, fs.existsSync(dir));
+      mkdirp.sync(dir);
+      assert.equal(true, fs.existsSync(dir));
+      common.deleteFolderRecursive(dir);
+      assert.equal(false, fs.existsSync(dir));
+    });
+
+    it ("should work on a absolute path", function(){
+      var dir = "./does/not/exist";
+      var absDir = path.join(__dirname, dir);
+      assert.equal(false, fs.existsSync(absDir));
+      mkdirp.sync(absDir);
+      assert.equal(true, fs.existsSync(absDir));
+      common.deleteFolderRecursive(absDir);
+      assert.equal(false, fs.existsSync(absDir));
+    });
+
   });
 });
