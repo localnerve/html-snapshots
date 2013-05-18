@@ -18,7 +18,7 @@
     "url": "https://github.com/localnerve/html-snapshots/issues"
   },
   "scripts": {
-    "test": "mocha test/mocha/*"
+    "test": "grunt test"
   },
   "main": "./lib/html-snapshots",
   "repository": {
