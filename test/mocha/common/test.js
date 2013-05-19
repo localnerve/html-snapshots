@@ -94,25 +94,26 @@ describe("common", function(){
   });
 
   describe("deleteFolderRecursive", function(){
+    var dir = "./does/not/exist";
 
     it("should work if no directory exists", function(){
-      var dir = "./does/not/exist";
       assert.equal(false, fs.existsSync(dir));
       common.deleteFolderRecursive(dir);
       assert.equal(false, fs.existsSync(dir));
     });
 
     it("should work on relative path", function(){
-      var dir = "./does/not/exist";
       assert.equal(false, fs.existsSync(dir));
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
       common.deleteFolderRecursive(dir);
       assert.equal(false, fs.existsSync(dir));
+      var doesNot = dir.replace("exist", "");
+      fs.rmdirSync(doesNot);
+      fs.rmdirSync(path.join(".", doesNot.replace("not", "")));
     });
 
-    it ("should work on a absolute path", function(){
-      var dir = "./does/not/exist";
+    it("should work on a absolute path", function(){
       var absDir = path.join(__dirname, dir);
       assert.equal(false, fs.existsSync(absDir));
       mkdirp.sync(absDir);
@@ -121,5 +122,9 @@ describe("common", function(){
       assert.equal(false, fs.existsSync(absDir));
     });
 
+    it("should leave the path intact except the target folder", function(){
+      var doesNot = path.join(__dirname, dir).replace("exist", "");
+      assert.equal(true, fs.existsSync(doesNot));
+    });
   });
 });

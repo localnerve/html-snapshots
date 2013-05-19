@@ -77,7 +77,7 @@ describe("html-snapshots", function() {
       var result = ss.run(options, done);
       assert.equal(true, result);
     });
-/*
+
     it("run async, all snapshots should succeed, output dir does pre-exist", function(done){
       var ourport = ++port;
       server.start(path.join(__dirname, "./server"), ourport);
@@ -92,8 +92,7 @@ describe("html-snapshots", function() {
       var result = ss.run(options, done);
       assert.equal(true, result);
     });
-*/
-/*
+
     it("run asnyc, all snapshots should fail", function(done){
       var ourport = ++port;
       server.start(path.join(__dirname, "./server"), ourport);
@@ -111,8 +110,7 @@ describe("html-snapshots", function() {
       });
       assert.equal(true, result);
     });
-*/
-/*
+
     it("run async, one snapshot should fail", function(done){
         var ourport = ++port;
         server.start(path.join(__dirname, "./server"), ourport);
@@ -130,6 +128,6 @@ describe("html-snapshots", function() {
         });
         assert.equal(true, result);
     });
-*/
+
   });
 });
