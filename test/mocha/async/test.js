@@ -110,5 +110,28 @@ describe("async", function(){
       createFiles(files);
     });
 
+    it("should be able to start and watch files get created, none get created", function(done){
+      var notifier = new async.Notifier();
+      var dir = path.join(__dirname, "./files"),
+          files = [dir+"/one", dir+"/two", dir+"/three"],
+          timeout = 100;
+
+      common.deleteFolderRecursive(dir);
+
+      notifier.start(dir, function(nonErr){
+        assert.equal(nonErr, false);
+        done();
+      });
+
+      assert.equal(true, fs.existsSync(dir));
+
+      for (var i in files) {
+        notifier.add(files[i], timeout);
+      }
+
+      assert.equal(files.length, notifier.fileCount());
+      assert.equal(true, notifier.isStarted());
+    });
+
   });
 });

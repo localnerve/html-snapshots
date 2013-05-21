@@ -55,7 +55,7 @@ describe("html-snapshots", function() {
         hostname: "localhost",
         port: ourport,
         selector: "#dynamic-content",
-        outputDir: path.join(__dirname, "./tmp/snapshots"),
+        outputDir: path.join(__dirname, "./tmp/sync/snapshots"),
         outputDirClean: true
       };
       var result = ss.run(options);
