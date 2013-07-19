@@ -1,5 +1,6 @@
 node_modules
 npm-debug.log
 tmp
+report
 html-snapshots.sublime-project
 html-snapshots.sublime-workspace

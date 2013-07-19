@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -37,13 +37,13 @@
   ],
   "dependencies": {
     "phantomjs": ">= 1.7.1",
-    "xml2js": "~0.2.7",
-    "mkdirp": "~0.3.5"
+    "xml2js": "~0.2.7"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-mocha-test": "~0.2.2",
-    "grunt-contrib-jshint": "~0.4.3"
+    "grunt-contrib-jshint": "~0.4.3",
+    "mkdirp": "~0.3.5"
   },
   "licenses": [
     {
@@ -52,6 +52,6 @@
     }
   ],
   "engines": {
-    "node": ">= 0.10.5"
+    "node": ">= 0.10.0"
   }
 }

@@ -1,4 +1,4 @@
-# [html-snapshots v0.1.8](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.2.0](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://secure.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
@@ -8,6 +8,9 @@ html-snapshots is a flexible html snapshot library that uses PhantomJS to take h
 html-snapshots gets urls to process from either a robots.txt or sitemap.xml. Alternatively, you can supply an array with completely arbitrary urls, or a line delimited textfile with arbitrary host-relative paths.
 
 html-snapshots processes all the urls in parallel in their own PhantomJS processes.
+
+## Feedback
+Please [let me know how you are using this library](http://www.localnerve.com/blog/how-are-you-using-html-snapshots/) so I can make sure it evolves appropriately.
 
 ## Getting Started
 This library requires PhantomJS '>=1.7.1'
@@ -167,6 +170,9 @@ Apart from the default settings, there are a number of options that can be speci
 + `checkInterval`
   + default: 250 (milliseconds)
   + Specifies the rate at which the PhantomJS script checks to see if the selector is visible yet. Applies to all pages.
++ `pollInterval`
+  + default: 500 (milliseconds)
+  + Specifies the rate at which html-snapshots checks to see if a PhantomJS script has completed. Applies to all pages.
 + `snapshotScript`
   + default: this library's phantom/snapshotSingle.js file
   + Specifies the PhantomJS script to run to actually produce the snapshot. Override this if you need to supply your own snapshot script. This script is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
