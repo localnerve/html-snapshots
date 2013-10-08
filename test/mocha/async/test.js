@@ -17,6 +17,10 @@ describe("async", function(){
       }
     }
 
+    var mockInput = {
+      EOI: function() { return true; }
+    };
+
     it("should be able to call add and remove to effect the files (without starting)", function(done){
       var notifier = new async.Notifier();
       var timeout = 100;
@@ -53,7 +57,7 @@ describe("async", function(){
         // make sure this wasn't called because of a timeout/failure
         assert.equal(true, (Date.now() - start) < (timeout+notifier.padTimeoutFloor()));
         done(nonErr);
-      });
+      }, mockInput);
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -83,7 +87,7 @@ describe("async", function(){
         // make sure this wasn't called because of a timeout/failure
         assert.equal(true, (Date.now() - start) < (timeout+notifier.padTimeoutFloor()));
         done(nonErr);
-      });
+      }, mockInput);
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -117,7 +121,7 @@ describe("async", function(){
         // make sure this was a failure
         assert.strictEqual(nonErr, false);
         done();
-      });
+      }, mockInput);
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -149,7 +153,7 @@ describe("async", function(){
         assert.equal(true, (Date.now() - start) > (timeout+notifier.padTimeoutFloor()));
         assert.strictEqual(nonErr, false);
         done();
-      });
+      }, mockInput);
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -169,7 +173,7 @@ describe("async", function(){
           files = [dir+"/one", dir+"/two", dir+"/three"],
           timeout = 100;
 
-      var result = notifier.start(1, {});
+      var result = notifier.start(1, {}, mockInput);
 
       assert.equal(result, false);
       assert.equal(0, notifier.fileCount());
@@ -184,7 +188,7 @@ describe("async", function(){
 
       var result = notifier.start(-1, function(nonErr){
         assert.fail(nonErr, false, "should never have been called", "?");
-      });
+      }, mockInput);
 
       assert.equal(result, false);
       assert.equal(0, notifier.fileCount());
@@ -198,6 +202,21 @@ describe("async", function(){
           timeout = 100;
 
       var result = notifier.start(0, function(nonErr){
+        assert.fail(nonErr, false, "should never have been called", "?");
+      }, mockInput);
+
+      assert.equal(result, false);
+      assert.equal(0, notifier.fileCount());
+      assert.equal(false, notifier.isStarted());
+    });
+
+    it("should fail if no input generator is supplied", function() {
+      var notifier = new async.Notifier();
+      var dir = path.join(__dirname, "./files"),
+          files = [dir+"/one", dir+"/two", dir+"/three"],
+          timeout = 100;
+
+      var result = notifier.start(250, function(nonErr){
         assert.fail(nonErr, false, "should never have been called", "?");
       });
 

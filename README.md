@@ -1,4 +1,4 @@
-# [html-snapshots v0.2.0](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.2.1](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://secure.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
@@ -11,6 +11,9 @@ html-snapshots processes all the urls in parallel in their own PhantomJS process
 
 ## Feedback
 Please [let me know how you are using this library](http://www.localnerve.com/blog/how-are-you-using-html-snapshots/) so I can make sure it evolves appropriately.
+
+## Other Notes
+Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
 
 ## Getting Started
 This library requires PhantomJS '>=1.7.1'
@@ -191,3 +194,5 @@ Here is an example apache rewrite rule for rewriting \_escaped\_fragment\_ reque
 </ifModule>
 ```
 This serves the snapshot to any request for a url (perhaps found by a bot in your robots.txt or sitemap.xml) to the snapshot output directory. In this example, no translation is done, it simply takes the request as is and serves its corresponding snapshot. So a request for `http://mysite.com/?_escaped_fragment_=` serves the mysite.com homepage snapshot.
+
+You can also refer _escaped_fragment_ requests to your snapshots in ExpressJS with a similar method using [connect-modrewrite](https://github.com/tinganho/connect-modrewrite).
