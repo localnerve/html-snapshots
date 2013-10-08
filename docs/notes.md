@@ -1,4 +1,4 @@
-# Background and Other Notes for html-snapshots from the Author
+# Background and Other Notes
 
 ## Why does this exist?
 The whole reason I created this library was so that I could be certain I snapshotted the page when expected content arrived (not after some arbitrary time expiration). This way, I could be certain the snapshot actually contained the content I expect. 
