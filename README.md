@@ -195,4 +195,4 @@ Here is an example apache rewrite rule for rewriting \_escaped\_fragment\_ reque
 ```
 This serves the snapshot to any request for a url (perhaps found by a bot in your robots.txt or sitemap.xml) to the snapshot output directory. In this example, no translation is done, it simply takes the request as is and serves its corresponding snapshot. So a request for `http://mysite.com/?_escaped_fragment_=` serves the mysite.com homepage snapshot.
 
-You can also refer _escaped_fragment_ requests to your snapshots in ExpressJS with a similar method using [connect-modrewrite](https://github.com/tinganho/connect-modrewrite).
+You can also refer `_escaped_fragment_` requests to your snapshots in ExpressJS with a similar method using [connect-modrewrite](https://github.com/tinganho/connect-modrewrite).
