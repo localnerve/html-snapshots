@@ -3,6 +3,7 @@ var path = require("path");
 var fs = require("fs");
 var common = require("../../../lib/common");
 var ss = require("../../../lib/html-snapshots");
+var optHelp = require("../../helpers/options");
 var server = require("../../server");
 var port = 8034;
 
@@ -13,11 +14,11 @@ describe("html-snapshots", function() {
     var inputFile = path.join(__dirname, "./test_robots.txt");
 
     it("no arguments should return false", function(){
-      assert.equal(false, ss.run());
+      assert.equal(false, ss.run(optHelp.decorate({})));
     });
 
     it("invalid source should return false", function(){
-      assert.equal(false, ss.run({ source: "./bogus/file.txt" }));
+      assert.equal(false, ss.run(optHelp.decorate({ source: "./bogus/file.txt" })));
     });
 
     it("should clean the output directory when specified", function(){
@@ -27,13 +28,13 @@ describe("html-snapshots", function() {
         fs.mkdirSync(dir);
       fs.writeFileSync(file, "some data");
       assert.equal(true, fs.existsSync(dir));
-      var result = ss.run({ source: "./bogus/file.txt", outputDir: dir, outputDirClean: true });
+      var result = ss.run(optHelp.decorate({ source: "./bogus/file.txt", outputDir: dir, outputDirClean: true }));
       assert.equal(true, (fs.existsSync(dir) || fs.existsSync(file))===false && result===false);
     });
 
     it("snapshot script should exist", function(){
       var options = { source: "./bogus/file.txt" };
-      var result = ss.run(options);
+      var result = ss.run(optHelp.decorate(options));
       assert.equal(true, fs.existsSync(options.snapshotScript) && result===false);
     });
 
@@ -58,7 +59,7 @@ describe("html-snapshots", function() {
         outputDir: path.join(__dirname, "./tmp/sync/snapshots"),
         outputDirClean: true
       };
-      var result = ss.run(options);
+      var result = ss.run(optHelp.decorate(options));
       assert.equal(true, result);
     });
 
@@ -74,7 +75,7 @@ describe("html-snapshots", function() {
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true
       };
-      var result = ss.run(options, done);
+      var result = ss.run(optHelp.decorate(options), done);
       assert.equal(true, result);
     });
 
@@ -89,7 +90,7 @@ describe("html-snapshots", function() {
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true
       };
-      var result = ss.run(options, done);
+      var result = ss.run(optHelp.decorate(options), done);
       assert.equal(true, result);
     });
 
@@ -104,7 +105,7 @@ describe("html-snapshots", function() {
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true
       };
-      var result = ss.run(options, function(nonerr) {
+      var result = ss.run(optHelp.decorate(options), function(nonerr) {
         assert.equal(false, nonerr);
         setTimeout(done, 500);
       });
@@ -122,7 +123,7 @@ describe("html-snapshots", function() {
           outputDir: path.join(__dirname, "./tmp/snapshots"),
           outputDirClean: true
         };
-        var result = ss.run(options, function(nonerr) {
+        var result = ss.run(optHelp.decorate(options), function(nonerr) {
           assert.equal(false, nonerr);
           setTimeout(done, 500);
         });

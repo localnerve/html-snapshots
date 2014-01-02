@@ -3,6 +3,7 @@ var path = require("path");
 var factory = require("../../../lib/input-generators");
 var common = require("../../../lib/common");
 var server = require("../../server");
+var options = require("../../helpers/options");
 var port = 8033;
 
 describe("input-generator", function(){
@@ -85,7 +86,7 @@ describe("input-generator", function(){
 
       // requires inputFile not found
       it("should produce no input for defaults and a bogus file", function(done) {
-        var result = gen.run({ source: "./bogus/file.txt" }, function(input){
+        var result = gen.run(options.decorate({ source: "./bogus/file.txt" }), function(input){
           //console.log(input);
           assert.equal(true, false);
         });
@@ -96,7 +97,7 @@ describe("input-generator", function(){
       // requires source to have 'urls' valid entries
       it("should produce input with all defaults and a valid source", function(done) {
         var counter = { count: 0 };
-        var result = gen.run({ source: source }, (function(counter) {
+        var result = gen.run(options.decorate({ source: source }), (function(counter) {
             return function() {
               counter.count++;
               if (counter.count===urls)
@@ -118,7 +119,7 @@ describe("input-generator", function(){
           checkInterval: 250
         };
         var counter = { count: 0 };
-        var result = gen.run({ source: source }, (function(counter, defaults){
+        var result = gen.run(options.decorate({ source: source }), (function(counter, defaults){
             return function(input) {
               //console.log("input.url = "+input.url);
               //console.log("input.outputFile = "+input.outputFile);
@@ -150,7 +151,7 @@ describe("input-generator", function(){
 
       it("should accept scalar timeout and apply globally", function(done) {
         var counter = { count: 0 };
-        var result = gen.run({ source: source, timeout: 1}, (function(counter){
+        var result = gen.run(options.decorate({ source: source, timeout: 1}), (function(counter){
           return function(input) {
             assert.equal(1, input.timeout);
             counter.count++;
@@ -179,7 +180,7 @@ describe("input-generator", function(){
           };
         })(globalUrl ? globalTimeouts : localTimeouts);
         var counter = { count: 0 };
-        var result = gen.run({ source: source, timeout: timeout }, (function(counter, timeouts){
+        var result = gen.run(options.decorate({ source: source, timeout: timeout }), (function(counter, timeouts){
           return function(input) {
             var testTimeout =
                 timeouts[input.__page] ? timeouts[input.__page] : undefined;
@@ -206,7 +207,7 @@ describe("input-generator", function(){
           "__default": 4
         };
         var counter = { count: 0 };
-        var result = gen.run({ source: source, timeout: globalUrl ? globalTimeouts : localTimeouts },
+        var result = gen.run(options.decorate({ source: source, timeout: globalUrl ? globalTimeouts : localTimeouts }),
           (function(counter, timeouts){
             return function(input) {
               var testTimeout =
@@ -223,7 +224,7 @@ describe("input-generator", function(){
       it("should accept scalar selector and apply globally", function(done) {
         var selector = "foo";
         var counter = { count: 0 };
-        var result = gen.run({ source: source, selector: selector }, (function(counter, selector){
+        var result = gen.run(options.decorate({ source: source, selector: selector }), (function(counter, selector){
           return function(input) {
             assert.equal(input.selector, selector);
             counter.count++;
@@ -252,7 +253,7 @@ describe("input-generator", function(){
           };
         })(globalUrl ? globalSelectors : localSelectors);
         var counter = { count: 0 };
-        var result = gen.run({ source: source, selector: selector }, (function(counter, selectors){
+        var result = gen.run(options.decorate({ source: source, selector: selector }), (function(counter, selectors){
           return function(input) {
             var testSelector =
                 selectors[input.__page] ? selectors[input.__page] : undefined;
@@ -282,7 +283,7 @@ describe("input-generator", function(){
           "__default": "50"
         };
         var counter = { count: 0 };
-        var result = gen.run({ source: source, selector: globalUrl ? globalSelectors : localSelectors },
+        var result = gen.run(options.decorate({ source: source, selector: globalUrl ? globalSelectors : localSelectors }),
           (function(counter, selectors){
             return function(input) {
               var testSelector =
@@ -300,7 +301,7 @@ describe("input-generator", function(){
       it("should replace the default hostname in results", function(done){
         var hostname = "foo";
         var counter = { count: 0 };
-        var result = gen.run({ source: source, hostname: hostname }, (function(counter, hostname, globalUrl){
+        var result = gen.run(options.decorate({ source: source, hostname: hostname }), (function(counter, hostname, globalUrl){
           return function(input) {
             //console.log("url="+input.url);
             //console.log("in globalUrl="+globalUrl);
@@ -321,7 +322,7 @@ describe("input-generator", function(){
       it("should replace the default protocol in results", function(done){
         var proto = "file";
         var counter = { count: 0 };
-        var result = gen.run({ source: source, protocol: proto }, (function(counter, proto, globalUrl){
+        var result = gen.run(options.decorate({ source: source, protocol: proto }), (function(counter, proto, globalUrl){
           return function(input) {
             var re = new RegExp("^("+proto+")://");
             var match = re.exec(input.url);
@@ -340,7 +341,7 @@ describe("input-generator", function(){
       it("should contain a port in the url if one is specified", function(done) {
         var port = 8080;
         var counter = { count: 0 };
-        var result = gen.run({ source: source, port: port }, (function(counter, port, globalUrl){
+        var result = gen.run(options.decorate({ source: source, port: port }), (function(counter, port, globalUrl){
           return function(input) {
             var re = new RegExp("^http://localhost\\:("+port+")/");
             var match = re.exec(input.url);
@@ -359,7 +360,7 @@ describe("input-generator", function(){
       it("should contain an auth in the url if one is specified", function(done) {
         var auth = "user:pass";
         var counter = { count: 0 };
-        var result = gen.run({ source: source, auth: auth }, (function(counter, auth, globalUrl){
+        var result = gen.run(options.decorate({ source: source, auth: auth }), (function(counter, auth, globalUrl){
           return function(input) {
             var re = new RegExp("^http://("+auth+")@localhost/");
             var match = re.exec(input.url);
@@ -378,7 +379,7 @@ describe("input-generator", function(){
       it("should replace the default checkInterval in results", function(done) {
         var checkInterval = 1;
         var counter = { count: 0 };
-        var result = gen.run({ source: source, checkInterval: checkInterval }, (function(counter, checkInterval){
+        var result = gen.run(options.decorate({ source: source, checkInterval: checkInterval }), (function(counter, checkInterval){
           return function(input) {
             //console.log("checkInterval="+input.checkInterval);
             assert.equal(input.checkInterval, checkInterval);
@@ -393,7 +394,7 @@ describe("input-generator", function(){
       it("should contain the snapshot directory in output outfile spec", function(done){
         var snapshotDir = "foo";
         var counter = { count: 0 };
-        var result = gen.run({ source: source, outputDir: snapshotDir }, (function(counter, snapshotDir){
+        var result = gen.run(options.decorate({ source: source, outputDir: snapshotDir }), (function(counter, snapshotDir){
           return function(input) {
             var re = new RegExp("^("+snapshotDir+")/");
             //console.log("dir - outputFile ="+input.outputFile);
@@ -427,7 +428,7 @@ describe("input-generator", function(){
           };
         }
         var counter = { count: 0 };
-        var result = gen.run({ source: source, outputDir: snapshotDir }, (function(counter, snapshotDir, pages){
+        var result = gen.run(options.decorate({ source: source, outputDir: snapshotDir }), (function(counter, snapshotDir, pages){
           return function(input) {
             //console.log("page - input url = "+input.url);
             //console.log("page - test url = "+pages[input.__page]);
@@ -464,14 +465,14 @@ describe("input-generator", function(){
           };
         }
         var counter = { count: 0 };
-        var result = gen.run({
+        var result = gen.run(options.decorate({
             source: source,
             outputPath: (function(testData){
               return function(p){
                 return testData[p];
               };
             })(pages)
-          }, (function(counter, pages){
+          }), (function(counter, pages){
             return function(input) {
               //console.log("function - outputFile = "+input.outputFile);
               var re = new RegExp("("+pages[input.__page]+")");
@@ -511,9 +512,9 @@ describe("input-generator", function(){
           };
         }
         var counter = { count: 0 };
-        var result = gen.run({
+        var result = gen.run(options.decorate({
             source: source, outputPath: outputPath
-          }, (function(counter, pages){
+          }), (function(counter, pages){
             return function(input) {
               //console.log("hash - outputFile = "+input.outputFile);
               var re = new RegExp("("+pages[input.__page]+")");
@@ -548,14 +549,14 @@ describe("input-generator", function(){
           };
         }
         var counter = { count: 0 };
-        var result = gen.run({
+        var result = gen.run(options.decorate({
             source: source,
             outputPath: (function(testData){
               return function(p){
                 return testData[p];
               };
             })(pages)
-          }, (function(counter, pages){
+          }), (function(counter, pages){
             return function(input) {
               //console.log("function - outputFile = "+input.outputFile);
               var re = new RegExp("("+pages[input.__page]+")");
@@ -573,7 +574,7 @@ describe("input-generator", function(){
       if (remote) {
         it("should process remote source urls", function(done){
           var counter = { count: 0 };
-          var result = gen.run({ source: remote }, function(input){
+          var result = gen.run(options.decorate({ source: remote }), function(input){
             //console.log("remote = "+input.url);
             assert(true, common.isUrl(input.url));
             counter.count++;
