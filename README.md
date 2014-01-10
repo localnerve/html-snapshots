@@ -1,4 +1,4 @@
-# [html-snapshots v0.2.1](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.2.2](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://secure.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
@@ -30,20 +30,21 @@ If you are interested in the grunt task that uses this library, check out [grunt
 ### Simple example
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
+var result = htmlSnapshots.run({
   source: "path/to/robots.txt",
   hostname: "exampledomain.com",
   outputDir: "./snapshots",
   outputDirClean: true,
   selector: "#dynamic-content"
 });
+// result === true if snapshots were successfully started
 ```
 This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site. Once this selector is visible in a page, the html snapshot is taken.
 
 ### Example - Per page selectors and timeouts
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
+var result = htmlSnapshots.run({
   input: "sitemap",
   source: "path/to/sitemap.xml",
   outputDir: "./snapshots",
@@ -51,13 +52,14 @@ htmlSnapshots.run({
   selector: { "http://mysite.com": "#home-content", "__default": "#dynamic-content" },
   timeout: { "http://mysite.com/superslowpage", 6000, "__default": 5000 }
 });
+// result === true if snapshots were successfully started
 ```
 This reads the urls from your sitemap.xml and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except the home page, where "#home-content" appears (the appearance of a selector in the output indicates that the page is ready for a snapshot). Also, html-snapshots uses the default timeout (5000 ms) on all pages except http://mysite.com/superslowpage, where it waits 6000 ms.
 
 ### Example - Per page special output paths
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
+var result = htmlSnapshots.run({
   input: "sitemap",
   source: "path/to/sitemap.xml",
   outputDir: "./snapshots",
@@ -65,39 +67,48 @@ htmlSnapshots.run({
   outputPath: { "http://mysite.com/services/?page=1": "services/page/1", "http://mysite.com/services/?page=2": "services/page/2" },
   selector: "#dynamic-content"
 });
+// result === true if snapshots were successfully started
 ```
 This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have to have a rewrite rule that reflects this same mapping when `_escaped_fragment_` shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
 
 ### Example - Array
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
+var result = htmlSnapshots.run({
   input: "array",
   source: ["http://mysite.com", "http://mysite.com/contact", "http://mysite.com:82/special"],
   outputDir: "./snapshots",
   outputDirClean: true,  
   selector: "#dynamic-content"
 });
+// result === true if snapshots were successfully started
 ```
 Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol.
 
 ### Example - Completion callback, Remote robots.txt
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
+var result = htmlSnapshots.run({
   input: "robots",      // default, so not required
   source: "http://localhost/robots.txt",
   hostname: "localhost",
   outputDir: "./snapshots",
   outputDirClean: true,  
   selector: "#dynamic-content"
-}, function(nonError) { 
+}, function(nonError, snapshotsCompleted) { 
   /* 
-     do something when html-snapshots has completed. 
-     nonError is undefined if all snapshots were generated successfully, 
-     otherwise it is false. 
-     This makes it compatible with mocha and grunt "done".
-  */ 
+     Do something when html-snapshots has completed.
+
+       nonError is undefined if all snapshots were generated successfully, otherwise it is false. 
+         This makes it compatible with mocha and grunt "done".
+
+       snapshotsCompleted is an array of normalized paths to output files that contain completed snapshots.
+         If no snapshots are completed, this is an empty array.
+         You can use snapshotsCompleted to populate shared storage if you are running in a scalable server environment with an ephemeral file system:
+          if (result && typeof nonError === "undefined") {
+            // safe to use snapshotsCompleted to update shared storage
+          }
+  */
 });
 ```
 Generates snapshots in the ./snapshots directory for paths found in http://localhost/robots.txt. Uses those paths against "localhost" to get the actual html output. Expects "#dynamic-content" to appear in all output. The callback function is called when snapshots concludes.
@@ -195,4 +206,7 @@ Here is an example apache rewrite rule for rewriting \_escaped\_fragment\_ reque
 ```
 This serves the snapshot to any request for a url (perhaps found by a bot in your robots.txt or sitemap.xml) to the snapshot output directory. In this example, no translation is done, it simply takes the request as is and serves its corresponding snapshot. So a request for `http://mysite.com/?_escaped_fragment_=` serves the mysite.com homepage snapshot.
 
-You can also refer `_escaped_fragment_` requests to your snapshots in ExpressJS with a similar method using [connect-modrewrite](https://github.com/tinganho/connect-modrewrite).
+You can also refer `_escaped_fragment_` requests to your snapshots in ExpressJS with a similar method using [connect-modrewrite](https://github.com/tinganho/connect-modrewrite) middleware. Here is an analogous example of a connect-modrewrite rule:
+```javascript
+  '^(.*)\\?_escaped_fragment_=.*$ /snapshots/$1 [NC L]'
+```

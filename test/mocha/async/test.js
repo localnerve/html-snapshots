@@ -53,9 +53,23 @@ describe("async", function(){
       common.deleteFolderRecursive(dir);
 
       var start;
-      notifier.start(timeout / pollCount, function(nonErr) {
+      notifier.start(timeout / pollCount, function(nonErr, filesDone) {
         // make sure this wasn't called because of a timeout/failure
         assert.equal(true, (Date.now() - start) < (timeout+notifier.padTimeoutFloor()));
+        
+        // compare filesDone to input files
+        if (typeof nonErr === "undefined") {
+          files.sort();
+          filesDone.sort();
+          assert.deepEqual(files, filesDone);
+
+          // audit paths
+          console.log("filesDone paths:");
+          for (var k=0; k < filesDone.length; k++) {
+            console.log(filesDone);
+          }
+        }
+
         done(nonErr);
       }, mockInput);
 
@@ -76,6 +90,7 @@ describe("async", function(){
     it("should be able to start and watch files get created, remove one from the list", function(done){
       var notifier = new async.Notifier();
       var dir = path.join(__dirname, "./files"),
+          filesToDo = [],
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
           timeout = 100;
@@ -83,9 +98,17 @@ describe("async", function(){
       common.deleteFolderRecursive(dir);
 
       var start;
-      notifier.start(timeout / pollCount, function(nonErr) {
+      notifier.start(timeout / pollCount, function(nonErr, filesDone) {
         // make sure this wasn't called because of a timeout/failure
         assert.equal(true, (Date.now() - start) < (timeout+notifier.padTimeoutFloor()));
+
+        // compare filesDone to input files
+        if (typeof nonErr === "undefined") {
+          filesToDo.sort();
+          filesDone.sort();
+          assert.deepEqual(filesToDo, filesDone);
+        }
+
         done(nonErr);
       }, mockInput);
 
@@ -97,6 +120,7 @@ describe("async", function(){
       }
 
       notifier.remove(files[2]);
+      filesToDo.push(files[0], files[1]);
 
       assert.equal(files.length-1, notifier.fileCount());
       assert.equal(true, notifier.isStarted());
@@ -109,17 +133,28 @@ describe("async", function(){
       var notifier = new async.Notifier();
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
+          filesToDo = files.slice(),
           pollCount = 4,
           timeout = 100;
 
       common.deleteFolderRecursive(dir);
 
       var start;
-      notifier.start(timeout / pollCount, function(nonErr) {
+      notifier.start(timeout / pollCount, function(nonErr, filesDone) {
         // make sure this was called because of a failure
         assert.equal(true, (Date.now() - start) > (timeout+notifier.padTimeoutFloor()));
         // make sure this was a failure
         assert.strictEqual(nonErr, false);
+
+        // compare filesDone to intended filesToDo - should be different
+        filesToDo.sort();
+        filesDone.sort();
+        assert.notDeepEqual(filesToDo, filesDone);
+
+        // compare filesDone to files - should be the same
+        files.sort();
+        assert.deepEqual(files, filesDone);
+
         done();
       }, mockInput);
 
@@ -133,7 +168,7 @@ describe("async", function(){
       assert.equal(files.length, notifier.fileCount());
       assert.equal(true, notifier.isStarted());
 
-      files.splice(1, 1);
+      files.splice(1, 1); // remove the second element
 
       start = Date.now();
       createFiles(files);
@@ -149,9 +184,10 @@ describe("async", function(){
       common.deleteFolderRecursive(dir);
 
       var start;
-      notifier.start(timeout / pollCount, function(nonErr){
+      notifier.start(timeout / pollCount, function(nonErr, filesDone){
         assert.equal(true, (Date.now() - start) > (timeout+notifier.padTimeoutFloor()));
         assert.strictEqual(nonErr, false);
+        assert.equal(0, filesDone.length);
         done();
       }, mockInput);
 

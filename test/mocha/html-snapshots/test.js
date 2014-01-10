@@ -73,7 +73,8 @@ describe("html-snapshots", function() {
         port: ourport,
         selector: "#dynamic-content",
         outputDir: path.join(__dirname, "./tmp/snapshots"),
-        outputDirClean: true
+        outputDirClean: true,
+        timeout: 6000
       };
       var result = ss.run(optHelp.decorate(options), done);
       assert.equal(true, result);
