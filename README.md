@@ -99,12 +99,14 @@ var result = htmlSnapshots.run({
   /* 
      Do something when html-snapshots has completed.
 
-       nonError is undefined if all snapshots were generated successfully, otherwise it is false. 
-         This makes it compatible with mocha and grunt "done".
+       nonError is undefined if all snapshots were generated successfully,
+       otherwise it is false. This makes it compatible with mocha and grunt "done".
 
-       snapshotsCompleted is an array of normalized paths to output files that contain completed snapshots.
+       snapshotsCompleted is an array of normalized paths to output files that 
+       contain completed snapshots.
          If no snapshots are completed, this is an empty array.
-         You can use snapshotsCompleted to populate shared storage if you are running in a scalable server environment with an ephemeral file system:
+         You can use snapshotsCompleted to populate shared storage if you are running
+         in a scalable server environment with an ephemeral file system:
           if (result && typeof nonError === "undefined") {
             // safe to use snapshotsCompleted to update shared storage
           }
