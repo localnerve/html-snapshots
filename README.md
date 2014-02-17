@@ -14,6 +14,7 @@ Please [let me know how you are using this library](http://www.localnerve.com/bl
 
 ## More Information
 Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
+
 Here is [an article](http://github.com/localnerve/html-snapshots/blob/master/docs/example-heroku-redis.md) with code of a real usage example.
 
 ## Getting Started
