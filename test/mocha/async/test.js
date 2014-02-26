@@ -2,7 +2,7 @@ var assert = require("assert");
 var fs = require("fs");
 var path = require("path");
 var mkdirp = require("mkdirp");
-var common = require("../../../lib/common");
+var rimraf = require("rimraf").sync;
 var async = require("../../../lib/async");
 
 describe("async", function(){
@@ -50,7 +50,7 @@ describe("async", function(){
           pollCount = 4,
           timeout = 100;
 
-      common.deleteFolderRecursive(dir);
+      rimraf(dir);
 
       var start;
       notifier.start(timeout / pollCount, function(nonErr, filesDone) {
@@ -64,10 +64,10 @@ describe("async", function(){
           assert.deepEqual(files, filesDone);
 
           // audit paths
-          console.log("filesDone paths:");
-          for (var k=0; k < filesDone.length; k++) {
-            console.log(filesDone);
-          }
+          //console.log("filesDone paths:");
+          //for (var k=0; k < filesDone.length; k++) {
+          //  console.log(filesDone);
+          //}
         }
 
         done(nonErr);
@@ -95,7 +95,7 @@ describe("async", function(){
           pollCount = 4,
           timeout = 100;
 
-      common.deleteFolderRecursive(dir);
+      rimraf(dir);
 
       var start;
       notifier.start(timeout / pollCount, function(nonErr, filesDone) {
@@ -137,7 +137,7 @@ describe("async", function(){
           pollCount = 4,
           timeout = 100;
 
-      common.deleteFolderRecursive(dir);
+      rimraf(dir);
 
       var start;
       notifier.start(timeout / pollCount, function(nonErr, filesDone) {
@@ -181,7 +181,7 @@ describe("async", function(){
           pollCount = 4,
           timeout = 100;
 
-      common.deleteFolderRecursive(dir);
+      rimraf(dir);
 
       var start;
       notifier.start(timeout / pollCount, function(nonErr, filesDone){

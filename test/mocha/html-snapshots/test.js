@@ -1,7 +1,8 @@
 var assert = require("assert");
 var path = require("path");
 var fs = require("fs");
-var common = require("../../../lib/common");
+var spawn = require('child_process').spawn;
+var rimraf = require("rimraf").sync;
 var ss = require("../../../lib/html-snapshots");
 var optHelp = require("../../helpers/options");
 var server = require("../../server");
@@ -12,6 +13,19 @@ describe("html-snapshots", function() {
   describe("library", function(){
     this.timeout(30000);
     var inputFile = path.join(__dirname, "./test_robots.txt");
+    var spawnedProcessPattern = "^phantomjs$";
+
+    // Count actual phantomjs processes in play, requires pgrep
+    function countSpawnedProcesses(cb) {
+      var pgrep = spawn("pgrep", [spawnedProcessPattern, "-c"]);
+      pgrep.stdout.on("data", cb);
+    }
+
+    // Clear any lingering phantomjs processes in play
+    function killSpawnedProcesses(cb) {
+      var pkill = spawn("pkill", [spawnedProcessPattern]);
+      pkill.on("exit", cb);
+    }
 
     it("no arguments should return false", function(){
       assert.equal(false, ss.run(optHelp.decorate({})));
@@ -64,7 +78,7 @@ describe("html-snapshots", function() {
     });
 
     it("run async, all snapshots should succeed, no output dir pre-exists", function(done){
-      common.deleteFolderRecursive(path.join(__dirname, "./tmp/snapshots"));
+      rimraf(path.join(__dirname, "./tmp/snapshots"));
       var ourport = ++port;
       server.start(path.join(__dirname, "./server"), ourport);
       var options = {
@@ -76,7 +90,9 @@ describe("html-snapshots", function() {
         outputDirClean: true,
         timeout: 6000
       };
-      var result = ss.run(optHelp.decorate(options), done);
+      var result = ss.run(optHelp.decorate(options), function(nonerr) {
+        setTimeout(done, 500, nonerr); // settle down
+      });
       assert.equal(true, result);
     });
 
@@ -91,7 +107,9 @@ describe("html-snapshots", function() {
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true
       };
-      var result = ss.run(optHelp.decorate(options), done);
+      var result = ss.run(optHelp.decorate(options), function(nonerr) {
+        setTimeout(done, 500, nonerr); // settle down
+      });
       assert.equal(true, result);
     });
 
@@ -108,7 +126,7 @@ describe("html-snapshots", function() {
       };
       var result = ss.run(optHelp.decorate(options), function(nonerr) {
         assert.equal(false, nonerr);
-        setTimeout(done, 500);
+        setTimeout(done, 500); // settle down
       });
       assert.equal(true, result);
     });
@@ -126,10 +144,62 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(optHelp.decorate(options), function(nonerr) {
           assert.equal(false, nonerr);
-          setTimeout(done, 500);
+          setTimeout(done, 500); // settle down
         });
         assert.equal(true, result);
     });
 
+    it("run async, should limit process as expected", function(done) {
+      var processLimit = 2; // there are 3 total
+      var pollDone = false;
+      var pollInterval = 500;
+      var phantomCount = 0;
+
+      var ourport = ++port;
+      server.start(path.join(__dirname, "./server"), ourport);
+
+      rimraf(path.join(__dirname, "./tmp/snapshots"));
+
+      killSpawnedProcesses(function() {
+        
+        var options = {
+          source: inputFile,
+          hostname: "localhost",
+          port: ourport,
+          selector: "#dynamic-content",
+          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDirClean: true,
+          timeout: 6000,
+          processLimit: processLimit
+        };
+        var result = ss.run(optHelp.decorate(options), function(nonerr) {
+          done(phantomCount ?
+            new Error(phantomCount+" exceeded processLimit "+processLimit) :
+            undefined
+          );
+          pollDone = true;
+        });
+        assert.equal(true, result);
+
+        if (process.platform === "win32") {
+          console.error("Skipping posix compliant tests for processLimit");
+        } else {
+
+          var timer = setInterval(function() {
+            if (pollDone) {
+              clearInterval(timer);
+            } else {
+              countSpawnedProcesses(function(count) {
+                //console.log("@@@ DEBUG @@@ phantom count: "+count);
+                if (count > processLimit) {
+                  phantomCount = count;
+                  clearInterval(timer);
+                }
+              });
+            }
+          }, pollInterval);
+        }
+      });
+    });
   });
 });

@@ -1,4 +1,4 @@
-# [html-snapshots v0.2.2](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.3.0](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://secure.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
@@ -7,7 +7,8 @@ html-snapshots is a flexible html snapshot library that uses PhantomJS to take h
 
 html-snapshots gets urls to process from either a robots.txt or sitemap.xml. Alternatively, you can supply an array with completely arbitrary urls, or a line delimited textfile with arbitrary host-relative paths.
 
-html-snapshots processes all the urls in parallel in their own PhantomJS processes.
+html-snapshots processes all the urls in parallel in their own PhantomJS processes. 
+**UPDATE** Starting with version 0.3.0, you can limit the number of PhantomJS processes that will ever run at once with the `processLimit` option.
 
 ## Feedback
 Please [let me know how you are using this library](http://www.localnerve.com/blog/how-are-you-using-html-snapshots/) so I can make sure it evolves appropriately.
@@ -15,10 +16,8 @@ Please [let me know how you are using this library](http://www.localnerve.com/bl
 ## More Information
 Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
 
-Here is [an article](http://github.com/localnerve/html-snapshots/blob/master/docs/example-heroku-redis.md) with code of a real usage example.
-
 ## Getting Started
-This library requires PhantomJS '>=1.7.1'
+This library requires PhantomJS '>=1.7.1'. As of 0.3.0, works with 1.9.7.
 
 ### Installation
 The simplest way to install html-snapshots is to use [npm](http://npmjs.org), just `npm
@@ -28,6 +27,7 @@ install html-snapshots` will download html-snapshots and all dependencies.
 If you are interested in the grunt task that uses this library, check out [grunt-html-snapshots](http://github.com/localnerve/grunt-html-snapshots).
 
 ## Example Usage
+If you are looking for a more in-depth usage example, here is [an article](http://github.com/localnerve/html-snapshots/blob/master/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
 
 ### Simple example
 ```javascript
@@ -99,19 +99,19 @@ var result = htmlSnapshots.run({
   selector: "#dynamic-content"
 }, function(nonError, snapshotsCompleted) { 
   /* 
-     Do something when html-snapshots has completed.
+    Do something when html-snapshots has completed.
 
-       nonError is undefined if all snapshots were generated successfully,
-       otherwise it is false. This makes it compatible with mocha and grunt "done".
+    nonError is undefined if all snapshots were generated successfully,
+    otherwise it is false. This makes it compatible with mocha and grunt "done".
 
-       snapshotsCompleted is an array of normalized paths to output files that 
-       contain completed snapshots.
-         If no snapshots are completed, this is an empty array.
-         You can use snapshotsCompleted to populate shared storage if you are running
-         in a scalable server environment with an ephemeral file system:
-          if (result && typeof nonError === "undefined") {
-            // safe to use snapshotsCompleted to update shared storage
-          }
+    snapshotsCompleted is an array of normalized paths to output files that 
+    contain completed snapshots.
+      If no snapshots are completed, this is an empty array.
+      You can use snapshotsCompleted to populate shared storage if you are running
+      in a scalable server environment with an ephemeral file system:
+        if (result && typeof nonError === "undefined") {
+          // safe to use snapshotsCompleted to update shared storage
+        }
   */
 });
 ```
@@ -185,6 +185,9 @@ Apart from the default settings, there are a number of options that can be speci
       
       `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input.
 
++ `processLimit`
+  + default: Number.MAX_VALUE
+  + Limits the number of child PhantomJS processes that can ever be actively running in parallel. A value of 1 effectively forces the snapshots to be taken in series (only one at a time). Useful if you need to limit the number of processes spawned by this library.
 + `checkInterval`
   + default: 250 (milliseconds)
   + Specifies the rate at which the PhantomJS script checks to see if the selector is visible yet. Applies to all pages.

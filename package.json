@@ -1,12 +1,12 @@
 {
   "name": "html-snapshots",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
     "url": "http://www.localnerve.com"
   },
-  "homepage": "https://github.com/localnerve/html-snapshots",  
+  "homepage": "https://github.com/localnerve/html-snapshots",
   "description": "A selector-based html snapshot tool using PhantomJS that sources sitemap.xml, robots.txt, or arbitrary input",
   "contributors": [
     {
@@ -37,7 +37,10 @@
   ],
   "dependencies": {
     "phantomjs": ">= 1.7.1",
-    "xml2js": "~0.2.7"
+    "xml2js": "~0.2.7",
+    "async": "~0.2.10",
+    "underscore": "~1.6.0",
+    "rimraf": "~2.2.6"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
