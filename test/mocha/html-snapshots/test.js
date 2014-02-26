@@ -92,7 +92,7 @@ describe("html-snapshots", function() {
         timeout: 6000
       };
       var result = ss.run(optHelp.decorate(options), function(nonerr) {
-        setTimeout(done, 500, nonerr); // settle down
+        setTimeout(done, 2000, nonerr); // settle down
       });
       assert.equal(true, result);
     });
@@ -127,7 +127,7 @@ describe("html-snapshots", function() {
       };
       var result = ss.run(optHelp.decorate(options), function(nonerr) {
         assert.equal(false, nonerr);
-        setTimeout(done, 500); // settle down
+        setTimeout(done, 1000); // settle down
       });
       assert.equal(true, result);
     });
@@ -145,7 +145,7 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(optHelp.decorate(options), function(nonerr) {
           assert.equal(false, nonerr);
-          setTimeout(done, 500); // settle down
+          setTimeout(done, 1000); // settle down
         });
         assert.equal(true, result);
     });
