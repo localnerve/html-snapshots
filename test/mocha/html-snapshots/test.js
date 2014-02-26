@@ -12,8 +12,10 @@ describe("html-snapshots", function() {
 
   describe("library", function(){
     this.timeout(30000);
+
     var inputFile = path.join(__dirname, "./test_robots.txt");
     var spawnedProcessPattern = "^phantomjs$";
+    var urls = 3;
 
     // Count actual phantomjs processes in play, requires pgrep
     function countSpawnedProcesses(cb) {
@@ -51,8 +53,7 @@ describe("html-snapshots", function() {
       var result = ss.run(optHelp.decorate(options));
       assert.equal(true, fs.existsSync(options.snapshotScript) && result===false);
     });
-
-    var urls = 3;
+    
     // environment dependent, also depends on inputFile and server files
     it("run sync, local robots file, local webserver", function(done){
       var counter = { count: 0 };
@@ -61,7 +62,7 @@ describe("html-snapshots", function() {
         return function() {
           counter.count++;
           if (counter.count===urls) {
-            done();
+            setTimeout(done, 10000);
           }
         };
       })(counter));
@@ -150,7 +151,7 @@ describe("html-snapshots", function() {
     });
 
     it("run async, should limit process as expected", function(done) {
-      var processLimit = 2; // there are 3 total
+      var processLimit = urls - 1;
       var pollDone = false;
       var pollInterval = 500;
       var phantomCount = 0;
