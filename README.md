@@ -1,4 +1,4 @@
-# [html-snapshots v0.3.1](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.3.2](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://secure.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
