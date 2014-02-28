@@ -35,8 +35,9 @@ The [routes](https://github.com/localnerve/wpspa/blob/master/server/workers/rout
 
 > Routes worker code: [routes](https://github.com/localnerve/wpspa/blob/master/server/workers/routes/lib/index.js)
 
-## A New Feature On The Way
+## ~~A New Feature On The Way~~ New Feature
 I eat my own dogfood. That's how I find out about things sometimes, and this project was no exception. Using [html-snapshots](https://github.com/localnerve/html-snapshots) on Heroku is how I found out that unconditionally spawning processes for each application route can be a not-so-good feature of [html-snapshots](https://github.com/localnerve/html-snapshots). Seems obvious now, but until I used html-snapshots in [WPSPA](http://github.com/localnerve/wpspa), I only had experience with using it for static sites. If you have a PaaS that you provision and pay for by the computing unit, [html-snapshots](https://github.com/localnerve/html-snapshots) can hurt you. A fix to limit the process spawning is [in the works](https://github.com/localnerve/html-snapshots/issues/13).
+*UPDATE* Feature Complete and Fixed in v0.3.2
 
 ## Finally
 I hope this brief tour of a Heroku/Redis html-snapshots implementation in [WPSPA](http://github.com/localnerve/wpspa) helped you think about your html snapshot implementation needs.
