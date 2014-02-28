@@ -52,6 +52,9 @@ describe("async", function(){
 
       rimraf(dir);
 
+      // take the worker queue out of the equation
+      notifier.qEmpty();
+
       var start;
       notifier.start(timeout / pollCount, function(nonErr, filesDone) {
         // make sure this wasn't called because of a timeout/failure
@@ -97,6 +100,9 @@ describe("async", function(){
 
       rimraf(dir);
 
+      // take the worker queue out of the equation
+      notifier.qEmpty();
+
       var start;
       notifier.start(timeout / pollCount, function(nonErr, filesDone) {
         // make sure this wasn't called because of a timeout/failure
@@ -138,6 +144,9 @@ describe("async", function(){
           timeout = 100;
 
       rimraf(dir);
+
+      // take the worker queue out of the equation
+      notifier.qEmpty();
 
       var start;
       notifier.start(timeout / pollCount, function(nonErr, filesDone) {
@@ -183,6 +192,9 @@ describe("async", function(){
 
       rimraf(dir);
 
+      // take the worker queue out of the equation
+      notifier.qEmpty();
+      
       var start;
       notifier.start(timeout / pollCount, function(nonErr, filesDone){
         assert.equal(true, (Date.now() - start) > (timeout+notifier.padTimeoutFloor()));

@@ -8,11 +8,6 @@ var result = ss.run({
   hostname: "ns1.localnerve.com",
   outputDirClean: true,
   outputDir: "./tmp/snapshots",
-  selector: function(url) { return "#dynamic-content"; }//,
-  //timeout: function(url) { return 5000; },
-  //selector: "#dynamic-content",
-  //timeout: 5000,
-  //checkInterval: 250,
-  //snapshotScript: "../lib/phantom/snapshotSingle.js",
-  //phantomjs: "phantomjs",
+  selector: function(url) { return "#dynamic-content"; },
+  processLimit: 1
 });

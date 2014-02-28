@@ -202,5 +202,59 @@ describe("html-snapshots", function() {
         }
       });
     });
+
+    it("run async, should limit process to just one process", function(done) {
+      var processLimit = 1;
+      var pollDone = false;
+      var pollInterval = 500;
+      var phantomCount = 0;
+
+      var ourport = ++port;
+      server.start(path.join(__dirname, "./server"), ourport);
+
+      rimraf(path.join(__dirname, "./tmp/snapshots"));
+
+      killSpawnedProcesses(function() {
+        
+        var options = {
+          source: inputFile,
+          hostname: "localhost",
+          port: ourport,
+          selector: "#dynamic-content",
+          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDirClean: true,
+          timeout: 6000,
+          processLimit: processLimit
+        };
+        var result = ss.run(optHelp.decorate(options), function(nonerr) {
+          done(phantomCount ?
+            new Error(phantomCount+" exceeded processLimit "+processLimit) :
+            undefined
+          );
+          pollDone = true;
+        });
+        assert.equal(true, result);
+
+        if (process.platform === "win32") {
+          console.error("Skipping posix compliant tests for processLimit");
+        } else {
+
+          var timer = setInterval(function() {
+            if (pollDone) {
+              clearInterval(timer);
+            } else {
+              countSpawnedProcesses(function(count) {
+                //console.log("@@@ DEBUG @@@ phantom count: "+count);
+                if (count > processLimit) {
+                  phantomCount = count;
+                  clearInterval(timer);
+                }
+              });
+            }
+          }, pollInterval);
+        }
+      });
+    });
+
   });
 });
