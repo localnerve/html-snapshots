@@ -1,4 +1,4 @@
-node_modules
+node_modules/phantomjs
 npm-debug.log
 tmp
 report
