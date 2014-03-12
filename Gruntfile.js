@@ -12,11 +12,12 @@ module.exports = function(grunt) {
     },
 
     mochaTest: {
-      normal: [ "test/mocha/**/*.js" ]
+      normal: [ "test/mocha/**/*.js" ],
+      gen: [ "test/mocha/input-generators/*.js" ]
     }
   });
 
-  grunt.registerTask("default", ["jshint", "mochaTest"]);
-  grunt.registerTask("test", ["mochaTest"]);
+  grunt.registerTask("default", ["jshint", "mochaTest:normal"]);
+  grunt.registerTask("test", ["mochaTest:normal"]);
   grunt.registerTask("lint", ["jshint"]);
 };
