@@ -72,6 +72,7 @@ describe("input-generator", function(){
     describe(inputGenerators[a].name, function() {
 
       var globalUrl = inputGenerators[a].name === "robots" || inputGenerators[a].name === "textfile";
+      var genName = inputGenerators[a].name;
       var remote = inputGenerators[a].remote;
       var gen = inputGenerators[a].input;
       var source = inputGenerators[a].source;
@@ -529,7 +530,11 @@ describe("input-generator", function(){
         assert.equal(true, result);
       });
 
+      // unless its sitemap...
       it("should return false if a snapshot can't be created", function(done){
+        // @@@ debugging
+        //this.timeout(150000);
+
         var argOne = "/services/test/arg/one";
         var hash = "/services/hash";
         var pages = {
@@ -551,6 +556,11 @@ describe("input-generator", function(){
         var counter = { count: 0 };
         var result = gen.run(options.decorate({
             source: source,
+            // add listener hook for sitemap
+            _listener: genName === "sitemap" ? function(err) {
+              assert.equal(true, !!err);
+              done();
+            } : null,
             outputPath: (function(testData){
               return function(p){
                 return testData[p];
@@ -558,6 +568,7 @@ describe("input-generator", function(){
             })(pages)
           }), (function(counter, pages){
             return function(input) {
+              // this doesn't happen for sitemap
               //console.log("function - outputFile = "+input.outputFile);
               var re = new RegExp("("+pages[input.__page]+")");
               var match = re.exec(input.outputFile);
@@ -573,6 +584,9 @@ describe("input-generator", function(){
 
       if (remote) {
         it("should process remote source urls", function(done){
+          // @@@ debugging
+          //this.timeout(30000);
+
           var counter = { count: 0 };
           var result = gen.run(options.decorate({ source: remote }), function(input){
             //console.log("remote = "+input.url);

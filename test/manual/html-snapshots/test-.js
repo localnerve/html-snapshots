@@ -2,7 +2,7 @@
 var ss = require("../../../lib/html-snapshots");
 var result = ss.run({
   input: "sitemap",
-  source: "./sitemap2.xml",
+  source: "http://ns1.localnerve.com/sitemap.xml",
   sitemapPolicy: true,
   protocol: "http",
   outputDirClean: true,

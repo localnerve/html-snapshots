@@ -1,4 +1,5 @@
 node_modules/phantomjs
+test/mocha/input-generators/server/test_sitemap_dynamic.xml
 npm-debug.log
 tmp
 report
