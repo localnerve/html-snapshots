@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 var ss = require("../../../lib/html-snapshots");
 var result = ss.run({

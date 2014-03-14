@@ -14,7 +14,9 @@ var result = ss.run({
     "__default": "#content .grid-row"
   },
   timeout: 10000
-}, function(nonErr) {
-  console.log("done");
-  console.log("nonErr: "+nonErr);
+}, function(err, results) {
+  console.log("err = "+err);
+  console.log("snapshots = "+results);
+  console.log("result = "+result);
 });
+console.log("first result = "+result);

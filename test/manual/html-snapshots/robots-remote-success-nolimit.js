@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var path = require("path");
 
 var ss = require("../../../lib/html-snapshots");
@@ -11,8 +9,10 @@ var result = ss.run({
 /*  outputPath: {
     "http://northstar.local/services/faq?arg=one": "services/faq/arg/one"
   },*/
-  selector: "#dynamic-content",
-  processLimit: 1
-}, function(nonError) {
-	console.log("got called back with: "+nonError);
+  selector: "#dynamic-content"
+}, function(err, results) {
+	console.log("err = "+err);
+  console.log("snapshots = "+results);
+  console.log("result = "+result);
 });
+console.log("first result = "+result);

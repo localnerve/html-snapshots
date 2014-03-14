@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var path = require("path");
 
 var ss = require("../../../lib/html-snapshots");
