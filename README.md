@@ -1,4 +1,4 @@
-# [html-snapshots v0.3.2](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.4.0](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://secure.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
@@ -33,7 +33,7 @@ If you are looking for a more in-depth usage example, here is [an article](http:
 ```javascript
 var htmlSnapshots = require('html-snapshots');
 var result = htmlSnapshots.run({
-  source: "path/to/robots.txt",
+  source: "/path/to/robots.txt",
   hostname: "exampledomain.com",
   outputDir: "./snapshots",
   outputDirClean: true,
@@ -48,7 +48,7 @@ This reads the urls from your robots.txt and produces snapshots in the ./snapsho
 var htmlSnapshots = require('html-snapshots');
 var result = htmlSnapshots.run({
   input: "sitemap",
-  source: "path/to/sitemap.xml",
+  source: "/path/to/sitemap.xml",
   outputDir: "./snapshots",
   outputDirClean: true,
   selector: { "http://mysite.com": "#home-content", "__default": "#dynamic-content" },
@@ -63,7 +63,7 @@ This reads the urls from your sitemap.xml and produces snapshots in the ./snapsh
 var htmlSnapshots = require('html-snapshots');
 var result = htmlSnapshots.run({
   input: "sitemap",
-  source: "path/to/sitemap.xml",
+  source: "/path/to/sitemap.xml",
   outputDir: "./snapshots",
   outputDirClean: true,
   outputPath: { "http://mysite.com/services/?page=1": "services/page/1", "http://mysite.com/services/?page=2": "services/page/2" },
@@ -97,22 +97,23 @@ var result = htmlSnapshots.run({
   outputDir: "./snapshots",
   outputDirClean: true,  
   selector: "#dynamic-content"
-}, function(nonError, snapshotsCompleted) { 
+}, function(err, snapshotsCompleted) { 
   /* 
     Do something when html-snapshots has completed.
 
-    nonError is undefined if all snapshots were generated successfully,
-    otherwise it is false. This makes it compatible with mocha and grunt "done".
+    err is undefined if all snapshots were generated successfully.
 
     snapshotsCompleted is an array of normalized paths to output files that 
-    contain completed snapshots.
-      If no snapshots are completed, this is an empty array.
-      You can use snapshotsCompleted to populate shared storage if you are running
+      contain completed snapshots.
+    If no snapshots are completed, this is an empty array.
+
+    You can use snapshotsCompleted to populate shared storage if you are running
       in a scalable server environment with an ephemeral file system:
-        if (result && typeof nonError === "undefined") {
-          // safe to use snapshotsCompleted to update shared storage
-        }
   */
+  if (typeof err === "undefined") {
+    // safe to use snapshotsCompleted to update alternative storage
+    //   Example: https://github.com/localnerve/wpspa/blob/master/server/workers/snapshots/lib/index.js
+  }  
 });
 ```
 Generates snapshots in the ./snapshots directory for paths found in http://localhost/robots.txt. Uses those paths against "localhost" to get the actual html output. Expects "#dynamic-content" to appear in all output. The callback function is called when snapshots concludes.
@@ -134,6 +135,9 @@ Apart from the default settings, there are a number of options that can be speci
 + `source`
   + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
   + Specifies the input source. This must be a valid location of a robots.txt, sitemap.xml, or a textfile or the associated input generators. robots.txt and sitemap.xml can be local or remote. However, for the array input generator, this must be a javascript array of urls.
++ `sitemapPolicy`
+  + default: `false`
+  + For use only with the sitemap input generator. When true, only urls in the sitemap that are **not** current according to their lastmod and changefreq tags will be processed. For this to work, both lastmod and changefreq tags must be present \(alongside the loc tag\) in a url element of the sitemap. Not all url elements in a sitemap have to have lastmod and changefreq \(those tags are optional, unlike loc\), but the urls you want to be able to skip \(if they are current\) must have both those tags. If the lastmod or changefreq tags are not both there, or are deemed invalid, the url is processed normally. For more info on sitemap tags and acceptable values, read the [wikipedia](http://en.wikipedia.org/wiki/Sitemaps) page.
 + `hostname`
   + default: `"localhost"`
   + Specifies the hostname to use for paths found in a robots.txt or textfile. Applies to all pages. This option is ignored if you are using the sitemap or array input generators.
@@ -199,7 +203,7 @@ Apart from the default settings, there are a number of options that can be speci
   + Specifies the PhantomJS script to run to actually produce the snapshot. Override this if you need to supply your own snapshot script. This script is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
 + `phantomjs`
   + default: A package local reference to phantomjs.
-  + Specifies the phantomjs executable to run. Override this if you want to supply a path to a different version of phantomjs. To reference PhantomJS globally in your environment, just use "phantomjs".
+  + Specifies the phantomjs executable to run. Override this if you want to supply a path to a different version of phantomjs. To reference PhantomJS globally in your environment, just use the value, "phantomjs". Remember, it must be found in your environment path to execute.
 See [PhantomJS](http://phantomjs.org/) for more information.
 
 ## Example Rewrite Rule
