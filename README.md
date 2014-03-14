@@ -151,8 +151,8 @@ Apart from the default settings, there are a number of options that can be speci
   + default: `"http"`
   + Specifies the protocol to use for all paths found in a robots.txt or textfile. This option is ignored if you are using the sitemap or array input generators.
 + `outputDir`
-  + default: `"./snapshots"`
-  + Specifies the root output directory to put all the snapshot files in. Paths to the snapshot files in the output directory are defined by the paths in the urls themselves. The snapshot files are always named "index.html".
+  + default: none
+  + Required \(must specify\). Specifies the root output directory to put all the snapshot files in. Paths to the snapshot files in the output directory are defined by the paths in the urls themselves. The snapshot files are always named "index.html".
 + `outputDirClean`
   + default: `false`
   + Specifies if html-snapshots should clean the output directory before it creates the snapshots.
