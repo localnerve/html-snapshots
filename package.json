@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -48,7 +48,8 @@
     "grunt-contrib-jshint": "~0.4.3",
     "mkdirp": "~0.3.5",
     "underscore": "~1.6.0",
-    "sitemap": "^0.7.1"
+    "async": "~0.2.10",
+    "sitemap": "~0.7.1"
   },
   "licenses": [
     {
