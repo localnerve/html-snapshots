@@ -15,7 +15,7 @@ describe("html-snapshots", function() {
 
     var inputFile = path.join(__dirname, "./test_robots.txt");
     var spawnedProcessPattern = "^phantomjs$";
-    var urls = 3;
+    var urls = 3; // must match test_robots.txt
 
     // Count actual phantomjs processes in play, requires pgrep
     function countSpawnedProcesses(cb) {
@@ -91,8 +91,8 @@ describe("html-snapshots", function() {
         outputDirClean: true,
         timeout: 6000
       };
-      var result = ss.run(optHelp.decorate(options), function(nonerr) {
-        setTimeout(done, 2000, nonerr); // settle down
+      var result = ss.run(optHelp.decorate(options), function(err) {
+        setTimeout(done, 2000, err); // settle down
       });
       assert.equal(true, result);
     });
@@ -108,10 +108,30 @@ describe("html-snapshots", function() {
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true
       };
-      var result = ss.run(optHelp.decorate(options), function(nonerr) {
-        setTimeout(done, 500, nonerr); // settle down
+      var result = ss.run(optHelp.decorate(options), function(err) {
+        setTimeout(done, 500, err); // settle down
       });
       assert.equal(true, result);
+    });
+
+    it("run async, all snapshots should succeed, bad remote sitemap", function(done){
+      var ourport = ++port;
+      server.start(path.join(__dirname, "./server"), ourport);
+      var options = {
+        input: "sitemap",
+        source: "http://localhost:"+ourport+"/index.html",
+        port: ourport,
+        selector: "#dynamic-content",
+        outputDir: path.join(__dirname, "./tmp/snapshots"),
+        outputDirClean: true,
+        timeout: 6000
+      };
+      var result = ss.run(optHelp.decorate(options), function(err) {
+        // here is where the error should be
+        assert.notStrictEqual(typeof err, "undefined");
+        setTimeout(done, 500); // settle down
+      });
+      assert.equal(true, result); // run returns true because it isn't discovered until later
     });
 
     it("run asnyc, all snapshots should fail", function(done){
@@ -125,8 +145,8 @@ describe("html-snapshots", function() {
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true
       };
-      var result = ss.run(optHelp.decorate(options), function(nonerr) {
-        assert.equal(false, nonerr);
+      var result = ss.run(optHelp.decorate(options), function(err) {
+        assert.notStrictEqual(typeof err, "undefined");
         setTimeout(done, 1000); // settle down
       });
       assert.equal(true, result);
@@ -143,8 +163,8 @@ describe("html-snapshots", function() {
           outputDir: path.join(__dirname, "./tmp/snapshots"),
           outputDirClean: true
         };
-        var result = ss.run(optHelp.decorate(options), function(nonerr) {
-          assert.equal(false, nonerr);
+        var result = ss.run(optHelp.decorate(options), function(err) {
+          assert.notStrictEqual(typeof err, "undefined");
           setTimeout(done, 1000); // settle down
         });
         assert.equal(true, result);
@@ -173,7 +193,7 @@ describe("html-snapshots", function() {
           timeout: 6000,
           processLimit: processLimit
         };
-        var result = ss.run(optHelp.decorate(options), function(nonerr) {
+        var result = ss.run(optHelp.decorate(options), function(err) {
           done(phantomCount ?
             new Error(phantomCount+" exceeded processLimit "+processLimit) :
             undefined
@@ -226,7 +246,7 @@ describe("html-snapshots", function() {
           timeout: 6000,
           processLimit: processLimit
         };
-        var result = ss.run(optHelp.decorate(options), function(nonerr) {
+        var result = ss.run(optHelp.decorate(options), function(err) {
           done(phantomCount ?
             new Error(phantomCount+" exceeded processLimit "+processLimit) :
             undefined
@@ -255,6 +275,6 @@ describe("html-snapshots", function() {
         }
       });
     });
-
+    
   });
 });

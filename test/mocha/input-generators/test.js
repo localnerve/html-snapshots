@@ -87,12 +87,19 @@ describe("input-generator", function(){
 
       // requires inputFile not found
       it("should produce no input for defaults and a bogus file", function(done) {
-        var result = gen.run(options.decorate({ source: "./bogus/file.txt" }), function(input){
-          //console.log(input);
-          assert.equal(true, false);
+        var doneCalled = false;
+        var result = gen.run(options.decorate({
+          source: "./bogus/file.txt",
+          _abort: function(err) {
+            assert.equal(true, !!err);
+            doneCalled = true;
+            done();
+          }
+        }), function(input){
+          assert.fail("input callback", "called", "unexpected input processed", "should not have been");
         });
         assert.equal(false, result);
-        setTimeout(done, 500);
+        setTimeout(function() { if (!doneCalled) done(); }, 200);
       });
 
       // requires source to have 'urls' valid entries
@@ -557,10 +564,10 @@ describe("input-generator", function(){
         var result = gen.run(options.decorate({
             source: source,
             // add listener hook for sitemap
-            _listener: genName === "sitemap" ? function(err) {
+            _abort: function(err) {
               assert.equal(true, !!err);
               done();
-            } : null,
+            },
             outputPath: (function(testData){
               return function(p){
                 return testData[p];

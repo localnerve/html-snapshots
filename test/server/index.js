@@ -12,7 +12,8 @@ module.exports = {
     http.createServer(function(request, response) {
 
       var uri = url.parse(request.url).pathname,
-          filename = path.join(rootDir, uri);
+          filename = path.join(rootDir, uri),
+          extname = path.extname(filename);
 
       fs.exists(filename, function(exists) {
         if(!exists) {
@@ -34,7 +35,8 @@ module.exports = {
             return;
           }
 
-          response.writeHead(200);
+          // this is crazy over-simple, gotta switch to connect...
+          response.writeHead(200, {"Content-Type": (extname === ".xml" ? "text/xml" : "text/html")});
           response.write(file, "binary");
           response.end();
           if (typeof end === "function")
