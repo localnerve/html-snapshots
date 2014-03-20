@@ -12,10 +12,21 @@ module.exports = function(grunt) {
     },
 
     mochaTest: {
-      all: [ "test/mocha/**/*.js" ],
-      "input-generators": [ "test/mocha/input-generators/*.js" ],
-      async: [ "test/mocha/async/*.js" ],
-      "html-snapshots": [ "test/mocha/html-snapshots/*.js" ]
+      options: {
+        reporter: "spec"
+      },
+      all: {
+        src: [ "test/mocha/**/*.js" ]
+      },
+      "input-generators": {
+        src: [ "test/mocha/input-generators/*.js" ]
+      },
+      async: {
+        src: [ "test/mocha/async/*.js" ]
+      },
+      "html-snapshots": {
+        src: [ "test/mocha/html-snapshots/*.js" ]
+      }
     }
   });
 
