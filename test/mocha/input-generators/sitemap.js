@@ -16,13 +16,14 @@ describe("input-generator", function() {
 
     server.start(path.join(__dirname, "./server"), port);
 
+    var outputDir = "./snapshots";
     var urls = [
       "/",
       "/one",
       "/two",
       "/three",
       "/four/five",
-      "six"
+      "/six"
     ];
     var sitemapInputGenerators = [
       {
@@ -31,7 +32,9 @@ describe("input-generator", function() {
         input: factory.create("sitemap"),
         options: options.decorate({
           source: path.join(__dirname, "/server/test_sitemap_dynamic.xml"),
-          sitemapPolicy: true
+          sitemapPolicy: true,
+          outputDir: outputDir,
+          outputDirClean: false
         })
       },
       {
@@ -40,8 +43,84 @@ describe("input-generator", function() {
         input: factory.create("sitemap"),
         options: options.decorate({
           source: "http://localhost:"+port+"/test_sitemap_dynamic.xml",
-          sitemapPolicy: true
+          sitemapPolicy: true,
+          outputDir: outputDir,
+          outputDirClean: false
         })
+      }
+    ];
+    var testCases = [
+      {
+        // all policy elements missing
+        // no matter how many are current, they always all get processed
+        name: "all",
+        missing: smHelper.smElement.all,
+        some: {
+          current: 2,
+          cbLimit: urls.length
+        },
+        all: {
+          current: 0,
+          cbLimit: urls.length
+        },
+        none: {
+          current: urls.length,
+          cbLimit: urls.length
+        }
+      },
+      {
+        // lastmod policy element missing
+        // no matter how many are current, they always all get processed
+        name: "lastmod",
+        missing: smHelper.smElement.lastMod,
+        some: {
+          current: 2,
+          cbLimit: urls.length
+        },
+        all: {
+          current: 0,
+          cbLimit: urls.length
+        },
+        none: {
+          current: urls.length,
+          cbLimit: urls.length
+        }
+      },
+      {
+        // changefreq policy element missing
+        // no matter how many are current, they always all get processed
+        name: "changefreq",
+        missing: smHelper.smElement.changeFreq,
+        some: {
+          current: 2,
+          cbLimit: urls.length
+        },
+        all: {
+          current: 0,
+          cbLimit: urls.length
+        },
+        none: {
+          current: urls.length,
+          cbLimit: urls.length
+        }
+      },
+      {
+        // no policy elements missing
+        // current items are not processed
+        name: "none",
+        missing: smHelper.smElement.none,
+        some: {
+          current: 2,
+          cbLimit: urls.length - 2
+        },
+        all: {
+          current: 0,
+          cbLimit: urls.length
+        },
+        none: {
+          current: urls.length,
+          cbLimit: 0
+        }
       }
     ];
 
@@ -56,9 +135,15 @@ describe("input-generator", function() {
       });
     }
 
-    // A callback that tests for a truthy result
-    function trueResult(result) {
-      assert.equal(true, result);
+    // Create a callback that tests for a truthy result
+    function trueResult(limit, done) {
+      return function(result) {
+        assert.equal(true, result);
+        if (limit === 0) {
+          // time-to-choke === 500
+          setTimeout(done, 500);
+        }
+      };
     }
 
     // Create a callback counter callback
@@ -68,73 +153,63 @@ describe("input-generator", function() {
     // In the interim, if it is called more than the limit, it asserts an error.
     function callbackCounter(limit, done) {
       var counter = 0;
-      return function() {
-        assert.equal(true, counter++ < limit);
-        if (counter === limit) {
-          setTimeout(done, 500);
-        }
-      };
+      var cb;
+      if (limit === 0) {
+        cb = function() {
+          assert.fail("unexpected", "callback", "input was processed unexpectedly", "function");
+        };
+      } else {
+       cb = function() {
+          assert.equal(true, counter++ < limit);
+          if (counter === limit) {
+            setTimeout(done, 500);
+          }
+        };
+      }
+      return cb;
     }
 
     sitemapInputGenerators.forEach(function(gen) {
 
       describe("policy option true, "+gen.name+",", function() {
 
-        it("should process the expected number of out-of-date urls", function(done) {
-          var current = 2;
-          var outofdate = urls.length - current;
+        describe("no previous run output", function() {
+          testCases.forEach(function(testCase) {
 
-          dynSMIP(gen, urls, current, smHelper.smElement.all,
-            callbackCounter(outofdate, done),
-            trueResult
-          );
-        });
+            describe("missing "+testCase.name+",", function() {
 
-        it("should process the all urls if they're all out-of-date", function(done) {
-          var current = 0;
-          var outofdate = urls.length - current;
-          
-          dynSMIP(gen, urls, current, smHelper.smElement.all,
-            callbackCounter(outofdate, done),
-            trueResult
-          );
-        });
+              it("should process some of the expected number of out-of-date urls", function(done) {
 
-        it("should process the urls if they're missing lastmod", function(done) {
-          var current = 0;
-          var outofdate = urls.length - current;
-          
-          dynSMIP(gen, urls, current, smHelper.smElement.lastMod,
-            callbackCounter(outofdate, done),
-            trueResult
-          );
-        });
+                dynSMIP(gen, urls, testCase.some.current, testCase.missing,
+                  callbackCounter(testCase.some.cbLimit, done),
+                  trueResult(testCase.some.cbLimit, done)
+                );
+              });
 
-        it("should process the urls if they're missing changefreq", function(done) {
-          var current = 0;
-          var outofdate = urls.length - current;
-          
-          dynSMIP(gen, urls, current, smHelper.smElement.changeFreq,
-            callbackCounter(outofdate, done),
-            trueResult
-          );
-        });
+              it("should process all urls if they're all out-of-date", function(done) {
+                
+                dynSMIP(gen, urls, testCase.all.current, testCase.missing,
+                  callbackCounter(testCase.all.cbLimit, done),
+                  trueResult(testCase.all.cbLimit, done)
+                );
+              });
 
-        it("should process none of the urls if they're all up-to-date", function(done) {
-          var current = urls.length;
-          var outofdate = urls.length - current;
-          
-          dynSMIP(gen, urls, current, smHelper.smElement.all, function() {
-            // This should not be called ever
-            assert.equal(false, true);
-          }, function(result) {
-            assert.equal(true, result);
-            setTimeout(done, 500);
+              it("should process none of the urls if they're all up-to-date", function(done) {
+
+                dynSMIP(gen, urls, testCase.none.current, testCase.missing,
+                  callbackCounter(testCase.none.cbLimit, done),
+                  trueResult(testCase.none.cbLimit, done)
+                );
+              });
+
+            });
           });
         });
 
-      });
+        describe("has previous run output", function() {
 
+        });
+      });
     });
   });
 });

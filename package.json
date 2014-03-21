@@ -49,7 +49,7 @@
     "mkdirp": "~0.3.5",
     "underscore": "~1.6.0",
     "async": "~0.2.10",
-    "sitemap": "~0.7.1"
+    "sitemap-xml": "~0.1.0"
   },
   "licenses": [
     {
