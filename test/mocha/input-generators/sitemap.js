@@ -1,5 +1,6 @@
 var assert = require("assert");
 var path = require("path");
+var rimraf = require("rimraf").sync;
 var factory = require("../../../lib/input-generators");
 var common = require("../../../lib/common");
 var server = require("../../server");
@@ -14,9 +15,11 @@ describe("input-generator", function() {
 
   describe("sitemap", function() {
 
-    server.start(path.join(__dirname, "./server"), port);
+    before(function() {
+      server.start(path.join(__dirname, "./server"), port);
+    });
 
-    var outputDir = "./snapshots";
+    var outputDir = path.join(__dirname, "./snapshots");
     var urls = [
       "/",
       "/one",
@@ -49,48 +52,91 @@ describe("input-generator", function() {
         })
       }
     ];
-    var testCases = [
+    var lmcfCases = {
+      previousNo: [
+        {
+          // lastmod policy element missing
+          // no matter how many are current, they always all get processed
+          name: "lastmod",
+          missing: smHelper.smElement.lastMod,
+          some: {
+            current: 2,
+            cbLimit: urls.length
+          },
+          all: {
+            current: 0,
+            cbLimit: urls.length
+          },
+          none: {
+            current: urls.length,
+            cbLimit: urls.length
+          }
+        },
+        {
+          // changefreq policy element missing
+          // no matter how many are current, they always all get processed
+          name: "changefreq",
+          missing: smHelper.smElement.changeFreq,
+          some: {
+            current: 2,
+            cbLimit: urls.length
+          },
+          all: {
+            current: 0,
+            cbLimit: urls.length
+          },
+          none: {
+            current: urls.length,
+            cbLimit: urls.length
+          }
+        }
+      ],
+      previousYes: [
+        {
+          // lastmod policy element missing
+          // should obey meaningful current behavior for some, all, none
+          name: "lastmod",
+          missing: smHelper.smElement.lastMod,
+          some: {
+            current: 2,
+            cbLimit: urls.length - 2
+          },
+          all: {
+            current: 0,
+            cbLimit: urls.length
+          },
+          none: {
+            current: urls.length,
+            cbLimit: 0
+          }
+        },
+        {
+          // changefreq policy element missing
+          // should obey meaningful current behavior for some, all, none
+          name: "changefreq",
+          missing: smHelper.smElement.changeFreq,
+          some: {
+            current: 2,
+            cbLimit: urls.length - 2
+          },
+          all: {
+            current: 0,
+            cbLimit: urls.length
+          },
+          none: {
+            current: urls.length,
+            cbLimit: 0
+          }
+        }
+      ]
+    };
+
+    var baseCases = [
       {
         // all policy elements missing
         // no matter how many are current, they always all get processed
         name: "all",
         missing: smHelper.smElement.all,
-        some: {
-          current: 2,
-          cbLimit: urls.length
-        },
-        all: {
-          current: 0,
-          cbLimit: urls.length
-        },
-        none: {
-          current: urls.length,
-          cbLimit: urls.length
-        }
-      },
-      {
-        // lastmod policy element missing
-        // no matter how many are current, they always all get processed
-        name: "lastmod",
-        missing: smHelper.smElement.lastMod,
-        some: {
-          current: 2,
-          cbLimit: urls.length
-        },
-        all: {
-          current: 0,
-          cbLimit: urls.length
-        },
-        none: {
-          current: urls.length,
-          cbLimit: urls.length
-        }
-      },
-      {
-        // changefreq policy element missing
-        // no matter how many are current, they always all get processed
-        name: "changefreq",
-        missing: smHelper.smElement.changeFreq,
         some: {
           current: 2,
           cbLimit: urls.length
@@ -123,6 +169,10 @@ describe("input-generator", function() {
         }
       }
     ];
+
+    // main test cases
+    var casesPreviousNo = baseCases.concat(lmcfCases.previousNo);
+    var casesPreviousYes = baseCases.concat(lmcfCases.previousYes);
 
     // Run a dynamic sitemap input processing test.
     // Make a dynamic sitemap according to spec.
@@ -173,8 +223,14 @@ describe("input-generator", function() {
 
       describe("policy option true, "+gen.name+",", function() {
 
-        describe("no previous run output", function() {
-          testCases.forEach(function(testCase) {
+        describe("no previous run output,", function() {
+          
+          before(function() {
+            // don't let previous run output interfere
+            rimraf(outputDir);
+          });
+
+          casesPreviousNo.forEach(function(testCase) {
 
             describe("missing "+testCase.name+",", function() {
 
@@ -206,9 +262,46 @@ describe("input-generator", function() {
           });
         });
 
-        describe("has previous run output", function() {
+        describe("has previous run output,", function() {
 
+          casesPreviousYes.forEach(function(testCase) {
+
+            describe("missing "+testCase.name+",", function() {
+
+              it("should process some of the expected number of out-of-date urls", function(done) {
+
+                smHelper.buildTestFiles(gen.options, urls, testCase.some.current);
+
+                dynSMIP(gen, urls, testCase.some.current, testCase.missing,
+                  callbackCounter(testCase.some.cbLimit, done),
+                  trueResult(testCase.some.cbLimit, done)
+                );
+              });
+
+              it("should process all urls if they're all out-of-date", function(done) {
+                
+                smHelper.buildTestFiles(gen.options, urls, testCase.all.current);
+
+                dynSMIP(gen, urls, testCase.all.current, testCase.missing,
+                  callbackCounter(testCase.all.cbLimit, done),
+                  trueResult(testCase.all.cbLimit, done)
+                );
+              });
+
+              it("should process none of the urls if they're all up-to-date", function(done) {
+
+                smHelper.buildTestFiles(gen.options, urls, testCase.none.current);
+
+                dynSMIP(gen, urls, testCase.none.current, testCase.missing,
+                  callbackCounter(testCase.none.cbLimit, done),
+                  trueResult(testCase.none.cbLimit, done)
+                );
+              });
+
+            });
+          });
         });
+
       });
     });
   });

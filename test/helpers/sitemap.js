@@ -4,8 +4,13 @@
 var smLib = require("sitemap-xml");
 var urlLib = require("url");
 var fs = require("fs");
+var pathLib = require("path");
 var _ = require("underscore");
+var mkdirp = require("mkdirp").sync;
 var base = require("../../lib/input-generators/_base");
+
+var now = new Date();
+var outofDate = "2013-05-01T00:00:00.000Z";
 
 /**
  * The sitemap element enum
@@ -32,12 +37,22 @@ var smElement = {
  *   it is always "weekly"
  */
 function lastmodChangeFreq(current, missing) {
-  var now = new Date();
   var nowDate = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate();
   return _.extend({},
-      (missing & smElement.lastMod) ? {} : { lastmod: current ? nowDate : "2013-01-01" },
+      (missing & smElement.lastMod) ? {} : { lastmod: current ? nowDate : outofDate },
       (missing & smElement.changeFreq) ? {} : { changefreq: "weekly" }
   );
+}
+
+/**
+ * format a urlset.url.loc from a url path
+ */
+function makeLoc(url) {
+  return urlLib.format({
+    protocol: "http",
+    host: "localhost",
+    pathname: url
+  });
 }
 
 /**
@@ -52,11 +67,7 @@ function buildSitemapWithPolicy(path, urls, current, missing, cb) {
   // map given paths to url sitemap nodes
   var urlNodes = urls.map(function(url, index) {
     return _.extend({
-        loc: urlLib.format({
-          protocol: "http",
-          host: "localhost",
-          pathname: url
-        }),
+        loc: makeLoc(url),
         priority: "0.5"
       },
       lastmodChangeFreq(index < current, missing)
@@ -81,16 +92,36 @@ function buildSitemapWithPolicy(path, urls, current, missing, cb) {
  */
 function makeOutputFiles(options, urlset) {
   var html = "<!doctype html><html><head><title>test</title></head><body><h1>Hello World</h1><p>This is a test</p</body>";
-  var outputPath;
+  var filePath, outputDir;
 
   urlset.forEach(function(urlObj) {
     filePath = base.outputFile(options, urlObj.loc);
+    outputDir = pathLib.dirname(filePath);
+
+    if (!fs.existsSync())
+      mkdirp(outputDir);
+
     fs.writeFileSync(filePath, html, { encoding: "utf8"});
     fs.utimesSync(filePath, urlObj.lastmod, urlObj.lastmod);
   });
 }
 
+/**
+ * Mock pre-existing output files for comparisons.
+ */
+function buildTestFiles(options, urls, current) {
+
+  makeOutputFiles(options, urls.map(function(url, index) {
+    return {
+      loc: makeLoc(url),
+      // always make the out of date file a little older than the outofDate sitemap
+      lastmod: index < current ? now : new Date(Date.parse(outofDate) - 10000)
+    };
+  }));
+}
+
 module.exports = {
+  smElement: smElement,
   buildSitemapWithPolicy: buildSitemapWithPolicy,
-  smElement: smElement
+  buildTestFiles: buildTestFiles
 };
