@@ -1,5 +1,6 @@
 node_modules/phantomjs
 test/mocha/input-generators/server/test_sitemap_dynamic.xml
+test/mocha/input-generators/snapshots/
 test/mocha/async/files
 npm-debug.log
 tmp
