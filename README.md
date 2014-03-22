@@ -1,4 +1,4 @@
-# [html-snapshots v0.4.0](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.4.1](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://secure.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
@@ -137,7 +137,11 @@ Apart from the default settings, there are a number of options that can be speci
   + Specifies the input source. This must be a valid location of a robots.txt, sitemap.xml, or a textfile or the associated input generators. robots.txt and sitemap.xml can be local or remote. However, for the array input generator, this must be a javascript array of urls.
 + `sitemapPolicy`
   + default: `false`
-  + For use only with the sitemap input generator. When true, only urls in the sitemap that are **not** current according to their lastmod and changefreq tags will be processed. For this to work, both lastmod and changefreq tags must be present \(alongside the loc tag\) in a url element of the sitemap. Not all url elements in a sitemap have to have lastmod and changefreq \(those tags are optional, unlike loc\), but the urls you want to be able to skip \(if they are current\) must have both those tags. If the lastmod or changefreq tags are not both there, or are deemed invalid, the url is processed normally. For more info on sitemap tags and acceptable values, read the [wikipedia](http://en.wikipedia.org/wiki/Sitemaps) page.
+  + For use only with the sitemap input generator. When true, lastmod and/or changefreq sitemap url child elements can be used to determine if a snapshot needs to be taken. Here are the possibilities for usage:
+    + Both lastmod and changefreq tags are specifed alongside loc tags in the sitemap. In this case, both of these tags are used to determine if the url is out-of-date and needs a snapshot.
+    + Only a lastmod tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the file modification time is compared against the lastmod value to see if the url is out-of-date and needs a snapshot.
+    + Only a changefreq tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the last file modification time is used as a timespan \(from now\) and compared against the given changefreq to see if the url is out-of-date and needs a snapshot.
+  Not all url elements in a sitemap have to have lastmod and/or changefreq \(those tags are optional, unlike loc\), but the urls you want to be able to skip \(if they are current\) must make use of those tags. You can intermix usage of these tags, as long as the requirements are met for making an age determination. If a determination on age cannot be made for any reason, the url is processed normally. For more info on sitemap tags and acceptable values, read the [wikipedia](http://en.wikipedia.org/wiki/Sitemaps) page.
 + `hostname`
   + default: `"localhost"`
   + Specifies the hostname to use for paths found in a robots.txt or textfile. Applies to all pages. This option is ignored if you are using the sitemap or array input generators.
@@ -152,10 +156,10 @@ Apart from the default settings, there are a number of options that can be speci
   + Specifies the protocol to use for all paths found in a robots.txt or textfile. This option is ignored if you are using the sitemap or array input generators.
 + `outputDir`
   + default: none
-  + Required \(must specify\). Specifies the root output directory to put all the snapshot files in. Paths to the snapshot files in the output directory are defined by the paths in the urls themselves. The snapshot files are always named "index.html".
+  + **Required** \(you must specify a value\). Specifies the root output directory to put all the snapshot files in. Paths to the snapshot files in the output directory are defined by the paths in the urls themselves. The snapshot files are always named "index.html".
 + `outputDirClean`
   + default: `false`
-  + Specifies if html-snapshots should clean the output directory before it creates the snapshots.
+  + Specifies if html-snapshots should clean the output directory before it creates the snapshots. If you are using sitemapPolicy and only specifying one of lastmod or changefreq in your sitemap \(thereby relying on file modification times on output files from a previous run\) this value must be false.
 + `outputPath`
   + default: none
   + Specifies per url overrides to the generated snapshot output path. The default output path for a snapshot file is rooted at outputDir, but is simply an echo of the input path - plus any arguments. Depending on your urls, your `_escaped_fragment_` rewrite rule (see below), or the characters allowed in directory names in your environment, it might be necessary to use this option to change the output paths.
@@ -221,3 +225,5 @@ You can also refer `_escaped_fragment_` requests to your snapshots in ExpressJS 
 ```javascript
   '^(.*)\\?_escaped_fragment_=.*$ /snapshots/$1 [NC L]'
 ```
+
+Another ExpressJS middleware example using html-snapshots can be found at [wpspa/server/middleware/snapshots.js](https://github.com/localnerve/wpspa/blob/master/server/middleware/snapshots.js)
