@@ -6,9 +6,16 @@ module.exports = function(grunt) {
 
     jshint: {
       all: [
-        "lib/**/*.js"
-        //, "test/mocha/**/*.js"
-      ]
+        "lib/**/*.js"        
+      ],
+      test: {
+        options: {
+          '-W083': true, // allow functions in loops for tests
+        },
+        files: {
+          src: ["test/mocha/**/*.js"]
+        }
+      }
     },
 
     mochaTest: {
