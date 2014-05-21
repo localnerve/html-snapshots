@@ -67,6 +67,26 @@ describe("input-generator", function(){
     }
   ];
 
+  function pathToRe(component) {
+    return component.replace("\\", "\\\\");
+  }
+
+  function urlToPath(url) {
+    var result = url;
+    if (process.platform === "win32") {
+      result = url.replace(/\//g, "\\");
+    }
+    return result;
+  }
+
+  function urlToPathRe(url) {
+    var result = url;
+    if (process.platform === "win32") {
+      result = url.replace(/\//g, "\\\\");
+    }
+    return result;
+  }
+
   for (var a in inputGenerators) {
 
     describe(inputGenerators[a].name, function() {
@@ -136,10 +156,18 @@ describe("input-generator", function(){
               //console.log("selector = "+ input.selector);
               //console.log("timeout = "+input.timeout);
               //console.log("checkInterval = "+input.checkInterval);
+              //console.log("@@@ defaults.outputDirReplaced = "+pathToRe(defaults.outputDir));
+
               var re1 = new RegExp("^("+defaults.protocol+")://("+defaults.hostname+")/");
-              var re2 = new RegExp("^("+defaults.outputDir+")/");
+              var re2 = new RegExp("^("+pathToRe(defaults.outputDir)+")"+pathToRe(path.sep));
+
               var m1 = re1.exec(input.url);
               var m2 = re2.exec(input.outputFile);
+
+              //console.log("@@@ m1[1] = "+m1[1]);
+              //console.log("@@@ m1[2] = "+m1[2]);
+              //console.log("@@@ m2[1] = "+m2[1]);
+
               if (globalUrl) {
                 assert.equal(m1[1], defaults.protocol);
                 assert.equal(m1[2], defaults.hostname);
@@ -404,7 +432,7 @@ describe("input-generator", function(){
         var counter = { count: 0 };
         var result = gen.run(options.decorate({ source: source, outputDir: snapshotDir }), (function(counter, snapshotDir){
           return function(input) {
-            var re = new RegExp("^("+snapshotDir+")/");
+            var re = new RegExp("^("+snapshotDir+")"+pathToRe(path.sep));
             //console.log("dir - outputFile ="+input.outputFile);
             var match = re.exec(input.outputFile);
             assert.equal(match[1], snapshotDir);
@@ -440,11 +468,15 @@ describe("input-generator", function(){
           return function(input) {
             //console.log("page - input url = "+input.url);
             //console.log("page - test url = "+pages[input.__page]);
+            //console.log("@@@ urlToPath(pages[input.__page]) = "+urlToPath(pages[input.__page]));
             //console.log("page - raw page = "+input.__page);
             //console.log("page - outputFile = "+input.outputFile);
-            var re = new RegExp("^("+snapshotDir+")("+pages[input.__page]+")");
+            
+            var re = new RegExp("^("+snapshotDir+")("+urlToPathRe(pages[input.__page])+")");
             var match = re.exec(input.outputFile);
-            assert.equal(true, match[1] === snapshotDir && match[2] === pages[input.__page]);
+            
+            assert.equal(true, match[1] === snapshotDir && match[2] === urlToPath(pages[input.__page]));
+            
             counter.count++;
             if (counter.count===urls)
               done();
@@ -483,9 +515,9 @@ describe("input-generator", function(){
           }), (function(counter, pages){
             return function(input) {
               //console.log("function - outputFile = "+input.outputFile);
-              var re = new RegExp("("+pages[input.__page]+")");
+              var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
               var match = re.exec(input.outputFile);
-              assert.equal(match[1], pages[input.__page]);
+              assert.equal(match[1], urlToPath(pages[input.__page]));
               counter.count++;
               if (counter.count===urls)
                 done();
@@ -525,9 +557,9 @@ describe("input-generator", function(){
           }), (function(counter, pages){
             return function(input) {
               //console.log("hash - outputFile = "+input.outputFile);
-              var re = new RegExp("("+pages[input.__page]+")");
+              var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
               var match = re.exec(input.outputFile);
-              assert.equal(match[1], pages[input.__page]);
+              assert.equal(match[1], urlToPath(pages[input.__page]));
               counter.count++;
               if (counter.count===urls)
                 done();
@@ -577,9 +609,9 @@ describe("input-generator", function(){
             return function(input) {
               // this doesn't happen for sitemap
               //console.log("function - outputFile = "+input.outputFile);
-              var re = new RegExp("("+pages[input.__page]+")");
+              var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
               var match = re.exec(input.outputFile);
-              assert.equal(match[1], pages[input.__page]);
+              assert.equal(match[1], urlToPath(pages[input.__page]));
               counter.count++;
               if (counter.count===urls-1)
                 done();
