@@ -1,5 +1,5 @@
 # [html-snapshots v0.4.3](http://github.com/localnerve/html-snapshots)
-[![Build Status](https://secure.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
+[![Build Status](https://api.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
 ## Overview
@@ -9,9 +9,6 @@ html-snapshots gets urls to process from either a robots.txt or sitemap.xml. Alt
 
 html-snapshots processes all the urls in parallel in their own PhantomJS processes. 
 **UPDATE** Starting with version 0.3.0, you can limit the number of PhantomJS processes that will ever run at once with the `processLimit` option.
-
-## Feedback
-Please [let me know how you are using this library](http://www.localnerve.com/blog/how-are-you-using-html-snapshots/) so I can make sure it evolves appropriately.
 
 ## More Information
 Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
