@@ -4,7 +4,7 @@
 The whole reason I created this library was so that I could be certain I snapshotted the page when expected content arrived (not after some arbitrary time expiration). This way, I could be certain the snapshot actually contained the content I expect. 
 
 ## What Happens If Your Content Does Not Appear
-If your content does not show up in a page, you get a timeout error - not a snapshot. Since I use this in builds, this is great (for me). It fails fast, and sometimes shows me that I've missed something.
+If your content does not show up in a page, you get a timeout error - not a snapshot. ~~Since I use this in builds, this is great \(for me\)~~. It fails fast, and sometimes shows me that I've missed something.
 
 ## Caveats
 
