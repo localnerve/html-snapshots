@@ -15,4 +15,6 @@ To control the parallel processing load, you can specify the `processLimit` opti
 ### The Default Snapshot Script
 The default snapshot script, [snapshotSingle.js](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/snapshotSingle.js), relies on jQuery to be loaded in every page you snapshot. In other words, _your_ page has to load jQuery. The default snapshot script does not temporarily inject jQuery for you in your pages. Suggestions for fancier snapshot scripts are welcome...
 
+To override the default snapshot script, supply a path to your own phantomjs script using the `snapshotScript` option.
+
 The default snapshot script uses jQuery is(:visible) to make the actual determination if the selector is in the output. Last I checked, this is only available in Zepto by building in a special [selector module](https://github.com/madrobby/zepto/issues/323).
