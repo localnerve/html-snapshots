@@ -15,7 +15,6 @@ html-snapshots processes all the urls in parallel in their own PhantomJS process
 Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
 
 ## Getting Started
-This library requires PhantomJS '>=1.7.1'. As of 0.3.0, works with 1.9.7.
 
 ### Installation
 The simplest way to install html-snapshots is to use [npm](http://npmjs.org), just `npm
