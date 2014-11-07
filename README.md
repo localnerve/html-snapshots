@@ -1,4 +1,4 @@
-# [html-snapshots v0.4.5](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.5.0](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://api.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 [![Dependency Status](https://david-dm.org/localnerve/html-snapshots.png)](https://david-dm.org/localnerve/html-snapshots) [![devDependency Status](https://david-dm.org/localnerve/html-snapshots/dev-status.png)](https://david-dm.org/localnerve/html-snapshots#info=devDependencies)
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
@@ -8,8 +8,9 @@ html-snapshots is a flexible html snapshot library that uses PhantomJS to take h
 
 html-snapshots gets urls to process from either a robots.txt or sitemap.xml. Alternatively, you can supply an array with completely arbitrary urls, or a line delimited textfile with arbitrary host-relative paths.
 
-html-snapshots processes all the urls in parallel in their own PhantomJS processes. 
-**UPDATE** Starting with version 0.3.0, you can limit the number of PhantomJS processes that will ever run at once with the `processLimit` option.
+html-snapshots processes all the urls in parallel in their own PhantomJS processes.
+
+**UPDATE** You can limit the number of PhantomJS processes that will ever run at once with the `processLimit` option. This effectively sets up a process pool for PhantomJS instances.
 
 ## More Information
 Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
@@ -107,13 +108,43 @@ var result = htmlSnapshots.run({
     You can use snapshotsCompleted to populate shared storage if you are running
       in a scalable server environment with an ephemeral file system:
   */
-  if (typeof err === "undefined") {
+  if (!err) {
     // safe to use snapshotsCompleted to update alternative storage
     //   Example: https://github.com/localnerve/wpspa/blob/master/server/workers/snapshots/lib/index.js
   }  
 });
 ```
 Generates snapshots in the ./snapshots directory for paths found in http://localhost/robots.txt. Uses those paths against "localhost" to get the actual html output. Expects "#dynamic-content" to appear in all output. The callback function is called when snapshots concludes.
+
+### Example - Completion callback, Remote robots.txt, remove script tags from html snapshots
+```javascript
+var fs = require("fs");
+var assert = require("assert");
+var htmlSnapshots = require("html-snapshots");
+
+var result = htmlSnapshots.run({
+  input: "robots",      // default, so not required
+  source: "http://localhost/robots.txt",
+  hostname: "localhost",
+  outputDir: "./snapshots",
+  outputDirClean: true,  
+  selector: "#dynamic-content",
+  snapshotScript: {
+    script: "removeScripts"
+  }
+}, function(err, snapshotsCompleted) {
+  var content;
+
+  assert.ifError(err);
+
+  snapshotsCompleted.forEach(function(snapshotFile) {
+    content = fs.readFileSync(snapshotFile, { encoding: "utf8"});    
+    assert.equal(false, /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content));
+    // there are no script tags in the html snapshots
+  });
+});
+```
+Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option.
 
 ## Options
 Apart from the default settings, there are a number of options that can be specified. Options are specified in an object to the module's run method ``htmlSnapshots.run({ optionName: value })``.
@@ -143,21 +174,27 @@ Apart from the default settings, there are a number of options that can be speci
 + `hostname`
   + default: `"localhost"`
   + Specifies the hostname to use for paths found in a robots.txt or textfile. Applies to all pages. This option is ignored if you are using the sitemap or array input generators.
+
 + `port`
   + default: 80
   + Specifies the port to use for all paths found in a robots.txt or textfile. This option is ignored if you are using the sitemap or array input generators.
+
 + `auth`
   + default: none
   + Specifies the old-school authentication portion of the url. Applies to all path found in a robots.txt or textfile.
+
 + `protocol`
   + default: `"http"`
   + Specifies the protocol to use for all paths found in a robots.txt or textfile. This option is ignored if you are using the sitemap or array input generators.
+
 + `outputDir`
   + default: none
   + **Required** \(you must specify a value\). Specifies the root output directory to put all the snapshot files in. Paths to the snapshot files in the output directory are defined by the paths in the urls themselves. The snapshot files are always named "index.html".
+
 + `outputDirClean`
   + default: `false`
   + Specifies if html-snapshots should clean the output directory before it creates the snapshots. If you are using sitemapPolicy and only specifying one of lastmod or changefreq in your sitemap \(thereby relying on file modification times on output files from a previous run\) this value must be false.
+
 + `outputPath`
   + default: none
   + Specifies per url overrides to the generated snapshot output path. The default output path for a snapshot file is rooted at outputDir, but is simply an echo of the input path - plus any arguments. Depending on your urls, your `_escaped_fragment_` rewrite rule (see below), or the characters allowed in directory names in your environment, it might be necessary to use this option to change the output paths.
@@ -184,7 +221,7 @@ Apart from the default settings, there are a number of options that can be speci
   + default: 5000 (milliseconds)
   + Specifies the time to wait for the selector to become visible.
       
-      The value can be of these one of these *javascript types*:
+      The value can be one of these *javascript types*:
       
       `"number"` If the value is a number, it is used for every page in the website.      
       `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify timeouts for individual pages. The reserved key "__default" allows you to specify the default timeout so you don't have to specify a timeout for every individual page.
@@ -193,16 +230,52 @@ Apart from the default settings, there are a number of options that can be speci
 
 + `processLimit`
   + default: Number.MAX_VALUE
-  + Limits the number of child PhantomJS processes that can ever be actively running in parallel. A value of 1 effectively forces the snapshots to be taken in series (only one at a time). Useful if you need to limit the number of processes spawned by this library.
+  + Limits the number of child PhantomJS processes that can ever be actively running in parallel. A value of 1 effectively forces the snapshots to be taken in series (only one at a time). Useful if you need to limit the number of processes spawned by this library. Experiment with what works best. One guideline suggests about [4 per CPU](http://stackoverflow.com/questions/9961254/how-to-manage-a-pool-of-phantomjs-instances).
+
 + `checkInterval`
   + default: 250 (milliseconds)
   + Specifies the rate at which the PhantomJS script checks to see if the selector is visible yet. Applies to all pages.
+
 + `pollInterval`
   + default: 500 (milliseconds)
   + Specifies the rate at which html-snapshots checks to see if a PhantomJS script has completed. Applies to all pages.
+
 + `snapshotScript`
-  + default: this library's phantom/snapshotSingle.js file
-  + Specifies the PhantomJS script to run to actually produce the snapshot. Override this if you need to supply your own snapshot script. This script is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
+  + default: This library's [default](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/default.js) snapshot script. This script takes the snapshot when the supplied selector becomes visible using `$(selector).is(":visible")`.
+  + Specifies the PhantomJS script to run to actually produce the snapshot. The script supplied in this option is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
+
+    The value can be one of these *javascript types*:
+
+    `"string"` If the value is a string, it must an absolute path to a custom PhantomJS script you supply. html-snapshots will spawn a separate PhantomJS instance to run your snapshot script and give it the following [arguments](http://phantomjs.org/api/system/property/args.html):
+      + `system.args[0]` The path to your PhantomJS script.
+      + `system.args[1]` The full path to the output file your script is expected to write the html contents to.
+      + `system.args[2]` The url to snapshot.
+      + `system.args[3]` The selector to watch for to signal page completion.
+      + `system.args[4]` The overall timeout in milliseconds.
+      + `system.args[5]` The interval to watch for the selector.
+
+    `"object"` If an object is supplied, it has the following properties:
+      + `script` This must be one of the following values:
+        + `"removeScripts"` This runs the default snapshot script with an output filter that removes all script tags are removed from the html snapshot before it is saved.
+        + `"customFilter"` This runs the default snapshot script, but allows you to supply any output filter.
+      + `module` This property is required only if you supplied a value of `"customFilter"` for the `script` property. This must be an absolute path to a PhantomJS module you supply. Your module will be `require`d and called as a function to filter the html snapshot output. Your module's function will receive the entire raw html content as a single input string, and must return the filtered html content.
+
+      customFilter Example:
+      ```javascript
+      // option snippet showing snapshotScript object with "customFilter":
+      {
+        snapshotScript: {
+          script: "customFilter",
+          module: "/path/to/myFilter.js"
+        }
+      }
+
+      // in myFilter.js:
+      module.exports = function(content) {
+        return content.replace(/someregex/g, "somereplacement"); // remove or replace anything
+      }
+      ```
+
 + `phantomjs`
   + default: A package local reference to phantomjs.
   + Specifies the phantomjs executable to run. Override this if you want to supply a path to a different version of phantomjs. To reference PhantomJS globally in your environment, just use the value, "phantomjs". Remember, it must be found in your environment path to execute.
