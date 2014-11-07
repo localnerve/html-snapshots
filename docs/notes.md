@@ -12,8 +12,13 @@ If your content does not show up in a page, you get a timeout error - not a snap
 html-snapshots creates a new process for each page to snapshot, and they run in parallel. ~~I only use this library in a build process on a linux box, so I'm not concerned with creating a lot of processes. However, if you had a site with 1000's of pages, this could become an issue if you are building on a "process-heavy" OS. Futhermore, if you were using html-snapshots live on the server, this could be a deal breaker for a big site.~~ 
 To control the parallel processing load, you can specify the `processLimit` option to limit the size of the process pool. In other words, you can limit the number of pages being processed in parallel at any one time. This is a new feature available in 0.3.x.
 
-### The Default Snapshot Script
-The default snapshot script, [snapshotSingle.js](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/snapshotSingle.js), relies on jQuery to be loaded in every page you snapshot. In other words, _your_ page has to load jQuery. The default snapshot script does not temporarily inject jQuery for you in your pages. Suggestions for fancier snapshot scripts are welcome...
+### The Default Snapshot Scripts
+The default snapshot scripts,
+  - [default.js](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/default.js)
+  - [removeScripts.js](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/removeScripts.js)
+  - [customFilter.js](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/customFilter.js)
+
+Rely on jQuery to be loaded in every page you snapshot. In other words, _your_ page has to load jQuery. The default snapshot script does not temporarily inject jQuery for you in your pages. Suggestions for injector snapshot scripts are welcome...
 
 To override the default snapshot script, supply a path to your own phantomjs script using the `snapshotScript` option.
 
