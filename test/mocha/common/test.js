@@ -53,4 +53,73 @@ describe("common", function(){
       assert.equal(false, result);
     });
   });
+
+  describe("checkResponse", function () {
+
+    it("should reject a non 200 response", function() {
+      var result = common.checkResponse({ statusCode: 206 }, "doesntmatter");
+      assert.notEqual(false, result);
+    });
+
+    it("should reject for missing content type", function() {
+      var result = common.checkResponse({
+        statusCode: 200,
+        headers: {}
+      }, "any");
+      assert.notEqual(false, result);
+    });
+
+    it("should reject for bad content type, single", function() {
+      var result = common.checkResponse({
+        statusCode: 200,
+        headers: {
+          "content-type": "text/plain"
+        }
+      }, "text/xml");
+      assert.notEqual(false, result);
+    });
+
+    it("should reject for bad content type, multiple", function() {
+      var result = common.checkResponse({
+        statusCode: 200,
+        headers: {
+          "content-type": "text/plain"
+        }
+      }, ["text/xml", "application/xml"]);
+      assert.notEqual(false, result);
+    });
+
+    it("should accept for good content type, single", function() {
+      var contentType = "text/plain";
+      var result = common.checkResponse({
+        statusCode: 200,
+        headers: {
+          "content-type": contentType
+        }
+      }, contentType);
+      assert.equal(false, result);
+    });
+
+    it("should accept for good content type, multiple, first", function() {
+      var contentType = "text/xml";
+      var result = common.checkResponse({
+        statusCode: 200,
+        headers: {
+          "content-type": contentType
+        }
+      }, [contentType, "application/xml"]);
+      assert.equal(false, result);
+    });
+
+    it("should accept for good content type, multiple, last", function() {
+      var contentType = "text/xml";
+      var result = common.checkResponse({
+        statusCode: 200,
+        headers: {
+          "content-type": contentType
+        }
+      }, ["application/xml", contentType]);
+      assert.equal(false, result);
+    });
+  });
 });

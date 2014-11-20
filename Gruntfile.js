@@ -1,12 +1,22 @@
 module.exports = function(grunt) {
-  grunt.loadNpmTasks("grunt-mocha-test");
-  grunt.loadNpmTasks("grunt-contrib-jshint");
-
+  // load all grunt tasks
+  require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
+  
   grunt.initConfig({
+
+    coveralls: {
+      options: {
+        // just warn if we can't transmit coverage to coveralls
+        force: true
+      },
+      all: {
+        src: "coverage/lcov.info"
+      }
+    },
 
     jshint: {
       all: [
-        "lib/**/*.js"        
+        "lib/**/*.js"
       ],
       test: {
         options: {
@@ -25,6 +35,9 @@ module.exports = function(grunt) {
       all: {
         src: [ "test/mocha/**/*.js" ]
       },
+      common: {
+        src: [ "test/mocha/common/*js" ]
+      },
       "input-generators": {
         src: [ "test/mocha/input-generators/*.js" ]
       },
@@ -33,6 +46,11 @@ module.exports = function(grunt) {
       },
       "html-snapshots": {
         src: [ "test/mocha/html-snapshots/*.js" ]
+      },
+      coverage: {
+        options: {
+          reporter: "lcov"
+        }
       }
     }
   });

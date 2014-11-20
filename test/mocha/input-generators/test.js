@@ -627,7 +627,12 @@ describe("input-generator", function(){
           //this.timeout(30000);
 
           var counter = { count: 0 };
-          var result = gen.run(options.decorate({ source: remote }), function(input){
+          var result = gen.run(options.decorate({
+            source: remote,
+            _abort: function(err) {
+              assert.fail(false, !!err, remote + " should not have aborted", ",");
+            }            
+          }), function(input){
             //console.log("remote = "+input.url);
             assert(true, common.isUrl(input.url));
             counter.count++;

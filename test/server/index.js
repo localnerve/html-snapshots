@@ -6,6 +6,16 @@ var http = require("http"),
     path = require("path"),
     fs = require("fs");
 
+// this is crazy over-simple, gotta switch to connect...
+function contentType(ext) {
+  var ct = "text/html";
+  if (ext === ".xml")
+    ct = "text/xml";
+  else if (ext === ".txt")
+    ct = "text/plain";
+  return ct;
+}
+
 module.exports = {
 
   start: function(rootDir, port, end) {
@@ -17,7 +27,7 @@ module.exports = {
 
       fs.exists(filename, function(exists) {
         if(!exists) {
-          response.writeHead(404, {"Content-Type": "text/plain"});
+          response.writeHead(404, {"content-type": "text/plain"});
           response.write("404 Not Found\n");
           response.end();
           return;
@@ -27,7 +37,7 @@ module.exports = {
 
         fs.readFile(filename, "binary", function(err, file) {
           if(err) {
-            response.writeHead(500, {"Content-Type": "text/plain"});
+            response.writeHead(500, {"content-type": "text/plain"});
             response.write(err + "\n");
             response.end();
             if (typeof end === "function")
@@ -35,8 +45,7 @@ module.exports = {
             return;
           }
 
-          // this is crazy over-simple, gotta switch to connect...
-          response.writeHead(200, {"Content-Type": (extname === ".xml" ? "text/xml" : "text/html")});
+          response.writeHead(200, {"content-type": contentType(extname)});
           response.write(file, "binary");
           response.end();
           if (typeof end === "function")

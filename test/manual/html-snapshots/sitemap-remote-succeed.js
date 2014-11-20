@@ -2,7 +2,7 @@ var path = require("path");
 var ss = require("../../../lib/html-snapshots");
 var result = ss.run({
   input: "sitemap",
-  source: "http://wpspa-transitional.herokuapp.com/sitemap-test-not.xml",
+  source: "http://wpspa-transitional.herokuapp.com/sitemap.xml",
   sitemapPolicy: true,
   protocol: "http",
   outputDirClean: true,

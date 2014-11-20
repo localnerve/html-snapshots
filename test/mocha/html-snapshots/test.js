@@ -79,6 +79,24 @@ describe("html-snapshots", function() {
       assert.equal(true, result);
     });
 
+    it("run async, should all fail with bad phantomjs process to spawn", function(done) {
+      var options = {
+        source: inputFile,
+        hostname: "localhost",
+        port: 8080,
+        selector: "#dynamic-content",
+        outputDir: path.join(__dirname, "./tmp/sync/snapshots"),
+        outputDirClean: false,
+        phantomjs: bogusFile
+      };
+      var result = ss.run(options, function(err, snapshots) {
+        // here is where the error should be
+        assert.notStrictEqual(typeof err, "undefined");
+        setTimeout(done, 500); // settle down
+      });
+      assert.equal(true, result);
+    });
+
     it("run async, all snapshots should succeed, no output dir pre-exists", function(done){
       rimraf(path.join(__dirname, "./tmp/snapshots"));
       var ourport = ++port;
@@ -107,7 +125,8 @@ describe("html-snapshots", function() {
         port: ourport,
         selector: "#dynamic-content",
         outputDir: path.join(__dirname, "./tmp/snapshots"),
-        outputDirClean: true
+        outputDirClean: true,
+        timeout: 6000
       };
       var result = ss.run(optHelp.decorate(options), function(err) {
         setTimeout(done, 500, err); // settle down
@@ -115,11 +134,31 @@ describe("html-snapshots", function() {
       assert.equal(true, result);
     });
 
-    it("run async, all snapshots should succeed, bad remote sitemap", function(done){
+    it("run async, all snapshots should fail, bad remote sitemap", function(done){
       var ourport = ++port;
       server.start(path.join(__dirname, "./server"), ourport);
       var options = {
         input: "sitemap",
+        source: "http://localhost:"+ourport+"/index.html",
+        port: ourport,
+        selector: "#dynamic-content",
+        outputDir: path.join(__dirname, "./tmp/snapshots"),
+        outputDirClean: true,
+        timeout: 6000
+      };
+      var result = ss.run(optHelp.decorate(options), function(err) {
+        // here is where the error should be
+        assert.notStrictEqual(typeof err, "undefined");
+        setTimeout(done, 500); // settle down
+      });
+      assert.equal(true, result); // run returns true because it isn't discovered until later
+    });
+
+    it("run async, all snapshots should fail, bad remote robots", function(done){
+      var ourport = ++port;
+      server.start(path.join(__dirname, "./server"), ourport);
+      var options = {
+        input: "robots",
         source: "http://localhost:"+ourport+"/index.html",
         port: ourport,
         selector: "#dynamic-content",

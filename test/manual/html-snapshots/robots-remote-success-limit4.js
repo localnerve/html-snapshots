@@ -1,11 +1,10 @@
 var ss = require("../../../lib/html-snapshots");
 var result = ss.run({
-  //input: "robots",
-  source: "http://ns1.localnerve.com/robots.txt",
-  protocol: "http",
-  hostname: "ns1.localnerve.com",
+  source: "http://wpspa-transitional.herokuapp.com/robots.txt",
+  hostname: "wpspa-transitional.herokuapp.com",
   outputDirClean: true,
   outputDir: "./tmp/snapshots",
-  selector: function(url) { return "#dynamic-content"; },
-  processLimit: 4
+  selector: "#contact-form",
+  processLimit: 4,
+  timeout: 12000
 });
