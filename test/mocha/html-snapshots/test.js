@@ -86,7 +86,7 @@ describe("html-snapshots", function() {
         port: 8080,
         selector: "#dynamic-content",
         outputDir: path.join(__dirname, "./tmp/sync/snapshots"),
-        outputDirClean: false,
+        outputDirClean: true,
         phantomjs: bogusFile
       };
       var result = ss.run(options, function(err, snapshots) {
