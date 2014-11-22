@@ -13,9 +13,9 @@ html-snapshots gets urls to process from either a robots.txt or sitemap.xml. Alt
 
 html-snapshots processes all the urls in parallel in their own PhantomJS processes. You can limit the number of PhantomJS processes that will ever run at once with the `processLimit` option. This effectively sets up a process pool for PhantomJS instances. The default process pool is 4 PhantomJS instances.
 
-## Breaking Changes in v0.6.0
-JQuery selectors are no longer supported by default. To restore this previous behavior, set the `useJQuery` option to `true`.
-In v0.6.0, jQuery is no longer required to be loaded by the page being snapshotted. However, if you use jQuery selectors, or selectors not supported by [document.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector), it does.
+## Breaking Change in v0.6.x
+jQuery selectors are no longer supported by default. To restore the previous behavior, set the `useJQuery` option to `true`.
+The upside is jQuery is no longer required to be loaded by the page being snapshotted. However, if you use jQuery selectors, or selectors not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector), the page being snapshotted must load jQuery.
 
 ## More Information
 Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
@@ -101,7 +101,7 @@ var result = htmlSnapshots.run({
 });
 // result === true if snapshots were successfully started
 ```
-This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except in "/jqpage", where a selector not supported by [document.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector) is used. Further, "/jqpage" loads jQuery itself. All the other pages don't need to use special selectors, so the default is set to `false`. Notice that since a robots.txt input is used, full URLs are **not** used to match selectors. Instead, paths \(and QueryStrings and any Hashes\) are used, just as specified in the robots.txt file itself.
+This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except in "/jqpage", where a selector not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector) is used. Further, "/jqpage" loads jQuery itself \(required\). All the other pages don't need to use special selectors, so the default is set to `false`. Notice that since a robots.txt input is used, full URLs are **not** used to match selectors. Instead, paths \(and QueryStrings and any Hashes\) are used, just as specified in the robots.txt file itself.
 
 ### Example - Array
 ```javascript
@@ -115,7 +115,7 @@ var result = htmlSnapshots.run({
 });
 // result === true if snapshots were successfully started
 ```
-Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol.
+Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out the complete [example](https://github.com/localnerve/html-snapshots/tree/master/examples/html5rocks).
 
 ### Example - Completion callback, Remote robots.txt
 ```javascript
@@ -174,7 +174,7 @@ var result = htmlSnapshots.run({
   });
 });
 ```
-Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option.
+Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the complete [example](https://github.com/localnerve/html-snapshots/tree/master/examples/custom).
 
 ## Options
 Apart from the default settings, there are a number of options that can be specified. Options are specified in an object to the module's run method ``htmlSnapshots.run({ optionName: value })``.
@@ -251,11 +251,11 @@ Apart from the default settings, there are a number of options that can be speci
       
       `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given.
   
-  NOTE: By default, selectors must conform to [this spec](http://www.w3.org/TR/selectors-api/#grammar), as they are used by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). If you need selectors not supported by this, you must specify the `useJQuery` option.
+  NOTE: By default, selectors must conform to [this spec](http://www.w3.org/TR/selectors-api/#grammar), as they are used by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). If you need selectors not supported by this, you must specify the `useJQuery` option, and load jQuery in your page.
 
 + `useJQuery`
   + default: `false`
-  + Specifies to use jQuery selectors to detect when to snapshot a page. Please note that you cannot use these selectors if the page to be snapshotted does not load jQuery itself. To return to the behavior prior to v0.6.0, set this to `true`.
+  + Specifies to use jQuery selectors to detect when to snapshot a page. Please note that you cannot use these selectors if the page to be snapshotted does not load jQuery itself. To return to the behavior prior to v0.6.x, set this to `true`.
       
       The value can be one of these *javascript types*:
       
