@@ -2,7 +2,6 @@
  * Snapshot an example website
  * 
  * Use sitemap.xml to snapshot the entire site.
- * Use per-page selectors to snapshot.
  * Use a customFilter to update the output before the snapshots are written.
  * 
  */
@@ -16,10 +15,7 @@ htmlSnapshots.run({
   source: "http://enigmatic-refuge-9006.herokuapp.com/sitemap.xml",
   outputDir: path.join(__dirname, "./tmp"),
   outputDirClean: true,
-  selector: {
-    "/": "#content .multiple-posts",
-    "__default": ".page-content"
-  },
+  selector: ".page-content",
   snapshotScript: {
     script: "customFilter",
     module: path.join(__dirname, "myFilter.js")
