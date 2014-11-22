@@ -143,8 +143,9 @@ describe("input-generator", function(){
           hostname: "localhost",
           outputDir: "snapshots",
           selector: "body",
-          timeout: 5000,
-          checkInterval: 250
+          timeout: 10000,
+          checkInterval: 250,
+          useJQuery: false
         };
         var counter = { count: 0 };
         var result = gen.run(options.decorate({ source: source }), (function(counter, defaults){
@@ -176,6 +177,8 @@ describe("input-generator", function(){
               assert.equal(defaults.selector, input.selector);
               assert.equal(defaults.timeout, input.timeout);
               assert.equal(defaults.checkInterval, input.checkInterval);
+              assert.equal(defaults.useJQuery, input.useJQuery);
+
               counter.count++;
               if (counter.count===urls)
                 done();
@@ -331,6 +334,94 @@ describe("input-generator", function(){
                 done();
             };
           })(counter, globalUrl ? globalSelectors : localSelectors));
+        assert.equal(true, result);
+      });
+
+      it("should accept a scalar useJQuery option and apply globally", function(done) {
+        var useJQuery = true;
+        var count = 0;
+        var result = gen.run(options.decorate({
+          source: source,
+          useJQuery: useJQuery
+        }), function(input) {
+            assert.equal(input.useJQuery, useJQuery);
+            count++;
+            if (count === urls)
+              done();
+        });        
+        assert.equal(true, result);
+      });
+
+      it("should accept an object useJQuery option and apply per url", function(done) {
+        var globalOptions = {
+          "/": false,
+          "/contact": true,
+          "/services/carpets": false,
+          "__default": true
+        };
+        var localOptions = {
+          "http://northstar.local/": false,
+          "http://northstar.local/contact": true,
+          "http://northstar.local/services/carpets": false,
+          "__default": true
+        };
+        var count = 0;
+        var result = gen.run(options.decorate({
+          source: source,
+          useJQuery: globalUrl ? globalOptions : localOptions
+        }), function(input) {
+          //console.log("@@@ input.__page = "+input.__page);
+          //console.log("@@@ globalUrl = "+globalUrl);
+
+          var opts = (globalUrl ? globalOptions : localOptions);
+          //console.log("@@@ opts = "+require("util").inspect(opts));
+
+          var testOption = opts[input.__page] != void 0 ? opts[input.__page] : opts.__default;
+          //console.log("@@@ testOption = "+testOption);
+          //console.log("@@@ input.useJQuery = "+input.useJQuery);
+          
+          assert.equal(input.useJQuery, testOption);
+          count++;
+          if (count === urls) {
+            done();
+          }
+        });
+        assert.equal(true, result);        
+      });
+
+      it("should accept a function useJQuery option and apply per url", function(done) {
+        var globalOptions = {
+          "/": false,
+          "/contact": true,
+          "/services/carpets": false,
+          "__default": true
+        };
+        var localOptions = {
+          "http://northstar.local/": false,
+          "http://northstar.local/contact": true,
+          "http://northstar.local/services/carpets": false,
+          "__default": true
+        };
+        var count = 0;
+        var useJQFn = (function(opts){
+          return function(url) {
+            return opts[url];
+          };
+        })(globalUrl ? globalOptions : localOptions);
+
+        var result = gen.run(options.decorate({
+          source: source,
+          useJQuery: useJQFn
+        }), function(input) {
+          var opts = (globalUrl ? globalOptions : localOptions);
+          var testOption = opts[input.__page];
+
+          assert.equal(input.useJQuery, testOption);
+          count++;
+
+          if (count === urls)
+            done();
+        });
         assert.equal(true, result);
       });
 

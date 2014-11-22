@@ -73,7 +73,8 @@ describe("html-snapshots", function() {
         port: ourport,
         selector: "#dynamic-content",
         outputDir: path.join(__dirname, "./tmp/sync/snapshots"),
-        outputDirClean: true
+        outputDirClean: true,
+        timeout: 5000
       };
       var result = ss.run(optHelp.decorate(options));
       assert.equal(true, result);
@@ -87,7 +88,8 @@ describe("html-snapshots", function() {
         selector: "#dynamic-content",
         outputDir: path.join(__dirname, "./tmp/sync/snapshots"),
         outputDirClean: true,
-        phantomjs: bogusFile
+        phantomjs: bogusFile,
+        timeout: 2000
       };
       var result = ss.run(options, function(err, snapshots) {
         // here is where the error should be
@@ -183,7 +185,8 @@ describe("html-snapshots", function() {
         port: ourport,
         selector: "#dynamic-content-notexist",
         outputDir: path.join(__dirname, "./tmp/snapshots"),
-        outputDirClean: true
+        outputDirClean: true,
+        timeout: 6000
       };
       var result = ss.run(optHelp.decorate(options), function(err) {
         assert.notStrictEqual(typeof err, "undefined");
@@ -201,7 +204,8 @@ describe("html-snapshots", function() {
           port: ourport,
           selector: { "__default": "#dynamic-content", "/": "#dynamic-content-notexist" },
           outputDir: path.join(__dirname, "./tmp/snapshots"),
-          outputDirClean: true
+          outputDirClean: true,
+          timeout: 6000
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
           assert.notStrictEqual(typeof err, "undefined");
@@ -313,7 +317,101 @@ describe("html-snapshots", function() {
         });
       }
     });
-    
+  });
+
+  describe("useJQuery option behaviors", function() {
+    this.timeout(30000);
+
+    var subdir = "useJQuery";
+
+    it("should fail if useJQuery is true and no jQuery loads in target page", function(done) {
+        var ourport = ++port;
+        server.start(path.join(__dirname, "./server"), ourport);
+        var options = {
+          input: "array",
+          source: [ "http://localhost:"+ourport+"/nojq" ],
+          selector: "#pocs1",
+          outputDir: path.join(__dirname, "./tmp/"+subdir),
+          outputDirClean: true,
+          timeout: 5000,
+          useJQuery: true
+        };
+        var result = ss.run(optHelp.decorate(options), function(err) {
+          assert.notStrictEqual(typeof err, "undefined");
+          setTimeout(done, 1000); // settle down
+        });
+        assert.equal(true, result);
+    });
+
+    it("should fail if useJQuery is false, no jQuery loads in page, BUT the element is not visible", function(done){
+        var ourport = ++port;
+        server.start(path.join(__dirname, "./server"), ourport);
+        var options = {
+          input: "array",
+          source: [ "http://localhost:"+ourport+"/nojq" ],
+          selector: ".nojq-notvisible",
+          outputDir: path.join(__dirname, "./tmp/"+subdir),
+          outputDirClean: true,
+          timeout: 5000,
+          useJQuery: true
+        };
+        var result = ss.run(optHelp.decorate(options), function(err) {
+          assert.notStrictEqual(typeof err, "undefined");
+          setTimeout(done, 1000); // settle down
+        });
+        assert.equal(true, result);
+    });
+
+    it("should succeed if useJQuery is false and no JQuery loads in target page", function(done) {
+        var ourport = ++port;
+        var outputDir = path.join(__dirname, "./tmp/"+subdir);
+
+        server.start(path.join(__dirname, "./server"), ourport);
+
+        var options = {
+          input: "array",
+          source: [ "http://localhost:"+ourport+"/nojq" ],
+          selector: ".nojq-dynamic", // nojq-dynamic is created onload
+          //selector: "#pocs1",
+          outputDir: outputDir,
+          outputDirClean: true,
+          timeout: 5000,
+          useJQuery: false
+        };
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          assert.ifError(err);
+          assert.equal(completed.length, 1);
+          assert.equal(completed[0], outputDir+"/nojq/index.html");
+          setTimeout(done, 1000); // settle down
+        });
+        assert.equal(true, result);
+    });
+
+    it("should succeed if useJQuery is true and jQuery loads in target page", function(done) {
+        var ourport = ++port;
+        var outputDir = path.join(__dirname, "./tmp/snapshots");
+        server.start(path.join(__dirname, "./server"), ourport);
+        var options = {
+          input: "array",
+          source: [ "http://localhost:"+ourport+"/" ],
+          selector: "#dynamic-content",
+          outputDir: outputDir,
+          outputDirClean: true,
+          timeout: 5000,
+          useJQuery: true
+        };
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          //console.log("completed:\n"+require("util").inspect(completed));
+          assert.ifError(err);
+          assert.equal(completed.length, 1);
+          assert.equal(completed[0], outputDir+"/index.html");
+          setTimeout(done, 1000); // settle down
+        });
+        assert.equal(true, result);
+    });
+
+    // most of these tests use useJQuery false and jQuery loads in target page, so not testing that combo
+    // that should always succeed as long as the selector is not dependent on jQuery.
   });
 
   describe("additional snapshot scripts", function() {
@@ -368,7 +466,8 @@ describe("html-snapshots", function() {
         selector: "#dynamic-content",          
         outputDir: path.join(__dirname, "./tmp/snapshots"),
         outputDirClean: true,
-        snapshotScript: bogusFile
+        snapshotScript: bogusFile,
+        timeout: 5000
       };
       var result = ss.run(optHelp.decorate(options), function(err) {
         assert.notStrictEqual(typeof err, "undefined");
@@ -389,7 +488,8 @@ describe("html-snapshots", function() {
         outputDirClean: true,
         snapshotScript: {
           script: bogusFile
-        }
+        },
+        timeout: 5000
       };
       var result = ss.run(optHelp.decorate(options), function(err) {
         assert.notStrictEqual(typeof err, "undefined");
@@ -410,7 +510,8 @@ describe("html-snapshots", function() {
         outputDirClean: true,
         snapshotScript: {
           script: "customFilter"
-        }
+        },
+        timeout: 5000
       };
       var result = ss.run(optHelp.decorate(options), function(err) {
         assert.notStrictEqual(typeof err, "undefined");
@@ -432,7 +533,8 @@ describe("html-snapshots", function() {
         snapshotScript: {
           script: "customFilter",
           module: bogusFile
-        }
+        },
+        timeout: 5000
       };
       var result = ss.run(optHelp.decorate(options), function(err) {
         assert.notStrictEqual(typeof err, "undefined");

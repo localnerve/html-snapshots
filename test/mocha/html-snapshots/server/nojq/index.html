@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Whoop</title>
+  <script script type="text/javascript" charset="utf-8">
+    function changer() {
+      var newdiv = document.createElement("div");
+      var text = document.createTextNode("Dynamic");
+      newdiv.setAttribute("class", "nojq-dynamic");    
+      newdiv.appendChild(text);
+      document.getElementById("pocs").appendChild(newdiv);
+    } 
+  </script>
+</head>
+<body onload="changer();">
+<div class="gstl_0 sbdd_a" style="min-width: 571px; top: 339px; position: absolute; left: 525px;">
+  <div class="fl"></div>
+  <div>
+    <div class="sbdd_b" style="display: none;">
+      <div class="nojq-notvisible">
+        I might as well not be here
+      </div>
+    </div>
+    <div>
+      <div id="pocs" style="left: 0px; white-space: nowrap; position: absolute;">
+        <div id="pocs0">
+          <span>
+            <span>Google</span>
+              Instant is unavailable. Press Enter to search.
+          </span>
+          &nbsp;
+          <a href="/support/websearch/bin/answer.py?answer=186645&amp;form=bb&amp;hl=en">Learn more</a>
+        </div>
+        <div id="pocs1">
+          <span>Google</span>
+          Instant is off due to connection speed. Press Enter to search.
+        </div>
+        <div id="pocs2">Press Enter to search.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

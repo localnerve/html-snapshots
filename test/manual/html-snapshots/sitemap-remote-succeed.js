@@ -9,7 +9,7 @@ var result = ss.run({
   outputDir: path.join(__dirname, "./tmp/snapshots"),
   selector: "#contact-form",
   processLimit: 4,
-  timeout: 10000
+  timeout: 20000
 }, function(err, results) {
   console.log("err = "+err);
   console.log("results = "+results);

@@ -1,7 +1,8 @@
-# [html-snapshots v0.5.1](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.6.0](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://api.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
-[![Coverage Status](https://img.shields.io/coveralls/localnerve/html-snapshots.svg)](https://coveralls.io/r/localnerve/html-snapshots)
-[![Dependency Status](https://david-dm.org/localnerve/html-snapshots.png)](https://david-dm.org/localnerve/html-snapshots) [![devDependency Status](https://david-dm.org/localnerve/html-snapshots/dev-status.png)](https://david-dm.org/localnerve/html-snapshots#info=devDependencies)
+[![Coverage Status](https://img.shields.io/coveralls/localnerve/html-snapshots.svg)](https://coveralls.io/r/localnerve/html-snapshots?branch=master)
+[![Dependency Status](https://david-dm.org/localnerve/html-snapshots.png)](https://david-dm.org/localnerve/html-snapshots)
+[![devDependency Status](https://david-dm.org/localnerve/html-snapshots/dev-status.png)](https://david-dm.org/localnerve/html-snapshots#info=devDependencies)
 
 > Takes html snapshots of your site's crawlable pages when a selector becomes visible.
 
@@ -10,9 +11,11 @@ html-snapshots is a flexible html snapshot library that uses PhantomJS to take h
 
 html-snapshots gets urls to process from either a robots.txt or sitemap.xml. Alternatively, you can supply an array with completely arbitrary urls, or a line delimited textfile with arbitrary host-relative paths.
 
-html-snapshots processes all the urls in parallel in their own PhantomJS processes.
+html-snapshots processes all the urls in parallel in their own PhantomJS processes. You can limit the number of PhantomJS processes that will ever run at once with the `processLimit` option. This effectively sets up a process pool for PhantomJS instances. The default process pool is 4 PhantomJS instances.
 
-**UPDATE** You can limit the number of PhantomJS processes that will ever run at once with the `processLimit` option. This effectively sets up a process pool for PhantomJS instances.
+## Breaking Changes in v0.6.0
+JQuery selectors are no longer supported by default. To restore this previous behavior, set the `useJQuery` option to `true`.
+In v0.6.0, jQuery is no longer required to be loaded by the page being snapshotted. However, if you use jQuery selectors, or selectors not supported by [document.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector), it does.
 
 ## More Information
 Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
@@ -27,7 +30,7 @@ install html-snapshots` will download html-snapshots and all dependencies.
 If you are interested in the grunt task that uses this library, check out [grunt-html-snapshots](http://github.com/localnerve/grunt-html-snapshots).
 
 ## Example Usage
-If you are looking for a more in-depth usage example, here is [an article](http://github.com/localnerve/html-snapshots/blob/master/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
+Simple examples to demonstrate the options can be found in this section. A more in-depth usage example is located in this [article](http://github.com/localnerve/html-snapshots/blob/master/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
 
 ### Simple example
 ```javascript
@@ -50,13 +53,16 @@ var result = htmlSnapshots.run({
   input: "sitemap",
   source: "/path/to/sitemap.xml",
   outputDir: "./snapshots",
-  outputDirClean: true,
-  selector: { "http://mysite.com": "#home-content", "__default": "#dynamic-content" },
-  timeout: { "http://mysite.com/superslowpage", 6000, "__default": 5000 }
+  outputDirClean: true,  
+  selector: { 
+    "http://mysite.com": "#home-content",
+    "__default": "#dynamic-content"
+  },
+  timeout: { "http://mysite.com/superslowpage": 20000, "__default": 10000 }
 });
 // result === true if snapshots were successfully started
 ```
-This reads the urls from your sitemap.xml and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except the home page, where "#home-content" appears (the appearance of a selector in the output indicates that the page is ready for a snapshot). Also, html-snapshots uses the default timeout (5000 ms) on all pages except http://mysite.com/superslowpage, where it waits 6000 ms.
+This reads the urls from your sitemap.xml and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except the home page, where "#home-content" appears \(the appearance of a selector in the output triggers the snapshot\). Finally, a default timeout of 10000 ms is set on all pages except http://mysite.com/superslowpage, where it waits 20000 ms.
 
 ### Example - Per page special output paths
 ```javascript
@@ -66,12 +72,36 @@ var result = htmlSnapshots.run({
   source: "/path/to/sitemap.xml",
   outputDir: "./snapshots",
   outputDirClean: true,
-  outputPath: { "http://mysite.com/services/?page=1": "services/page/1", "http://mysite.com/services/?page=2": "services/page/2" },
+  outputPath: {
+    "http://mysite.com/services/?page=1": "services/page/1",
+    "http://mysite.com/services/?page=2": "services/page/2" 
+  },
   selector: "#dynamic-content"
 });
 // result === true if snapshots were successfully started
 ```
-This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have to have a rewrite rule that reflects this same mapping when `_escaped_fragment_` shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
+This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have a rewrite rule that reflects this same mapping when `_escaped_fragment_` shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
+
+### Example - Per page selectors and jQuery
+```javascript
+var htmlSnapshots = require('html-snapshots');
+var result = htmlSnapshots.run({
+  source: "/path/to/robots.txt",
+  hostname: "mysite.com",
+  outputDir: "./snapshots",
+  outputDirClean: true,
+  selector: {
+    "__default": "#dynamic-content",
+    "/jqpage": "A-Selector-Not-Supported-By-querySelector"
+  },
+  useJQuery: {
+    "/jqpage": true,
+    "__default": false
+  }
+});
+// result === true if snapshots were successfully started
+```
+This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except in "/jqpage", where a selector not supported by [document.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector) is used. Further, "/jqpage" loads jQuery itself. All the other pages don't need to use special selectors, so the default is set to `false`. Notice that since a robots.txt input is used, full URLs are **not** used to match selectors. Instead, paths \(and QueryStrings and any Hashes\) are used, just as specified in the robots.txt file itself.
 
 ### Example - Array
 ```javascript
@@ -91,7 +121,6 @@ Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/speci
 ```javascript
 var htmlSnapshots = require('html-snapshots');
 var result = htmlSnapshots.run({
-  input: "robots",      // default, so not required
   source: "http://localhost/robots.txt",
   hostname: "localhost",
   outputDir: "./snapshots",
@@ -125,7 +154,6 @@ var assert = require("assert");
 var htmlSnapshots = require("html-snapshots");
 
 var result = htmlSnapshots.run({
-  input: "robots",      // default, so not required
   source: "http://localhost/robots.txt",
   hostname: "localhost",
   outputDir: "./snapshots",
@@ -165,6 +193,7 @@ Apart from the default settings, there are a number of options that can be speci
 + `source`
   + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
   + Specifies the input source. This must be a valid location of a robots.txt, sitemap.xml, or a textfile or the associated input generators. robots.txt and sitemap.xml can be local or remote. However, for the array input generator, this must be a javascript array of urls.
+
 + `sitemapPolicy`
   + default: `false`
   + For use only with the sitemap input generator. When true, lastmod and/or changefreq sitemap url child elements can be used to determine if a snapshot needs to be taken. Here are the possibilities for usage:
@@ -173,6 +202,7 @@ Apart from the default settings, there are a number of options that can be speci
     + Only a changefreq tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the last file modification time is used as a timespan \(from now\) and compared against the given changefreq to see if the url is out-of-date and needs a snapshot.
   
   Not all url elements in a sitemap have to have lastmod and/or changefreq \(those tags are optional, unlike loc\), but the urls you want to be able to skip \(if they are current\) must make use of those tags. You can intermix usage of these tags, as long as the requirements are met for making an age determination. If a determination on age cannot be made for any reason, the url is processed normally. For more info on sitemap tags and acceptable values, read the [wikipedia](http://en.wikipedia.org/wiki/Sitemaps) page.
+
 + `hostname`
   + default: `"localhost"`
   + Specifies the hostname to use for paths found in a robots.txt or textfile. Applies to all pages. This option is ignored if you are using the sitemap or array input generators.
@@ -204,34 +234,53 @@ Apart from the default settings, there are a number of options that can be speci
       The value can be one of these *javascript types*:
 
       `"object"` If the value is an object, it must be a key/value pair object where the key must match the url (or path in the case of robots.txt style) found by the input generator.
+      
       `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input.
 
   Notes: For pretty urls, this option may not be wanted/needed. The output file name is always "index.html".
 
 + `selector`
   + default: `"body"`
-  + Specifies the selector to find in the output before taking the snapshot. The appearence of this selector defines a page's readiness for a snapshot. 
+  + Specifies the selector to find in the output before taking the snapshot. The appearence of this selector in the output triggers a snapshot to be taken.
       
       The value can be one of these *javascript types*:
       
       `"string"` If the value is a string, it is used for every page.       
+      
       `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify selectors for individual pages. The reserved key "__default" allows you to specify the default selector so you don't have to specify a selector every individual page.
       
-      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input.
+      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given.
+  
+  NOTE: By default, selectors must conform to [this spec](http://www.w3.org/TR/selectors-api/#grammar), as they are used by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). If you need selectors not supported by this, you must specify the `useJQuery` option.
+
++ `useJQuery`
+  + default: `false`
+  + Specifies to use jQuery selectors to detect when to snapshot a page. Please note that you cannot use these selectors if the page to be snapshotted does not load jQuery itself. To return to the behavior prior to v0.6.0, set this to `true`.
+      
+      The value can be one of these *javascript types*:
+      
+      `"boolean"` If the value is a boolean, it is used for every page. Note that if it is any scalar type such as "string" or "number", it will be interpreted as a boolean using javascript rules. Coerced string values "true", "yes", and "1" are specifically true, all others are false.
+      
+      `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify the use of jQuery for individual pages. The reserved key "__default" allows you to specify a default jQuery usage so you don't have to specify usage for every individual page.
+      
+      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given.
+  
+  NOTE: You do not *have to* use this option if your page uses jQuery. You only need this if your selector is not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). However, if you do use this option, the page being snapshotted must load jQuery itself.
 
 + `timeout`
-  + default: 5000 (milliseconds)
+  + default: 10000 (milliseconds)
   + Specifies the time to wait for the selector to become visible.
       
       The value can be one of these *javascript types*:
       
       `"number"` If the value is a number, it is used for every page in the website.      
+      
       `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify timeouts for individual pages. The reserved key "__default" allows you to specify the default timeout so you don't have to specify a timeout for every individual page.
       
-      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input.
+      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given.
 
 + `processLimit`
-  + default: Number.MAX_VALUE
+  + default: 4
   + Limits the number of child PhantomJS processes that can ever be actively running in parallel. A value of 1 effectively forces the snapshots to be taken in series (only one at a time). Useful if you need to limit the number of processes spawned by this library. Experiment with what works best. One guideline suggests about [4 per CPU](http://stackoverflow.com/questions/9961254/how-to-manage-a-pool-of-phantomjs-instances).
 
 + `checkInterval`
@@ -243,18 +292,19 @@ Apart from the default settings, there are a number of options that can be speci
   + Specifies the rate at which html-snapshots checks to see if a PhantomJS script has completed. Applies to all pages.
 
 + `snapshotScript`
-  + default: This library's [default](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/default.js) snapshot script. This script takes the snapshot when the supplied selector becomes visible using `$(selector).is(":visible")`.
+  + default: This library's [default](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/default.js) snapshot script. This script runs in PhantomJS and takes the snapshot when the supplied selector becomes visible.
   + Specifies the PhantomJS script to run to actually produce the snapshot. The script supplied in this option is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
 
     The value can be one of these *javascript types*:
 
     `"string"` If the value is a string, it must an absolute path to a custom PhantomJS script you supply. html-snapshots will spawn a separate PhantomJS instance to run your snapshot script and give it the following [arguments](http://phantomjs.org/api/system/property/args.html):
       + `system.args[0]` The path to your PhantomJS script.
-      + `system.args[1]` The full path to the output file your script is expected to write the html contents to.
+      + `system.args[1]` The full path to the output file where your script writes the html.
       + `system.args[2]` The url to snapshot.
       + `system.args[3]` The selector to watch for to signal page completion.
-      + `system.args[4]` The overall timeout in milliseconds.
-      + `system.args[5]` The interval to watch for the selector.
+      + `system.args[4]` The overall timeout \(milliseconds\).
+      + `system.args[5]` The interval \(milliseconds\) to watch for the selector.
+      + `system.args[6]` A flag indicating jQuery selectors should be supported.
 
     `"object"` If an object is supplied, it has the following properties:
       + `script` This must be one of the following values:
@@ -300,3 +350,8 @@ You can also refer `_escaped_fragment_` requests to your snapshots in ExpressJS 
 ```
 
 Another ExpressJS middleware example using html-snapshots can be found at [wpspa/server/middleware/snapshots.js](https://github.com/localnerve/wpspa/blob/master/server/middleware/snapshots.js)
+
+## License
+This software is free to use under the LocalNerve, LLC MIT license. See the [LICENSE file](https://github.com/localnerve/html-snapshots/blob/master/LICENSE) for license text and copyright information.
+
+Third-party open source code used are listed in the [package.json file](https://github.com/localnerve/html-snapshots/blob/master/package.json).
