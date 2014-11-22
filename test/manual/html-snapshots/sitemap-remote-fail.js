@@ -4,7 +4,6 @@ var result = ss.run({
   input: "sitemap",
   source: "http://wpspa-transitional.herokuapp.com/sitemap-test-not.xml",
   sitemapPolicy: true,
-  protocol: "http",
   outputDirClean: true,
   outputDir: path.join(__dirname, "./tmp/snapshots"),
   selector: "#contact-form",
