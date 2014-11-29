@@ -1,10 +1,10 @@
-# [html-snapshots v0.6.1](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.6.2](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://api.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 [![Coverage Status](https://img.shields.io/coveralls/localnerve/html-snapshots.svg)](https://coveralls.io/r/localnerve/html-snapshots?branch=master)
 [![Dependency Status](https://david-dm.org/localnerve/html-snapshots.png)](https://david-dm.org/localnerve/html-snapshots)
 [![devDependency Status](https://david-dm.org/localnerve/html-snapshots/dev-status.png)](https://david-dm.org/localnerve/html-snapshots#info=devDependencies)
 
-> Takes html snapshots of your site's crawlable pages when a selector becomes visible.
+> Takes html snapshots of your site's crawlable pages when an element you select is rendered.
 
 ## Overview
 html-snapshots is a flexible html snapshot library that uses PhantomJS to take html snapshots of your webpages served from your site. A snapshot is only taken when a specified selector is detected visible in the output html. This tool is useful when your site is largely ajax content, or an SPA, and you want your dynamic content indexed by search engines.
@@ -185,14 +185,14 @@ Apart from the default settings, there are a number of options that can be speci
       
       Possible *values*:
       
-      `"sitemap"` Supply urls from a local or remote sitemap.xml file.      
+      `"sitemap"` Supply urls from a local or remote sitemap.xml file. Gzipped sitemaps are supported.
       `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt files with wildcards are NOT supported - Use "sitemap" instead.      
       `"textfile"` Supply urls from a local line-oriented text file in the style of robots.txt      
       `"array"`, supply arbitrary urls from a javascript array.
 
 + `source`
   + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
-  + Specifies the input source. This must be a valid location of a robots.txt, sitemap.xml, or a textfile or the associated input generators. robots.txt and sitemap.xml can be local or remote. However, for the array input generator, this must be a javascript array of urls.
+  + Specifies the input source. This must be a valid array or the location of a robots, text, or sitemap file for the corresponding input generator. robots.txt and sitemap.xml(.gz) can be local or remote. However, for the array input generator, this must be a javascript array of urls.
 
 + `sitemapPolicy`
   + default: `false`
