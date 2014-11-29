@@ -55,31 +55,6 @@ describe("html-snapshots", function() {
       assert.equal(true, fs.existsSync(options.snapshotScript) && result===false);
     });
 
-    // environment dependent, also depends on inputFile and server files
-    it("run sync, local robots file, local webserver", function(done){
-      var counter = { count: 0 };
-      var ourport = port; // first one
-      server.start(path.join(__dirname, "./server"), ourport, (function(counter){
-        return function() {
-          counter.count++;
-          if (counter.count===urls) {
-            setTimeout(done, 10000);
-          }
-        };
-      })(counter));
-      var options = {
-        source: inputFile,
-        hostname: "localhost",
-        port: ourport,
-        selector: "#dynamic-content",
-        outputDir: path.join(__dirname, "./tmp/sync/snapshots"),
-        outputDirClean: true,
-        timeout: 5000
-      };
-      var result = ss.run(optHelp.decorate(options));
-      assert.equal(true, result);
-    });
-
     it("run async, should all fail with bad phantomjs process to spawn", function(done) {
       var options = {
         source: inputFile,
