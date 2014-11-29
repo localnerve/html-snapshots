@@ -41,6 +41,9 @@ module.exports = function(grunt) {
       "input-generators": {
         src: [ "test/mocha/input-generators/*.js" ]
       },
+      "input-generators-test": {
+        src: [ "test/mocha/input-generators/test.js" ]
+      },      
       async: {
         src: [ "test/mocha/async/*.js" ]
       },
