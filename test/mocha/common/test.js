@@ -52,6 +52,11 @@ describe("common", function(){
       var result = common.isUrl(path.join(__dirname, __filename));
       assert.equal(false, result);
     });
+
+    it("should not detect an object", function() {
+      var result = common.isUrl({ url: "bogus" });
+      assert.equal(false, result);
+    });
   });
 
   describe("checkResponse", function () {

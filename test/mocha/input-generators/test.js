@@ -1,5 +1,6 @@
 var assert = require("assert");
 var path = require("path");
+var base = require("../../../lib/input-generators/_base");
 var factory = require("../../../lib/input-generators");
 var common = require("../../../lib/common");
 var server = require("../../server");
@@ -46,7 +47,11 @@ describe("input-generator", function(){
       name: "robots",
       input: factory.create("robots"),
       source: path.join(__dirname, "test_robots.txt"),
-      remote: "http://localhost:"+port+"/test_robots.txt"
+      remote: "http://localhost:"+port+"/test_robots.txt",
+      bad: [
+        path.join(__dirname, "test_robots_bad.txt"),
+        "http://localhost:"+port+"/test_robots_bad.txt"
+      ]
     },
     { name: "textfile", input: factory.create("textfile"), source: path.join(__dirname, "test_line.txt") },
     { name: "array", input: factory.create("array"), source:
@@ -68,8 +73,12 @@ describe("input-generator", function(){
     {
       name: "sitemap-gzip",
       input: factory.create("sitemap"),
-      source: path.join(__dirname, "test_sitemap.xml.gz"),
-      remote: "http://localhost:"+port+"/test_sitemap.xml.gz"
+      source: path.join(__dirname, "test_sitemap.xml.gz"),      
+      remote: "http://localhost:"+port+"/test_sitemap.xml.gz",      
+      bad: [
+        path.join(__dirname, "test_sitemap_bad.xml.gz"),
+        "http://localhost:"+port+"/test_sitemap_bad.xml.gz"
+      ]
     }
   ];
 
@@ -102,6 +111,7 @@ describe("input-generator", function(){
       var remote = inputGenerators[a].remote;
       var gen = inputGenerators[a].input;
       var source = inputGenerators[a].source;
+      var bad = inputGenerators[a].bad;
 
       describe("general behavior", function() {
 
@@ -143,35 +153,17 @@ describe("input-generator", function(){
 
         // this test has to match the base generator defaults
         it("base defaults should exist in input when requested", function(done){
-          var defaults = {
-            protocol: "http",
-            hostname: "localhost",
-            outputDir: "snapshots",
-            selector: "body",
-            timeout: 10000,
-            checkInterval: 250,
-            useJQuery: false
-          };
+          var defaults = base.defaults({});
+          defaults.outputDir = "snapshots"; // default has some bad chars :-(
+
           var count = 0;
           var result = gen.run(options.decorate({ source: source }), function(input) {
-            //console.log("input.url = "+input.url);
-            //console.log("input.outputFile = "+input.outputFile);
-            //console.log("defaults.protocol = "+defaults.protocol);
-            //console.log("defaults.outputDir = "+defaults.outputDir);
-            //console.log("selector = "+ input.selector);
-            //console.log("timeout = "+input.timeout);
-            //console.log("checkInterval = "+input.checkInterval);
-            //console.log("@@@ defaults.outputDirReplaced = "+pathToRe(defaults.outputDir));
 
             var re1 = new RegExp("^("+defaults.protocol+")://("+defaults.hostname+")/");
             var re2 = new RegExp("^("+pathToRe(defaults.outputDir)+")"+pathToRe(path.sep));
 
             var m1 = re1.exec(input.url);
             var m2 = re2.exec(input.outputFile);
-
-            //console.log("@@@ m1[1] = "+m1[1]);
-            //console.log("@@@ m1[2] = "+m1[2]);
-            //console.log("@@@ m2[1] = "+m2[1]);
 
             if (globalUrl) {
               assert.equal(m1[1], defaults.protocol);
@@ -225,12 +217,16 @@ describe("input-generator", function(){
           var timeoutFn = function(url) {
             return timeouts[url];
           };
+          
           var count = 0;
 
           var result = gen.run(options.decorate({ source: source, timeout: timeoutFn }), function(input) {
             var testTimeout =
-                timeouts[input.__page] ? timeouts[input.__page] : undefined;
-            assert.equal(input.timeout, testTimeout);
+                timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;            
+
+            assert.equal(input.timeout, testTimeout, 
+              input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
+
             count++;
             if (count === urls)
               done();
@@ -258,7 +254,39 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, timeout: timeouts }), function(input) {
             var testTimeout =
                 timeouts[input.__page] ? timeouts[input.__page] : timeouts.__default;
-            assert.equal(input.timeout, testTimeout);            
+
+            assert.equal(input.timeout, testTimeout, 
+              input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
+
+            count++;
+            if (count === urls)
+              done();
+          });            
+          
+          assert.equal(result, true);
+        });
+
+        it("should accept object and apply per url, with missing __default", function(done){
+          var globalTimeouts = {
+            "/": 1,
+            "/contact": 2,
+            "/services/carpets": 3
+          };
+          var localTimeouts = {
+            "http://northstar.local": 1,
+            "http://northstar.local/contact": 2,
+            "http://northstar.local/services/carpets": 3
+          };
+          var timeouts = globalUrl ? globalTimeouts : localTimeouts;
+          var count = 0;
+
+          var result = gen.run(options.decorate({ source: source, timeout: timeouts }), function(input) {
+            var testTimeout =
+                timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;
+
+            assert.equal(input.timeout, testTimeout, 
+              input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
+
             count++;
             if (count === urls)
               done();
@@ -305,8 +333,11 @@ describe("input-generator", function(){
 
           var result = gen.run(options.decorate({ source: source, selector: selectorFn }), function(input) {
             var testSelector =
-                selectors[input.__page] ? selectors[input.__page] : undefined;
-            assert.equal(input.selector, testSelector);
+                selectors[input.__page] ? selectors[input.__page] : base.defaults({}).selector;
+            
+            assert.equal(input.selector, testSelector,
+              input.__page+":\ninput.selector: "+input.selector+" != testSelector: "+testSelector);
+
             count++;
             if (count === urls)
               done();
@@ -334,7 +365,10 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, selector: selectors }), function(input) {
             var testSelector =
               selectors[input.__page] ? selectors[input.__page] : selectors.__default;
-            assert.equal(input.selector, testSelector);
+
+            assert.equal(input.selector, testSelector,
+              input.__page+":\ninput.selector: "+input.selector+" != testSelector: "+testSelector);
+
             count++;            
             if (count === urls)
               done();
@@ -382,8 +416,11 @@ describe("input-generator", function(){
             source: source,
             useJQuery: opts
           }), function(input) {
-            var testOption = opts[input.__page] != void 0 ? opts[input.__page] : opts.__default;            
-            assert.equal(input.useJQuery, testOption);
+            var testOption = opts[input.__page] != void 0 ? opts[input.__page] : opts.__default;
+
+            assert.equal(input.useJQuery, testOption,
+              input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
+
             count++;
             if (count === urls) {
               done();
@@ -397,14 +434,12 @@ describe("input-generator", function(){
           var globalOptions = {
             "/": false,
             "/contact": true,
-            "/services/carpets": false,
-            "__default": true
+            "/services/carpets": false
           };
           var localOptions = {
             "http://northstar.local/": false,
             "http://northstar.local/contact": true,
-            "http://northstar.local/services/carpets": false,
-            "__default": true
+            "http://northstar.local/services/carpets": false
           };
           var count = 0;
           var opts = globalUrl ? globalOptions : localOptions;
@@ -416,8 +451,11 @@ describe("input-generator", function(){
             source: source,
             useJQuery: useJQFn
           }), function(input) {
-            var testOption = opts[input.__page];
-            assert.equal(input.useJQuery, testOption);
+            var testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).useJQuery;
+
+            assert.equal(input.useJQuery, testOption,
+              input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
+            
             count++;
             if (count === urls)
               done();
@@ -526,6 +564,23 @@ describe("input-generator", function(){
           });
         }
 
+        if (bad) {
+          bad.forEach(function(badSource) {
+            it("should handle bad source "+badSource, function(done) {
+              var result = gen.run(options.decorate({
+                source: badSource,
+                _abort: function(err) {
+                  assert.equal(true, !!err, badSource + " should have aborted with error");
+                  done();
+                }
+              }), function(input) {
+                //console.log("@@@ bad input:\n"+require("util").inspect(input));
+                assert.fail(false, true, " input handler was called unexpectedly for badSource "+badSource, ",");
+                done(true);
+              });
+            });
+          });
+        }
       });
 
       describe("checkInterval option", function() {
@@ -586,12 +641,6 @@ describe("input-generator", function(){
           var count = 0;
 
           var result = gen.run(options.decorate({ source: source, outputDir: snapshotDir }), function(input) {
-            //console.log("page - input url = "+input.url);
-            //console.log("page - test url = "+pages[input.__page]);
-            //console.log("@@@ urlToPath(pages[input.__page]) = "+urlToPath(pages[input.__page]));
-            //console.log("page - raw page = "+input.__page);
-            //console.log("page - outputFile = "+input.outputFile);
-            
             var re = new RegExp("^("+snapshotDir+")("+urlToPathRe(pages[input.__page])+")");
             var match = re.exec(input.outputFile);
             
