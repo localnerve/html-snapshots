@@ -102,16 +102,16 @@ describe("input-generator", function(){
     return result;
   }
 
-  for (var a in inputGenerators) {
+  inputGenerators.forEach(function(inputGeneratorTest) {
 
-    describe(inputGenerators[a].name, function() {
+    describe(inputGeneratorTest.name, function() {
 
-      var globalUrl = inputGenerators[a].name === "robots" || inputGenerators[a].name === "textfile";
-      var genName = inputGenerators[a].name;
-      var remote = inputGenerators[a].remote;
-      var gen = inputGenerators[a].input;
-      var source = inputGenerators[a].source;
-      var bad = inputGenerators[a].bad;
+      var globalUrl = inputGeneratorTest.name === "robots" || inputGeneratorTest.name === "textfile";
+      var genName = inputGeneratorTest.name;
+      var remote = inputGeneratorTest.remote;
+      var gen = inputGeneratorTest.input;
+      var source = inputGeneratorTest.source;
+      var bad = inputGeneratorTest.bad;
 
       describe("general behavior", function() {
 
@@ -818,6 +818,6 @@ describe("input-generator", function(){
       });
 
     });
-  }
+  });
 
 });

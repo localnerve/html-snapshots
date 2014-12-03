@@ -12,10 +12,10 @@ describe("async", function(){
 
     function createFiles(files) {
       var fd;
-      for (var i in files) {
-        fd = fs.openSync(files[i], 'w');
+      files.forEach(function(file) {
+        fd = fs.openSync(file, 'w');
         fs.closeSync(fd);
-      }
+      });
     }
 
     // create a worker for asyncLib.queue
@@ -89,9 +89,9 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      for (var i in files) {
-        notifier.add(files[i], timeout);
-      }
+      files.forEach(function(file) {
+        notifier.add(file, timeout);
+      });
 
       assert.equal(files.length, notifier.fileCount());
       assert.equal(true, notifier.isStarted());
@@ -131,9 +131,9 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      for (var i in files) {
-        notifier.add(files[i], timeout);
-      }
+      files.forEach(function(file) {
+        notifier.add(file, timeout);
+      });
 
       notifier.remove(files[2]);
       filesToDo.push(files[0], files[1]);
@@ -180,9 +180,9 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      for (var i in files) {
-        notifier.add(files[i], timeout);
-      }
+      files.forEach(function(file) {
+        notifier.add(file, timeout);
+      });
 
       assert.equal(files.length, notifier.fileCount());
       assert.equal(true, notifier.isStarted());
@@ -216,9 +216,9 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      for (var i in files) {
-        notifier.add(files[i], timeout);
-      }
+      files.forEach(function(file) {
+        notifier.add(file, timeout);
+      });
 
       assert.equal(files.length, notifier.fileCount());
       assert.equal(true, notifier.isStarted());
