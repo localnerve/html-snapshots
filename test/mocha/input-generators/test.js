@@ -137,7 +137,11 @@ describe("input-generator", function(){
             assert.fail("input callback", "called", "unexpected input processed", "should not have been");
           });
           assert.equal(false, result);
-          setTimeout(function() { if (!doneCalled) done(); }, 200);
+          setTimeout(function() {
+            if (!doneCalled) {
+              done();
+            }
+          }, 200);
         });
 
         // requires source to have 'urls' valid entries
@@ -145,9 +149,10 @@ describe("input-generator", function(){
           var count = 0;
           var result = gen.run(options.decorate({ source: source }), function() {
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
-            });
+            }
+          });
           assert.equal(true, result);
         });
 
@@ -176,8 +181,9 @@ describe("input-generator", function(){
             assert.equal(defaults.useJQuery, input.useJQuery);
 
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
           assert(true, result);
         });
@@ -193,8 +199,9 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, timeout: theTimeout}), function(input) {
             assert.equal(theTimeout, input.timeout);
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
           
           assert.equal(true, result);
@@ -228,8 +235,9 @@ describe("input-generator", function(){
               input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
 
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
           
           assert.equal(result, true);
@@ -259,8 +267,9 @@ describe("input-generator", function(){
               input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
 
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });            
           
           assert.equal(result, true);
@@ -288,8 +297,9 @@ describe("input-generator", function(){
               input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
 
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });            
           
           assert.equal(result, true);
@@ -306,8 +316,9 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, selector: selector }), function(input) {
             assert.equal(input.selector, selector);
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -339,8 +350,9 @@ describe("input-generator", function(){
               input.__page+":\ninput.selector: "+input.selector+" != testSelector: "+testSelector);
 
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -370,8 +382,9 @@ describe("input-generator", function(){
               input.__page+":\ninput.selector: "+input.selector+" != testSelector: "+testSelector);
 
             count++;            
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -390,8 +403,9 @@ describe("input-generator", function(){
           }), function(input) {
               assert.equal(input.useJQuery, useJQuery);
               count++;
-              if (count === urls)
+              if (count === urls) {
                 done();
+              }
           });        
           assert.equal(true, result);
         });
@@ -457,8 +471,9 @@ describe("input-generator", function(){
               input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
             
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -475,13 +490,15 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, hostname: hostname }), function(input) {
             var re = new RegExp("http://("+hostname+")/");
             var match = re.exec(input.url);
-            if (globalUrl)
+            if (globalUrl) {
               assert.equal(match[1], hostname);
-            else
+            } else {
               assert.equal(match === null, true);
+            }
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -494,13 +511,15 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, protocol: proto }), function(input) {
             var re = new RegExp("^("+proto+")://");
             var match = re.exec(input.url);
-            if (globalUrl)
+            if (globalUrl) {
               assert.equal(match[1], proto);
-            else
+            } else {
               assert.equal(match === null, true);
+            }
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -513,13 +532,15 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, port: port }), function(input) {
             var re = new RegExp("^http://localhost\\:("+port+")/");
             var match = re.exec(input.url);
-            if (globalUrl)
+            if (globalUrl) {
               assert.equal(match[1], port);
-            else
+            } else {
               assert.equal(match === null, true);
+            }
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -532,13 +553,15 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, auth: auth }), function(input) {
             var re = new RegExp("^http://("+auth+")@localhost/");
             var match = re.exec(input.url);
-            if (globalUrl)
+            if (globalUrl) {
               assert.equal(match[1], auth);
-            else
+            } else {
               assert.equal(match ===null, true);
+            }
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -556,8 +579,9 @@ describe("input-generator", function(){
             }), function(input) {
               assert(true, common.isUrl(input.url));            
               count++;
-              if (count === urls)
+              if (count === urls) {
                 done();
+              }
             });
             
             assert(true, result);
@@ -592,8 +616,9 @@ describe("input-generator", function(){
           var result = gen.run(options.decorate({ source: source, checkInterval: checkInterval }), function(input) {
             assert.equal(input.checkInterval, checkInterval);
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -612,8 +637,9 @@ describe("input-generator", function(){
             var match = re.exec(input.outputFile);
             assert.equal(match[1], snapshotDir);
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -647,8 +673,9 @@ describe("input-generator", function(){
             assert.equal(true, match[1] === snapshotDir && match[2] === urlToPath(pages[input.__page]));
             
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -689,8 +716,9 @@ describe("input-generator", function(){
               var match = re.exec(input.outputFile);
               assert.equal(match[1], urlToPath(pages[input.__page]));
               count++;
-              if (count === urls)
+              if (count === urls) {
                 done();
+              }
             });
 
           assert.equal(true, result);
@@ -727,8 +755,9 @@ describe("input-generator", function(){
             var match = re.exec(input.outputFile);
             assert.equal(match[1], urlToPath(pages[input.__page]));
             count++;
-            if (count === urls)
+            if (count === urls) {
               done();
+            }
           });
 
           assert.equal(true, result);
@@ -777,8 +806,9 @@ describe("input-generator", function(){
             var match = re.exec(input.outputFile);
             assert.equal(match[1], urlToPath(pages[input.__page]));
             count++;
-            if (count === (urls-1))
+            if (count === (urls-1)) {
               done();
+            }
           });
 
           // for sitemap-gzip, result is true because it doesn't know yet

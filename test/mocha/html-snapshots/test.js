@@ -41,8 +41,9 @@ describe("html-snapshots", function() {
     it("should clean the output directory when specified", function(){
       var dir = path.join(__dirname, "./tmpdir");
       var file = path.join(dir, "somefile.txt");
-      if (!fs.existsSync(dir))
+      if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
+      }
       fs.writeFileSync(file, "some data");
       assert.equal(true, fs.existsSync(dir));
       var result = ss.run(optHelp.decorate({ source: bogusFile, outputDir: dir, outputDirClean: true }));

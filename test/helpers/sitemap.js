@@ -98,8 +98,9 @@ function makeOutputFiles(options, urlset) {
     filePath = base.outputFile(options, urlObj.loc);
     outputDir = pathLib.dirname(filePath);
 
-    if (!fs.existsSync())
+    if (!fs.existsSync()) {
       mkdirp(outputDir);
+    }
 
     fs.writeFileSync(filePath, html, { encoding: "utf8"});
     fs.utimesSync(filePath, urlObj.lastmod, urlObj.lastmod);
