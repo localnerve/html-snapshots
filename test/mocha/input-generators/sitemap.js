@@ -2,7 +2,6 @@ var assert = require("assert");
 var path = require("path");
 var rimraf = require("rimraf").sync;
 var factory = require("../../../lib/input-generators");
-var common = require("../../../lib/common");
 var server = require("../../server");
 var options = require("../../helpers/options");
 var smHelper = require("../../helpers/sitemap");

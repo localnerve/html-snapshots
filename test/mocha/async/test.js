@@ -227,9 +227,6 @@ describe("async", function(){
 
     it("should fail if no callback supplied", function() {
       var notifier = new async.Notifier();
-      var dir = path.join(__dirname, "./files"),
-          files = [dir+"/one", dir+"/two", dir+"/three"],
-          timeout = 100;
 
       var result = notifier.start(1, {}, mockInput);
 
@@ -240,9 +237,6 @@ describe("async", function(){
 
     it("should fail if negative poll interval supplied", function() {
       var notifier = new async.Notifier();
-      var dir = path.join(__dirname, "./files"),
-          files = [dir+"/one", dir+"/two", dir+"/three"],
-          timeout = 100;
 
       var result = notifier.start(-1, function(err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
@@ -255,9 +249,6 @@ describe("async", function(){
 
     it("should fail if zero poll interval supplied", function() {
       var notifier = new async.Notifier();
-      var dir = path.join(__dirname, "./files"),
-          files = [dir+"/one", dir+"/two", dir+"/three"],
-          timeout = 100;
 
       var result = notifier.start(0, function(err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
@@ -270,9 +261,6 @@ describe("async", function(){
 
     it("should fail if no input generator is supplied", function() {
       var notifier = new async.Notifier();
-      var dir = path.join(__dirname, "./files"),
-          files = [dir+"/one", dir+"/two", dir+"/three"],
-          timeout = 100;
 
       var result = notifier.start(250, function(err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
@@ -287,7 +275,6 @@ describe("async", function(){
       var notifier = new async.Notifier();
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
-          filesToDo = files.slice(),
           pollCount = 4,
           timeout = 400,
           abortFailure = "abortFailure";

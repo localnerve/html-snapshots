@@ -567,7 +567,7 @@ describe("input-generator", function(){
         if (bad) {
           bad.forEach(function(badSource) {
             it("should handle bad source "+badSource, function(done) {
-              var result = gen.run(options.decorate({
+              gen.run(options.decorate({
                 source: badSource,
                 _abort: function(err) {
                   assert.equal(true, !!err, badSource + " should have aborted with error");
@@ -757,7 +757,7 @@ describe("input-generator", function(){
           }
           var count = 0;
 
-          var result = gen.run(options.decorate({
+          gen.run(options.decorate({
             source: source,
             // add listener hook for robots, sitemap generators
             _abort: function(err) {

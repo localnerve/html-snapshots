@@ -1,8 +1,5 @@
 var assert = require("assert");
 var path = require("path");
-var fs = require("fs");
-var mkdirp = require("mkdirp");
-var rimraf = require("rimraf").sync;
 var common = require("../../../lib/common");
 
 describe("common", function(){
