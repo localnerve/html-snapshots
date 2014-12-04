@@ -430,7 +430,7 @@ describe("input-generator", function(){
             source: source,
             useJQuery: opts
           }), function(input) {
-            var testOption = opts[input.__page] != void 0 ? opts[input.__page] : opts.__default;
+            var testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
 
             assert.equal(input.useJQuery, testOption,
               input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);

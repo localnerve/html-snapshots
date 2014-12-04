@@ -519,32 +519,29 @@ describe("html-snapshots", function() {
       assert.equal(true, result); // run returns true because it isn't discovered until later
     });
 
-    for (var i = 0; i < snapshotScriptTests.length; i++) {
-
-      it("should succeed for snapshot script "+snapshotScriptTests[i].name, (function(index) {
-        return function(done) {
-          var ourport = ++port;
-          server.start(path.join(__dirname, "./server"), ourport);
-          var options = {
-            source: inputFile,
-            hostname: "localhost",
-            port: ourport,
-            selector: "#dynamic-content",          
-            outputDir: path.join(__dirname, "./tmp/snapshots"),
-            outputDirClean: true,
-            snapshotScript: snapshotScriptTests[index].option
-          };
-          var result = ss.run(optHelp.decorate(options), function(err, completed) {
-            if (!err) {
-              snapshotScriptTests[index].prove(completed, done);
-            } else {
-              setTimeout(done, 500, err); // settle down
-            }
-          });
-          assert.equal(true, result);
+    snapshotScriptTests.forEach(function(snapshotScriptTest) {
+      it("should succeed for snapshot script "+snapshotScriptTest.name, function(done) {
+        var ourport = ++port;
+        server.start(path.join(__dirname, "./server"), ourport);
+        var options = {
+          source: inputFile,
+          hostname: "localhost",
+          port: ourport,
+          selector: "#dynamic-content",          
+          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDirClean: true,
+          snapshotScript: snapshotScriptTest.option
         };
-      }(i)));
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          if (!err) {
+            snapshotScriptTest.prove(completed, done);
+          } else {
+            setTimeout(done, 500, err); // settle down
+          }
+        });
+        assert.equal(true, result);
+      });
+    });
 
-    }
   });
 });
