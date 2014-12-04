@@ -486,23 +486,28 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
           resHelp.mustBeError(err);
-          setTimeout(done, 1000); // settle down
+          setTimeout(done, 2000); // settle down
         });
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
 
       snapshotScriptTests.forEach(function(snapshotScriptTest) {
-        it("should succeed for snapshot script "+snapshotScriptTest.name, function(done) {
-          var options = {
+        it("should succeed for snapshot script "+snapshotScriptTest.name, function(done) {          
+          var result,
+          outputDir = path.join(__dirname, "./tmp/snapshots"),
+          options = {
             source: inputFile,
             hostname: "localhost",
             port: port,
-            selector: "#dynamic-content",          
-            outputDir: path.join(__dirname, "./tmp/snapshots"),
+            selector: "#dynamic-content",
+            outputDir: outputDir,
             outputDirClean: true,
             snapshotScript: snapshotScriptTest.option
           };
-          var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          
+          rimraf(outputDir);
+
+          result = ss.run(optHelp.decorate(options), function(err, completed) {
             if (!err) {
               snapshotScriptTest.prove(completed, done);
             } else {
