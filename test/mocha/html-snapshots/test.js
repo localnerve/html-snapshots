@@ -28,6 +28,16 @@ describe("html-snapshots", function() {
     pkill.on("exit", cb);
   }
 
+  function cleanup(done, arg) {
+    if (process.platform === "win32") {
+      setTimeout(done, 3000, arg);
+    } else {
+      killSpawnedProcesses(function() {
+        done(arg);
+      });
+    }
+  }
+
   describe("library", function() {
     this.timeout(30000);
 
@@ -39,12 +49,12 @@ describe("html-snapshots", function() {
 
       it("no arguments should return false", function(done) {
         assert.equal(false, ss.run(optHelp.decorate({})));
-        setTimeout(done, 2000);
+        cleanup(done);
       });
 
       it("invalid source should return false", function(done) {
         assert.equal(false, ss.run(optHelp.decorate({ source: bogusFile })));
-        setTimeout(done, 2000);
+        cleanup(done);
       });
 
       it("should clean the output directory when specified", function(done) {
@@ -57,14 +67,14 @@ describe("html-snapshots", function() {
         assert.equal(true, fs.existsSync(dir));
         var result = ss.run(optHelp.decorate({ source: bogusFile, outputDir: dir, outputDirClean: true }));
         assert.equal(true, (fs.existsSync(dir) || fs.existsSync(file))===false && result===false);
-        setTimeout(done, 2000);
+        cleanup(done);
       });
 
-      it("default snapshot script should exist", function() {
+      it("default snapshot script should exist", function(done) {
         var options = { source: "./bogus/file.txt" };
         var result = ss.run(optHelp.decorate(options));
         assert.equal(true, fs.existsSync(options.snapshotScript) && result===false);
-        setTimeout(done, 2000);
+        cleanup(done);
       });
     });
 
@@ -84,7 +94,7 @@ describe("html-snapshots", function() {
         var result = ss.run(options, function(err, snapshots) {
           // here is where the error should be
           resHelp.mustBeError(err);
-          setTimeout(done, 500); // settle down
+          cleanup(done);
         });
         assert.equal(true, result);
       });
@@ -101,7 +111,7 @@ describe("html-snapshots", function() {
           timeout: 6000
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
-          setTimeout(done, 3000, err); // settle down
+          cleanup(done, err);
         });
         assert.equal(true, result);
       });
@@ -117,7 +127,7 @@ describe("html-snapshots", function() {
           timeout: 6000
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
-          setTimeout(done, 500, err); // settle down
+          cleanup(done, err);
         });
         assert.equal(true, result);
       });
@@ -135,7 +145,7 @@ describe("html-snapshots", function() {
         var result = ss.run(optHelp.decorate(options), function(err) {
           // here is where the error should be
           resHelp.mustBeError(err);
-          setTimeout(done, 500); // settle down
+          cleanup(done);
         });
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
@@ -153,7 +163,7 @@ describe("html-snapshots", function() {
         var result = ss.run(optHelp.decorate(options), function(err) {
           // here is where the error should be
           resHelp.mustBeError(err);
-          setTimeout(done, 500); // settle down
+          cleanup(done);
         });
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
@@ -170,7 +180,7 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
           resHelp.mustBeError(err);
-          setTimeout(done, 1000); // settle down
+          cleanup(done);
         });
         assert.equal(true, result);
       });
@@ -187,7 +197,7 @@ describe("html-snapshots", function() {
           };
           var result = ss.run(optHelp.decorate(options), function(err) {
             resHelp.mustBeError(err);
-            setTimeout(done, 1000); // settle down
+            cleanup(done);
           });
           assert.equal(true, result);
       });
@@ -307,7 +317,7 @@ describe("html-snapshots", function() {
           };
           var result = ss.run(optHelp.decorate(options), function(err) {
             resHelp.mustBeError(err);
-            setTimeout(done, 1000); // settle down
+            cleanup(done);
           });
           assert.equal(true, result);
       });
@@ -324,7 +334,7 @@ describe("html-snapshots", function() {
           };
           var result = ss.run(optHelp.decorate(options), function(err) {
             resHelp.mustBeError(err);
-            setTimeout(done, 1000); // settle down
+            cleanup(done);
           });
           assert.equal(true, result);
       });
@@ -346,7 +356,7 @@ describe("html-snapshots", function() {
             assert.ifError(err);
             assert.equal(completed.length, 1);
             assert.equal(completed[0], outputDir+"/nojq/index.html");
-            setTimeout(done, 2000); // settle down
+            cleanup(done, err);
           });
           assert.equal(true, result);
       });
@@ -368,7 +378,7 @@ describe("html-snapshots", function() {
             assert.ifError(err);
             assert.equal(completed.length, 1);
             assert.equal(completed[0], outputDir+"/index.html");
-            setTimeout(done, 2000); // settle down
+            cleanup(done);
           });
           assert.equal(true, result);
       });
@@ -431,7 +441,7 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
           resHelp.mustBeError(err);
-          setTimeout(done, 1000); // settle down
+          cleanup(done);
         });
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
@@ -451,7 +461,7 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
           resHelp.mustBeError(err);
-          setTimeout(done, 1000); // settle down
+          cleanup(done);
         });
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
@@ -471,7 +481,7 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
           resHelp.mustBeError(err);
-          setTimeout(done, 1000); // settle down
+          cleanup(done);
         });
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
@@ -492,7 +502,7 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
           resHelp.mustBeError(err);
-          setTimeout(done, 2000); // settle down
+          cleanup(done);
         });
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
@@ -515,9 +525,11 @@ describe("html-snapshots", function() {
 
           result = ss.run(optHelp.decorate(options), function(err, completed) {
             if (!err) {
-              snapshotScriptTest.prove(completed, done);
+              snapshotScriptTest.prove(completed, function(e) {
+                cleanup(done, e);
+              });
             } else {
-              setTimeout(done, 500, err); // settle down
+              cleanup(done, err);
             }
           });
           assert.equal(true, result);
