@@ -9,6 +9,10 @@ var port = 8033;
 
 describe("input-generator", function(){
 
+  before(function() {
+    server.start(path.join(__dirname, "./server"), port);
+  });
+
   describe("null", function(){
     it("'index' should return a null generator", function(){
       assert.equal(true, factory.isNull(factory.create("index")));
@@ -38,8 +42,6 @@ describe("input-generator", function(){
       assert.equal(true, factory.create().run().length === 0);
     });
   });
-
-  server.start(path.join(__dirname, "./server"), port);
 
   var urls = 5; // dependent on how many urls are in the test files    
   var inputGenerators = [
