@@ -1,4 +1,4 @@
-# [html-snapshots v0.6.2](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.6.3](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://api.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 [![Coverage Status](https://img.shields.io/coveralls/localnerve/html-snapshots.svg)](https://coveralls.io/r/localnerve/html-snapshots?branch=master)
 [![Dependency Status](https://david-dm.org/localnerve/html-snapshots.png)](https://david-dm.org/localnerve/html-snapshots)
