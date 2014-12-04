@@ -18,6 +18,8 @@ describe("input-generator", function() {
       server.start(path.join(__dirname, "./server"), port);
     });
 
+    var timeToWait = 300; // milliseconds to wait to record a result
+
     var outputDir = path.join(__dirname, "./snapshots");
     var urls = [
       "/",
@@ -189,8 +191,7 @@ describe("input-generator", function() {
       return function(result) {
         assert.equal(true, result);
         if (limit === 0) {
-          // time-to-choke === 500
-          setTimeout(done, 500);
+          setTimeout(done, timeToWait);
         }
       };
     }
@@ -211,7 +212,7 @@ describe("input-generator", function() {
        cb = function() {
           assert.equal(true, counter++ < limit);
           if (counter === limit) {
-            setTimeout(done, 500);
+            setTimeout(done, timeToWait);
           }
         };
       }
