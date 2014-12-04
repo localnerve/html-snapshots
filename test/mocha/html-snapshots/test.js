@@ -33,32 +33,39 @@ describe("html-snapshots", function() {
 
     before(function() {
       server.start(path.join(__dirname, "./server"), port);
-    });    
-
-    it("no arguments should return false", function() {
-      assert.equal(false, ss.run(optHelp.decorate({})));
     });
 
-    it("invalid source should return false", function() {
-      assert.equal(false, ss.run(optHelp.decorate({ source: bogusFile })));
-    });
+    describe("sync runs", function() {
 
-    it("should clean the output directory when specified", function(){
-      var dir = path.join(__dirname, "./tmpdir");
-      var file = path.join(dir, "somefile.txt");
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-      }
-      fs.writeFileSync(file, "some data");
-      assert.equal(true, fs.existsSync(dir));
-      var result = ss.run(optHelp.decorate({ source: bogusFile, outputDir: dir, outputDirClean: true }));
-      assert.equal(true, (fs.existsSync(dir) || fs.existsSync(file))===false && result===false);
-    });
+      it("no arguments should return false", function(done) {
+        assert.equal(false, ss.run(optHelp.decorate({})));
+        setTimeout(done, 2000);
+      });
 
-    it("default snapshot script should exist", function() {
-      var options = { source: "./bogus/file.txt" };
-      var result = ss.run(optHelp.decorate(options));
-      assert.equal(true, fs.existsSync(options.snapshotScript) && result===false);
+      it("invalid source should return false", function(done) {
+        assert.equal(false, ss.run(optHelp.decorate({ source: bogusFile })));
+        setTimeout(done, 2000);
+      });
+
+      it("should clean the output directory when specified", function(done) {
+        var dir = path.join(__dirname, "./tmpdir");
+        var file = path.join(dir, "somefile.txt");
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir);
+        }
+        fs.writeFileSync(file, "some data");
+        assert.equal(true, fs.existsSync(dir));
+        var result = ss.run(optHelp.decorate({ source: bogusFile, outputDir: dir, outputDirClean: true }));
+        assert.equal(true, (fs.existsSync(dir) || fs.existsSync(file))===false && result===false);
+        setTimeout(done, 2000);
+      });
+
+      it("default snapshot script should exist", function() {
+        var options = { source: "./bogus/file.txt" };
+        var result = ss.run(optHelp.decorate(options));
+        assert.equal(true, fs.existsSync(options.snapshotScript) && result===false);
+        setTimeout(done, 2000);
+      });
     });
 
     describe("async runs", function() {
@@ -76,7 +83,6 @@ describe("html-snapshots", function() {
         };
         var result = ss.run(options, function(err, snapshots) {
           // here is where the error should be
-          //assert.notStrictEqual(typeof err, "undefined");
           resHelp.mustBeError(err);
           setTimeout(done, 500); // settle down
         });
@@ -95,7 +101,7 @@ describe("html-snapshots", function() {
           timeout: 6000
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
-          setTimeout(done, 2000, err); // settle down
+          setTimeout(done, 3000, err); // settle down
         });
         assert.equal(true, result);
       });
@@ -340,7 +346,7 @@ describe("html-snapshots", function() {
             assert.ifError(err);
             assert.equal(completed.length, 1);
             assert.equal(completed[0], outputDir+"/nojq/index.html");
-            setTimeout(done, 1000); // settle down
+            setTimeout(done, 2000); // settle down
           });
           assert.equal(true, result);
       });
@@ -362,7 +368,7 @@ describe("html-snapshots", function() {
             assert.ifError(err);
             assert.equal(completed.length, 1);
             assert.equal(completed[0], outputDir+"/index.html");
-            setTimeout(done, 1000); // settle down
+            setTimeout(done, 2000); // settle down
           });
           assert.equal(true, result);
       });
