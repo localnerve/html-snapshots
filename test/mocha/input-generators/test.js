@@ -443,7 +443,7 @@ describe("input-generator", function(){
             }
           });
 
-          assert.equal(true, result);        
+          assert.equal(true, result);
         });
 
         it("should accept a function and apply per url", function(done) {
@@ -472,6 +472,131 @@ describe("input-generator", function(){
             assert.equal(input.useJQuery, testOption,
               input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
             
+            count++;
+            if (count === urls) {
+              done();
+            }
+          });
+
+          assert.equal(true, result);
+        });
+
+      });
+
+      describe("phantomjsOptions option", function() {
+
+        it("should accept a single string and apply globally", function(done) {
+          var phantomjsOption = "--version";
+          var count = 0;
+
+          var result = gen.run(options.decorate({
+            source: source,
+            phantomjsOptions: phantomjsOption
+          }), function(input) {
+              
+              assert.equal(input.phantomjsOptions, phantomjsOption,
+                input.__page+":\ninput.phantomjsOptions should be equal to the original input");
+
+              count++;
+              if (count === urls) {
+                done();
+              }
+          });        
+          assert.equal(true, result);
+        });
+
+        it("should accept a single array and apply globally", function(done) {
+          var phantomjsOption = ["--version", "--help"];
+          var count = 0;
+
+          var result = gen.run(options.decorate({
+            source: source,
+            phantomjsOptions: phantomjsOption
+          }), function(input) {
+              
+              assert.equal(typeof input.phantomjsOptions, typeof phantomjsOption, 
+                input.__page+":\ninput.phantomjsOptions should be an array:\n"+
+                require("util").inspect(input.phantomjsOptions));
+
+              assert.deepEqual(input.phantomjsOptions, phantomjsOption,
+                input.__page+":\ninput.phantomjsOptions should be equal to the original input");
+
+              count++;
+              if (count === urls) {
+                done();
+              }
+          });        
+          assert.equal(true, result);
+        });
+
+        it("should accept an object and apply per url", function(done) {
+          var phantomjsOption1 = "--version",
+              phantomjsOption2 = ["--help"],
+              phantomjsOption3 = ["--another-option=somevalue", "--some-other-option=someother"];
+
+          var globalOptions = {
+            "/": phantomjsOption1,
+            "/contact": phantomjsOption2,
+            "/services/carpets": phantomjsOption3,
+            "__default": ""
+          };
+          var localOptions = {
+            "http://northstar.local/": phantomjsOption1,
+            "http://northstar.local/contact": phantomjsOption2,
+            "http://northstar.local/services/carpets": phantomjsOption3,
+            "__default": ""
+          };
+          var opts = globalUrl ? globalOptions : localOptions;
+          var count = 0;
+
+          var result = gen.run(options.decorate({
+            source: source,
+            phantomjsOptions: opts
+          }), function(input) {
+            var testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+
+            assert.deepEqual(input.phantomjsOptions, testOption,
+              input.__page+":\ninput.phantomjsOptions: "+input.phantomjsOptions+" != testPhantomJSOption: "+testOption);
+
+            count++;
+            if (count === urls) {
+              done();
+            }
+          });
+
+          assert.equal(true, result);
+        });
+
+        it("should accept a function and apply per url", function(done) {
+          var phantomjsOption1 = "--version",
+              phantomjsOption2 = ["--help"],
+              phantomjsOption3 = ["--another-option=somevalue", "--some-other-option=someother"];
+
+          var globalOptions = {
+            "/": phantomjsOption1,
+            "/contact": phantomjsOption2,
+            "/services/carpets": phantomjsOption3
+          };
+          var localOptions = {
+            "http://northstar.local/": phantomjsOption1,
+            "http://northstar.local/contact": phantomjsOption2,
+            "http://northstar.local/services/carpets": phantomjsOption3
+          };
+          var opts = globalUrl ? globalOptions : localOptions;
+          var count = 0;
+          var phantomjsFn = function(url) {
+            return opts[url];
+          };
+
+          var result = gen.run(options.decorate({
+            source: source,
+            phantomjsOptions: phantomjsFn
+          }), function(input) {
+            var testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).phantomjsOptions;
+
+            assert.deepEqual(input.phantomjsOptions, testOption,
+              input.__page+":\ninput.phantomjsOptions: "+input.phantomjsOptions+" != testPhantomJSOption: "+testOption);
+
             count++;
             if (count === urls) {
               done();

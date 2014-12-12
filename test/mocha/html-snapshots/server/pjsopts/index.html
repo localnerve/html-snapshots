@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Whoop</title>
+
+  <script type="text/javascript" charset="utf-8">
+    
+    function signalPageComplete() {
+      var newdiv = document.createElement("div");
+      var text = document.createTextNode("Dynamic");
+      newdiv.setAttribute("class", "content-complete");
+      newdiv.appendChild(text);
+      document.getElementById("pocs").appendChild(newdiv);
+    }
+
+    function onLoad() {
+      
+      // Tell html snapshots, done
+      signalPageComplete();
+    }    
+  </script>
+</head>
+<body onload="onLoad();">
+<div class="gstl_0 sbdd_a" style="min-width: 571px; top: 339px; position: absolute; left: 525px;">
+  <div class="fl"></div>
+  <div>
+    <div class="sbdd_b" style="display: none;">
+      <div class="nojq-notvisible">
+        I might as well not be here
+      </div>
+    </div>
+    <div>
+      <img id="inline-image" src="data:image/png;base64,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" />
+      <div id="pocs" style="left: 0px; white-space: nowrap; position: absolute;">
+        <div id="pocs0">
+          <span>
+            <span>Google</span>
+              Instant is unavailable. Press Enter to search.
+          </span>
+          &nbsp;
+          <a href="/support/websearch/bin/answer.py?answer=186645&amp;form=bb&amp;hl=en">Learn more</a>
+        </div>
+        <div id="pocs1">
+          <span>Google</span>
+          Instant is off due to connection speed. Press Enter to search.
+        </div>
+        <div id="pocs2">Press Enter to search.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

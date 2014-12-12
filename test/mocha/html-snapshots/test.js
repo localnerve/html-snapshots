@@ -387,6 +387,89 @@ describe("html-snapshots", function() {
       // that should always succeed as long as the selector is not dependent on jQuery.
     });
 
+    describe("phantomjsOptions behaviors", function() {
+
+      it("should work with one string option", function(done) {
+        var outputBase = path.join(__dirname, "./tmp/");
+        var cookiesFile = path.join(outputBase, "cookies.txt");
+        var outputDir = path.join(outputBase, "snapshots");
+
+        rimraf(outputBase);
+
+        var options = {
+          input: "array",
+          source: [ "http://localhost:"+port+"/pjsopts" ],
+          outputDir: outputDir,
+          outputDirClean: false,
+          selector: ".content-complete",
+          timeout: 5000,
+          phantomjsOptions: "--cookies-file="+cookiesFile
+        };
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          assert.ifError(err);
+          assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
+          cleanup(done);
+        });
+        assert.equal(true, result);
+      });
+
+      it("should work with multiple options, test one", function(done) {
+        var outputBase = path.join(__dirname, "./tmp/");
+        var cookiesFile = path.join(outputBase, "cookies.txt");
+        var outputDir = path.join(outputBase, "snapshots");
+
+        rimraf(outputBase);
+
+        var options = {
+          input: "array",
+          source: [ "http://localhost:"+port+"/pjsopts" ],
+          outputDir: outputDir,
+          outputDirClean: false,
+          selector: "#inline-image",
+          timeout: 5000,
+          phantomjsOptions: [
+            "--cookies-file="+cookiesFile,
+            "--load-images=true"
+          ]
+        };
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          assert.ifError(err);
+          assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");          
+          cleanup(done);
+        });
+        assert.equal(true, result);
+      });
+
+      it("should work with multiple options, test two", function(done) {
+        var outputBase = path.join(__dirname, "./tmp/");
+        var cookiesFile = path.join(outputBase, "cookies.txt");
+        var outputDir = path.join(outputBase, "snapshots");
+
+        rimraf(outputBase);
+
+        var options = {
+          input: "array",
+          source: [ "http://localhost:"+port+"/pjsopts" ],
+          outputDir: outputDir,
+          outputDirClean: false,
+          selector: "#inline-image",
+          timeout: 5000,
+          phantomjsOptions: [
+            "--cookies-file="+cookiesFile,
+            "--load-images=false"
+          ]
+        };
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          resHelp.mustBeError(err);
+          assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");          
+          cleanup(done);
+        });
+        assert.equal(true, result);
+      });
+
+      // most of these tests use no options, so not testing that again here
+    });
+
     describe("additional snapshot scripts", function() {
 
       var snapshotScriptTests = [

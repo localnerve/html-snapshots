@@ -1,4 +1,4 @@
-# [html-snapshots v0.6.3](http://github.com/localnerve/html-snapshots)
+# [html-snapshots v0.7.0](http://github.com/localnerve/html-snapshots)
 [![Build Status](https://api.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 [![Coverage Status](https://img.shields.io/coveralls/localnerve/html-snapshots.svg)](https://coveralls.io/r/localnerve/html-snapshots?branch=master)
 [![Dependency Status](https://david-dm.org/localnerve/html-snapshots.png)](https://david-dm.org/localnerve/html-snapshots)
@@ -237,7 +237,7 @@ Apart from the default settings, there are a number of options that can be speci
 
       `"object"` If the value is an object, it must be a key/value pair object where the key must match the url (or path in the case of robots.txt style) found by the input generator.
       
-      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input.
+      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The value returned for a given page must be a string that can be used on the filesystem for a path.
 
   Notes: For pretty urls, this option may not be wanted/needed. The output file name is always "index.html".
 
@@ -249,9 +249,9 @@ Apart from the default settings, there are a number of options that can be speci
       
       `"string"` If the value is a string, it is used for every page.       
       
-      `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify selectors for individual pages. The reserved key "__default" allows you to specify the default selector so you don't have to specify a selector every individual page.
+      `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify selectors for individual pages. The reserved key "__default" allows you to specify the default selector so you don't have to specify a selector for every individual page.
       
-      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given.
+      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a string.
   
   NOTE: By default, selectors must conform to [this spec](http://www.w3.org/TR/selectors-api/#grammar), as they are used by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). If you need selectors not supported by this, you must specify the `useJQuery` option, and load jQuery in your page.
 
@@ -265,7 +265,7 @@ Apart from the default settings, there are a number of options that can be speci
       
       `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify the use of jQuery for individual pages. The reserved key "__default" allows you to specify a default jQuery usage so you don't have to specify usage for every individual page.
       
-      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given.
+      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a boolean.
   
   NOTE: You do not *have to* use this option if your page uses jQuery. You only need this if your selector is not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). However, if you do use this option, the page being snapshotted must load jQuery itself.
 
@@ -279,7 +279,7 @@ Apart from the default settings, there are a number of options that can be speci
       
       `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify timeouts for individual pages. The reserved key "__default" allows you to specify the default timeout so you don't have to specify a timeout for every individual page.
       
-      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given.
+      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a number.
 
 + `processLimit`
   + default: 4
@@ -329,11 +329,44 @@ Apart from the default settings, there are a number of options that can be speci
         return content.replace(/someregex/g, "somereplacement"); // remove or replace anything
       }
       ```
+      A more complete example using custom options is available [here](https://github.com/localnerve/html-snapshots/tree/master/examples/custom).
+
++ `phantomjsOptions`
+  + default: ""
+  + Specifies options to give to PhantomJS. Can specify per page or for all pages. Since PhantomJS instances run per page, it is possible to specify different PhantomJS options per page. Useful for debugging PhantomJS scripts on a specific page. 
+  For PhantomJS options syntax, checkout the [current options](http://phantomjs.org/api/command-line.html).
+  Checkout [the source](https://github.com/ariya/phantomjs/blob/master/src/config.cpp#L49) for PhantomJS options coming next.
+
+      The value can be one of these *javascript types*:
+      
+      `"string"` If the value is a string, it is a single option string used for every page.
+
+      `"array"` If the value is an array, it can contain multiple option strings used for every page.
+      
+      `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify PhantomJS options for individual pages. The reserved key "__default" allows you to specify default options so you don't have to specify options for every individual page. The values can be either a string \(for a single option\), or an array \(for multiple options \).
+      
+      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be either a string or an array.
+
+  + Multiple Options Examples:
+  ```javascript
+  // option snippet showing multiple options for all pages
+  {
+    phantomjsOptions: ["--remote-debugger-port=8080","--remote-debugger-autorun=true"]
+  }
+
+  // option snippet showing multiple options for one page only (object notation)
+  {
+    phantomjsOptions: {
+      "http://mysite.com/myProblemPage": ["--remote-debugger-port=8080","--remote-debugger-autorun=true"],
+    }
+  }
+  ```
 
 + `phantomjs`
-  + default: A package local reference to phantomjs.
-  + Specifies the phantomjs executable to run. Override this if you want to supply a path to a different version of phantomjs. To reference PhantomJS globally in your environment, just use the value, "phantomjs". Remember, it must be found in your environment path to execute.
+  + default: A package local reference to PhantomJS.
+  + Specifies the PhantomJS executable to run. Applies to all pages. Override this if you want to supply a path to a different version of PhantomJS. To reference PhantomJS globally in your environment, just use the value, "phantomjs". Remember, it must be found in your environment path to execute.
 See [PhantomJS](http://phantomjs.org/) for more information.
+Also [PhantomJS 2](https://github.com/ariya/phantomjs/wiki/PhantomJS-2).
 
 ## Example Rewrite Rule
 Here is an example apache rewrite rule for rewriting \_escaped\_fragment\_ requests to the snapshots directory on your server.
