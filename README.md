@@ -351,16 +351,18 @@ Apart from the default settings, there are a number of options that can be speci
   ```javascript
   // option snippet showing multiple options for all pages
   {
-    phantomjsOptions: ["--remote-debugger-port=8080","--remote-debugger-autorun=true"]
+    phantomjsOptions: ["--load-images=false", "--ignore-ssl-errors=true"]
   }
 
   // option snippet showing multiple options for one page only (object notation)
   {
     phantomjsOptions: {
-      "http://mysite.com/myProblemPage": ["--remote-debugger-port=8080","--remote-debugger-autorun=true"],
+      // key must exactly match the page as defined in the input (sitemap, array, robots, etc)
+      "http://mysite.com/mypage": ["--load-images=false", "--ignore-ssl-errors=true"],
     }
   }
   ```
+  An example demonstrating how to **debug** a PhantomJS script is available [here](https://github.com/localnerve/html-snapshots/tree/master/examples/debug-phantomjs). It also demonstrates per-page option usage.
 
 + `phantomjs`
   + default: A package local reference to PhantomJS.
