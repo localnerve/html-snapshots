@@ -31,6 +31,8 @@ NOTE: Each PhantomJS instance launched with the --remote-debugger-port option wi
 For more detailed explanation, checkout the remote debugging section of the [PhantomJS troubleshooting](http://phantomjs.org/troubleshooting.html) guide.
 
 Even after the script exits, PhantomJS will stick around because it was launched in debug mode. Presumably, this is so you can continue debugging over and over if need be.
+
 If you want to kill it:
+
 1. `pgrep phantomjs` to find the PID of the phantomjs debug process
 2. kill -15 <PID>

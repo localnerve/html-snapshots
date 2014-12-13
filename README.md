@@ -187,10 +187,10 @@ Apart from the default settings, there are a number of options that can be speci
       
       Possible *values*:
       
-      `"sitemap"` Supply urls from a local or remote sitemap.xml file. Gzipped sitemaps are supported.
-      `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt files with wildcards are NOT supported - Use "sitemap" instead.      
-      `"textfile"` Supply urls from a local line-oriented text file in the style of robots.txt      
-      `"array"`, supply arbitrary urls from a javascript array.
+      - `"sitemap"` Supply urls from a local or remote sitemap.xml file. Gzipped sitemaps are supported.
+      - `"array"`, supply arbitrary urls from a javascript array.
+      - `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt files with wildcards are NOT supported - Use "sitemap" instead.
+      - `"textfile"` Supply urls from a local line-oriented text file in the style of robots.txt
 
 + `source`
   + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
