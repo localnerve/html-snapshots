@@ -46,7 +46,7 @@ install html-snapshots` will download html-snapshots and all dependencies.
 If you are interested in the grunt task that uses this library, check out [grunt-html-snapshots](http://github.com/localnerve/grunt-html-snapshots).
 
 ## More Information
-Here are some [background and other notes](http://github.com/localnerve/html-snapshots/blob/master/docs/notes.md) regarding this project.
+Here are some [background and other notes](/docs/notes.md) regarding this project.
 
 ### Process Model
 html-snapshots takes snapshots in parallel, each page getting its own PhantomJS process. Each PhantomJS process dies after snapshotting one page. You can limit the number of PhantomJS processes that can ever run at once with the `processLimit` option. This effectively sets up a process pool for PhantomJS instances. The default processLimit is 4 PhantomJS instances. When a PhantomJS process dies, and another snapshot needs to be taken, a new PhantomJS process is spawned to take the vacant slot. This continues until a `processLimit` number of processes are running at once.
@@ -61,9 +61,9 @@ The upside is jQuery is no longer required to be loaded by the page being snapsh
 ## Example Usage
 Simple examples to demonstrate the options can be found in this section.   
 
-A more in-depth usage example is located in this [article](http://github.com/localnerve/html-snapshots/blob/master/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
+A more in-depth usage example is located in this [article](/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
 
-A growing showcase of runnable examples can be found [here](http://github.com/localnerve/html-snapshots/blob/master/examples)
+A growing showcase of runnable examples can be found [here](/examples)
 
 ### Simple example
 ```javascript
@@ -148,7 +148,7 @@ var result = htmlSnapshots.run({
 });
 // result === true if snapshots were successfully started
 ```
-Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out the complete [example](https://github.com/localnerve/html-snapshots/tree/master/examples/html5rocks).
+Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out the complete [example](/examples/html5rocks).
 
 ### Example - Completion callback, Remote robots.txt
 ```javascript
@@ -207,7 +207,7 @@ var result = htmlSnapshots.run({
   });
 });
 ```
-Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the complete [example](https://github.com/localnerve/html-snapshots/tree/master/examples/custom).
+Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the complete [example](/examples/custom).
 
 ## Options
 Every option has a default value except `outputDir`.
@@ -313,7 +313,7 @@ Every option has a default value except `outputDir`.
     NOTE: You do not *have to* use this option if your page uses jQuery. You only need this if your selector is not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). However, if you do use this option, the page being snapshotted must load jQuery itself.
 
   + `snapshotScript`
-    + default: This library's [default](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/default.js) snapshot script. This script runs in PhantomJS and takes the snapshot when the supplied selector becomes visible.
+    + default: This library's [default](/lib/phantom/default.js) snapshot script. This script runs in PhantomJS and takes the snapshot when the supplied selector becomes visible.
     + Specifies the PhantomJS script to run to actually produce the snapshot. The script supplied in this option is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
 
       The value can be one of these *javascript types*:
@@ -348,7 +348,7 @@ Every option has a default value except `outputDir`.
           return content.replace(/someregex/g, "somereplacement"); // remove or replace anything
         }
         ```
-        A more complete example using custom options is available [here](https://github.com/localnerve/html-snapshots/tree/master/examples/custom).
+        A more complete example using custom options is available [here](/examples/custom).
 
 ### Process Control Options
 
@@ -407,7 +407,7 @@ Every option has a default value except `outputDir`.
           }
         }
         ```
-        An example demonstrating how to **debug** a PhantomJS script is available [here](https://github.com/localnerve/html-snapshots/tree/master/examples/debug-phantomjs). It also demonstrates per-page option usage.
+        An example demonstrating how to **debug** a PhantomJS script is available [here](/examples/debug-phantomjs). It also demonstrates per-page option usage.
 
   + `phantomjs`
     + default: A package local reference to PhantomJS.
@@ -437,6 +437,6 @@ An ExpressJS middleware example using html-snapshots can be found at [wpspa/serv
 Here is the [article](/docs/example-heroku-redis.md) on how this middleware works with html-snapshots.
 
 ## License
-This software is free to use under the LocalNerve, LLC MIT license. See the [LICENSE file](https://github.com/localnerve/html-snapshots/blob/master/LICENSE) for license text and copyright information.
+This software is free to use under the LocalNerve, LLC MIT license. See the [LICENSE file](/LICENSE) for license text and copyright information.
 
-Third-party open source code used are listed in the [package.json file](https://github.com/localnerve/html-snapshots/blob/master/package.json).
+Third-party open source code used are listed in the [package.json file](/package.json).
