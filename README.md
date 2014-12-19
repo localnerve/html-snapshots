@@ -28,7 +28,7 @@
   + [Snapshot Options](#snapshot-control-options)
   + [Process Options](#process-control-options)
 + [Rewrite and Middleware Examples](#example-rewrite-rule)
-+ [Worker Process and Middleware Article]()
++ [Worker Process and Middleware Article and Examples](/docs/example-heroku-redis.md)
 + [License](#license)
 
 ## Overview
