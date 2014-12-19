@@ -17,14 +17,18 @@
   + [Per-page output paths](#example---per-page-special-output-paths)
   + [Per-page jquery](#example---per-page-selectors-and-jquery)
   + [Array input](#example---array)
+  + [Array input DRY](/examples/html5rocks)
   + [Completion callback](#example---completion-callback-remote-robotstxt)
   + [Script removal](#example---completion-callback-remote-robotstxt-remove-script-tags-from-html-snapshots)
-+ [Options](#options)
+  + [Custom Filters](/examples/custom)
+  + [Debug PhantomJS](/examples/debug-phantomjs)
++ [Option Reference](#options)
   + [Input Options](#input-control-options)
   + [Output Options](#output-control-options)
   + [Snapshot Options](#snapshot-control-options)
   + [Process Options](#process-control-options)
 + [Rewrite and Middleware Examples](#example-rewrite-rule)
++ [Worker Process and Middleware Article]()
 + [License](#license)
 
 ## Overview
@@ -429,7 +433,8 @@ You can also refer `_escaped_fragment_` requests to your snapshots in ExpressJS 
 ```
 
 ### Middleware Example
-An ExpressJS middleware example using html-snapshots can be found at [wpspa/server/middleware/snapshots.js](https://github.com/localnerve/wpspa/blob/master/server/middleware/snapshots.js)
+An ExpressJS middleware example using html-snapshots can be found at [wpspa/server/middleware/snapshots.js](https://github.com/localnerve/wpspa/blob/master/server/middleware/snapshots.js).   
+Here is the [article](/docs/example-heroku-redis.md) on how this middleware works with html-snapshots.
 
 ## License
 This software is free to use under the LocalNerve, LLC MIT license. See the [LICENSE file](https://github.com/localnerve/html-snapshots/blob/master/LICENSE) for license text and copyright information.
