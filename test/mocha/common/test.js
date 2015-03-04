@@ -1,3 +1,4 @@
+/* global describe, it */
 var assert = require("assert");
 var path = require("path");
 var common = require("../../../lib/common");

@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -18,10 +18,14 @@
     "url": "https://github.com/localnerve/html-snapshots/issues"
   },
   "scripts": {
+    "lint": "grunt lint",
     "test": "grunt test",
-    "coverage": "node_modules/.bin/istanbul cover -- grunt test && grunt coveralls",
-    "ci": "grunt lint && node_modules/.bin/istanbul cover -- grunt test && grunt coveralls"
+    "coverage": "istanbul cover -- grunt test",
+    "ci": "grunt lint && istanbul cover -- grunt test && grunt coveralls"
   },
+  "precommit": [
+    "lint"
+  ],
   "main": "./lib/html-snapshots",
   "repository": {
     "type": "git",
@@ -39,24 +43,25 @@
   ],
   "dependencies": {
     "async": "~0.9.0",
-    "phantomjs": "^1.9.12",
-    "request": "^2.48.0",
-    "rimraf": "^2.2.6",
-    "underscore": "^1.7.0",
-    "xml2js": "~0.4.4"
+    "phantomjs": "^1.9.16",
+    "request": "^2.53.0",
+    "rimraf": "^2.2.8",
+    "lodash": "^3.3.1",
+    "xml2js": "~0.4.5"
   },
   "devDependencies": {
     "async": "~0.9.0",
-    "express": "^4.10.4",
+    "express": "^4.12.2",
     "grunt": "~0.4.5",
     "grunt-contrib-jshint": "^0.11.0",
     "grunt-coveralls": "^1.0.0",
-    "grunt-mocha-test": "~0.12.0",
-    "istanbul": "^0.3.2",
+    "grunt-mocha-test": "~0.12.7",
+    "istanbul": "^0.3.6",
+    "lodash": "^3.3.1",
     "matchdep": "^0.3.0",
     "mkdirp": "^0.5.0",
-    "sitemap-xml": "~0.1.0",
-    "underscore": "^1.7.0"
+    "precommit-hook": "^1.0.7",
+    "sitemap-xml": "~0.1.0"
   },
   "licenses": [
     {

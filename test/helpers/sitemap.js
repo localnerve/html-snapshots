@@ -5,7 +5,7 @@ var smLib = require("sitemap-xml");
 var urlLib = require("url");
 var fs = require("fs");
 var pathLib = require("path");
-var _ = require("underscore");
+var _ = require("lodash");
 var mkdirp = require("mkdirp").sync;
 var base = require("../../lib/input-generators/_base");
 

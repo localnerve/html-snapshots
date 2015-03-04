@@ -1,3 +1,4 @@
+/* global describe, it */
 var assert = require("assert");
 var resHelper = require("../../helpers/result");
 
