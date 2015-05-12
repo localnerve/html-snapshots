@@ -23,7 +23,7 @@
     "coverage": "istanbul cover -- grunt test",
     "ci": "grunt lint && istanbul cover -- grunt test && grunt coveralls"
   },
-  "precommit": [
+  "pre-commit": [
     "lint"
   ],
   "main": "./lib/html-snapshots",
@@ -60,7 +60,7 @@
     "lodash": "^3.3.1",
     "matchdep": "^0.3.0",
     "mkdirp": "^0.5.0",
-    "precommit-hook": "^1.0.7",
+    "precommit-hook": "^2.0.1",
     "sitemap-xml": "~0.1.0"
   },
   "licenses": [
