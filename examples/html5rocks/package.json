@@ -4,6 +4,6 @@
   "author": "Alex Grant <alex@localnerve.com>",
   "description": "An example using html-snapshots",
   "dependencies": {
-    "html-snapshots": "^0.8.0"
+    "html-snapshots": "^0.9.0"
    }
 }
