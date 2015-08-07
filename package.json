@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -21,7 +21,8 @@
     "lint": "grunt lint",
     "test": "grunt test",
     "coverage": "istanbul cover -- grunt test",
-    "ci": "grunt lint && istanbul cover -- grunt test && grunt coveralls"
+    "ci": "grunt lint && istanbul cover -- grunt test && grunt coveralls",
+    "validate": "npm ls"
   },
   "pre-commit": [
     "lint"
@@ -58,16 +59,11 @@
     "istanbul": "^0.3.14",
     "matchdep": "^0.3.0",
     "mkdirp": "^0.5.1",
-    "precommit-hook": "^2.0.1",
+    "precommit-hook": "^3.0.0",
     "sitemap-xml": "~0.1.0"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/localnerve/html-snapshots/blob/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "engines": {
-    "node": "^0.10.0"
+    "node": "^0.12.0"
   }
 }
