@@ -123,6 +123,8 @@ describe("html-snapshots", function() {
           timeout: 6000
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
+          // this still fails occasionally. dunno why yet, but suspect relation to previous test.
+          // console.log('@@@ error: ' + err);
           cleanup(done, err);
         });
         assert.equal(true, result);
