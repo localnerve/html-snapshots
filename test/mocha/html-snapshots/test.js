@@ -19,8 +19,19 @@ describe("html-snapshots", function() {
 
   // Count actual phantomjs processes in play, requires pgrep
   function countSpawnedProcesses(cb) {
-    var pgrep = spawn("pgrep", [spawnedProcessPattern, "-c"]);
-    pgrep.stdout.on("data", cb);
+    var pgrep;
+    // std mac pgrep doesn't have a count option. How stupid is that?
+    if (process.platform === "darwin") {
+      var wc = spawn("wc", ["-l"]);
+      pgrep = spawn("pgrep", [spawnedProcessPattern]);
+      pgrep.stdout.on("data", function (data) {
+        wc.stdin.write(data);
+      });
+      wc.stdout.on("data", cb);
+    } else {
+      pgrep = spawn("pgrep", [spawnedProcessPattern, "-c"]);
+      pgrep.stdout.on("data", cb);
+    }
   }
 
   // Clear any lingering phantomjs processes in play
