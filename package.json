@@ -4,7 +4,7 @@
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
-    "url": "http://www.localnerve.com"
+    "url": "http://localnerve.com"
   },
   "homepage": "https://github.com/localnerve/html-snapshots",
   "description": "A selector-based html snapshot tool using PhantomJS that sources sitemap.xml, robots.txt, or arbitrary input",
@@ -56,14 +56,14 @@
     "grunt-contrib-jshint": "^0.11.2",
     "grunt-coveralls": "^1.0.0",
     "grunt-mocha-test": "~0.12.7",
-    "istanbul": "^0.3.14",
-    "matchdep": "^0.3.0",
+    "istanbul": "^0.4.1",
+    "matchdep": "^1.0.0",
     "mkdirp": "^0.5.1",
     "precommit-hook": "^3.0.0",
     "sitemap-xml": "~0.1.0"
   },
   "license": "MIT",
   "engines": {
-    "node": "^0.12.0"
+    "node": "0.12.0 - 4.2.2"
   }
 }
