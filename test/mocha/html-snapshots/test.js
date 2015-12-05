@@ -120,11 +120,11 @@ describe("html-snapshots", function() {
           selector: "#dynamic-content",
           outputDir: path.join(__dirname, "./tmp/snapshots"),
           outputDirClean: true,
-          timeout: 6000
+          timeout: 10000
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
           // this still fails occasionally. dunno why yet, but suspect relation to previous test.
-          // console.log('@@@ error: ' + err);
+          //console.log('@@@ error: ' + err);
           cleanup(done, err);
         });
         assert.equal(true, result);
@@ -138,9 +138,10 @@ describe("html-snapshots", function() {
           selector: "#dynamic-content",
           outputDir: path.join(__dirname, "./tmp/snapshots"),
           outputDirClean: true,
-          timeout: 6000
+          timeout: 10000
         };
-        var result = ss.run(optHelp.decorate(options), function(err) {
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          //console.log('@@@ error: ' + err +', '+require('util').inspect(completed, {depth:null}));
           cleanup(done, err);
         });
         assert.equal(true, result);
@@ -494,6 +495,7 @@ describe("html-snapshots", function() {
             script: "removeScripts"
           },
           prove: function(completed, done) {
+            // console.log("@@@ removeScripts prove @@@");
             var content, err;
             for (var i = 0; i < completed.length; i++) {
               content = fs.readFileSync(completed[i], { encoding: "utf8" });
@@ -512,8 +514,10 @@ describe("html-snapshots", function() {
             module: path.join(__dirname, "myFilter.js")
           },
           prove: function(completed, done) {
+            // console.log("@@@ customFilter prove @@@");
             var content, err;
             for (var i = 0; i < completed.length; i++) {
+              // console.log("@@@ readFile "+completed[i]);
               content = fs.readFileSync(completed[i], { encoding: "utf8" });
               // this is dependent on myFilter.js adding someattrZZQy anywhere
               if (content.indexOf("someattrZZQy") < 0) {
@@ -616,6 +620,7 @@ describe("html-snapshots", function() {
             selector: "#dynamic-content",
             outputDir: outputDir,
             outputDirClean: true,
+            timeout: 10000,
             snapshotScript: snapshotScriptTest.option
           };
 
@@ -624,7 +629,9 @@ describe("html-snapshots", function() {
           result = ss.run(optHelp.decorate(options), function(err, completed) {
             if (!err) {
               snapshotScriptTest.prove(completed, function(e) {
-                cleanup(done, e);
+                setTimeout(function () {
+                    cleanup(done, e);
+                }, 3000);
               });
             } else {
               cleanup(done, err);
