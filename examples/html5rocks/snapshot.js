@@ -1,6 +1,6 @@
 /*
  * Snapshot multiple pages using arrays.
- * 
+ *
  * Use an array to snapshot specific urls.
  * Use per-page selectors.
  * Use per-page output paths.
@@ -21,8 +21,8 @@ var sites = [
   },
   {
     label: "updates.html5rocks",
-    url: "http://updates.html5rocks.com",
-    selector: ".articles-list"
+    url: "https://developers.google.com/web/updates/",
+    selector: ".mdl-grid"
   }
 ];
 
@@ -50,8 +50,14 @@ htmlSnapshots.run({
   // remove all script tags from the output
   snapshotScript: {
     script: "removeScripts"
+  },
+
+  // handle ssl for updates.html5rocks only
+  phantomjsOptions: {
+    // key must match url exactly
+    "https://developers.google.com/web/updates/": ["--ssl-protocol=any", "--ignore-ssl-errors=true"]
   }
-}, function(err, completed) {  
+}, function(err, completed) {
 
   console.log("completed snapshots:");
   console.log(util.inspect(completed));
