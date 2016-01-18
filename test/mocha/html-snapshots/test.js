@@ -44,8 +44,10 @@ describe("html-snapshots", function() {
     if (process.platform === "win32") {
       setTimeout(done, 3000, arg);
     } else {
-      killSpawnedProcesses(function() {
-        done(arg);
+      setImmediate(function () {
+        killSpawnedProcesses(function() {
+          done(arg);
+        });
       });
     }
   }
@@ -120,11 +122,11 @@ describe("html-snapshots", function() {
           selector: "#dynamic-content",
           outputDir: path.join(__dirname, "./tmp/snapshots"),
           outputDirClean: true,
-          timeout: 10000
+          timeout: 20000
         };
         var result = ss.run(optHelp.decorate(options), function(err) {
-          // this still fails occasionally. dunno why yet, but suspect relation to previous test.
-          //console.log('@@@ error: ' + err);
+          // this still fails occasionally.
+          // console.log('@@@ error: ' + err);
           cleanup(done, err);
         });
         assert.equal(true, result);
@@ -138,10 +140,10 @@ describe("html-snapshots", function() {
           selector: "#dynamic-content",
           outputDir: path.join(__dirname, "./tmp/snapshots"),
           outputDirClean: true,
-          timeout: 10000
+          timeout: 20000
         };
         var result = ss.run(optHelp.decorate(options), function(err, completed) {
-          //console.log('@@@ error: ' + err +', '+require('util').inspect(completed, {depth:null}));
+          // console.log('@@@ error: ' + err +', '+require('util').inspect(completed, {depth:null}));
           cleanup(done, err);
         });
         assert.equal(true, result);
@@ -627,11 +629,11 @@ describe("html-snapshots", function() {
           rimraf(outputDir);
 
           result = ss.run(optHelp.decorate(options), function(err, completed) {
+            // console.log('@@@ error = '+err);
+
             if (!err) {
               snapshotScriptTest.prove(completed, function(e) {
-                setTimeout(function () {
-                    cleanup(done, e);
-                }, 3000);
+                cleanup(done, e);
               });
             } else {
               cleanup(done, err);
