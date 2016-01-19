@@ -117,7 +117,7 @@ describe("html-snapshots", function() {
           timeout: 10000
         };
         var result = ss.run(optHelp.decorate(options), function(err, completed) {
-          // this still fails occasionally.
+          // this still fails on mac occasionally.
           console.log('@@@ error: ' + err +', '+require('util').inspect(completed, {depth:null}));
           cleanup(done, err);
         });
@@ -135,6 +135,7 @@ describe("html-snapshots", function() {
           timeout: 10000
         };
         var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          // this still fails on mac occasionally.
           console.log('@@@ error: ' + err +', '+require('util').inspect(completed, {depth:null}));
           cleanup(done, err);
         });
