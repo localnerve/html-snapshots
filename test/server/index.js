@@ -15,11 +15,11 @@ function setHeaders(res, path) {
 
 module.exports = {
 
-  start: function(rootDir, port) {
+  start: function(rootDir, port, cb) {
     server.use(express.static(rootDir, {
       setHeaders: setHeaders
     }));
-    server.listen(parseInt(port, 10));
+    server.listen(parseInt(port, 10), cb);
   }
 
 };

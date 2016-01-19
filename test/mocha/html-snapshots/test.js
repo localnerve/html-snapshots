@@ -1,4 +1,4 @@
-/* global describe, it, before */
+/* global describe, it, before, beforeEach */
 var assert = require("assert");
 var path = require("path");
 var fs = require("fs");
@@ -55,20 +55,24 @@ describe("html-snapshots", function() {
   describe("library", function() {
     this.timeout(30000);
 
-    before(function() {
-      server.start(path.join(__dirname, "./server"), port);
+    before(function (done) {
+      server.start(path.join(__dirname, "./server"), port, done);
     });
 
-    describe("sync runs", function() {
+    describe("run basics", function() {
 
       it("no arguments should return false", function(done) {
-        assert.equal(false, ss.run(optHelp.decorate({})));
-        cleanup(done);
+        assert.equal(false, ss.run(optHelp.decorate({}), function (err) {
+          resHelp.mustBeError(err);
+          cleanup(done);
+        }));
       });
 
       it("invalid source should return false", function(done) {
-        assert.equal(false, ss.run(optHelp.decorate({ source: bogusFile })));
-        cleanup(done);
+        assert.equal(false, ss.run(optHelp.decorate({ source: bogusFile }), function (err) {
+          resHelp.mustBeError(err);
+          cleanup(done);
+        }));
       });
 
       it("should clean the output directory when specified", function(done) {
@@ -79,20 +83,63 @@ describe("html-snapshots", function() {
         }
         fs.writeFileSync(file, "some data");
         assert.equal(true, fs.existsSync(dir));
-        var result = ss.run(optHelp.decorate({ source: bogusFile, outputDir: dir, outputDirClean: true }));
+        var result = ss.run(
+          optHelp.decorate({ source: bogusFile, outputDir: dir, outputDirClean: true }),
+          function (err) {
+            resHelp.mustBeError(err);
+            cleanup(done);
+          }
+        );
         assert.equal(true, (fs.existsSync(dir) || fs.existsSync(file))===false && result===false);
-        cleanup(done);
       });
 
       it("default snapshot script should exist", function(done) {
         var options = { source: "./bogus/file.txt" };
-        var result = ss.run(optHelp.decorate(options));
+        var result = ss.run(optHelp.decorate(options), function (err) {
+          resHelp.mustBeError(err);
+          cleanup(done);
+        });
         assert.equal(true, fs.existsSync(options.snapshotScript) && result===false);
-        cleanup(done);
       });
     });
 
     describe("async runs", function() {
+
+      it("should all succeed, no output dir pre-exists", function(done) {
+        rimraf(path.join(__dirname, "./tmp/snapshots"));
+        var options = {
+          source: inputFile,
+          hostname: "localhost",
+          port: port,
+          selector: "#dynamic-content",
+          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDirClean: true,
+          timeout: 10000
+        };
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          // this still fails occasionally.
+          console.log('@@@ error: ' + err +', '+require('util').inspect(completed, {depth:null}));
+          cleanup(done, err);
+        });
+        assert.equal(true, result);
+      });
+
+      it("should all succeed, output dir does pre-exist", function(done) {
+        var options = {
+          source: inputFile,
+          hostname: "localhost",
+          port: port,
+          selector: "#dynamic-content",
+          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDirClean: true,
+          timeout: 10000
+        };
+        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+          console.log('@@@ error: ' + err +', '+require('util').inspect(completed, {depth:null}));
+          cleanup(done, err);
+        });
+        assert.equal(true, result);
+      });
 
       it("should all fail with bad phantomjs process to spawn", function(done) {
         var options = {
@@ -109,42 +156,6 @@ describe("html-snapshots", function() {
           // here is where the error should be
           resHelp.mustBeError(err);
           cleanup(done);
-        });
-        assert.equal(true, result);
-      });
-
-      it("should all succeed, no output dir pre-exists", function(done) {
-        rimraf(path.join(__dirname, "./tmp/snapshots"));
-        var options = {
-          source: inputFile,
-          hostname: "localhost",
-          port: port,
-          selector: "#dynamic-content",
-          outputDir: path.join(__dirname, "./tmp/snapshots"),
-          outputDirClean: true,
-          timeout: 20000
-        };
-        var result = ss.run(optHelp.decorate(options), function(err) {
-          // this still fails occasionally.
-          // console.log('@@@ error: ' + err);
-          cleanup(done, err);
-        });
-        assert.equal(true, result);
-      });
-
-      it("should all succeed, output dir does pre-exist", function(done) {
-        var options = {
-          source: inputFile,
-          hostname: "localhost",
-          port: port,
-          selector: "#dynamic-content",
-          outputDir: path.join(__dirname, "./tmp/snapshots"),
-          outputDirClean: true,
-          timeout: 20000
-        };
-        var result = ss.run(optHelp.decorate(options), function(err, completed) {
-          // console.log('@@@ error: ' + err +', '+require('util').inspect(completed, {depth:null}));
-          cleanup(done, err);
         });
         assert.equal(true, result);
       });
@@ -319,7 +330,6 @@ describe("html-snapshots", function() {
     });
 
     describe("useJQuery option behaviors", function() {
-
       var subdir = "useJQuery";
 
       it("should fail if useJQuery is true and no jQuery loads in target page", function(done) {
@@ -611,8 +621,18 @@ describe("html-snapshots", function() {
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
 
-      snapshotScriptTests.forEach(function(snapshotScriptTest) {
-        it("should succeed for snapshot script "+snapshotScriptTest.name, function(done) {
+      describe("should succeed for scripts", function () {
+        var testNumber = 0, snapshotScriptTest, scriptNames = [
+          snapshotScriptTests[testNumber].name,
+          snapshotScriptTests[testNumber + 1].name
+          //, testNumber + 2, etc
+        ];
+
+        beforeEach(function () {
+          snapshotScriptTest = snapshotScriptTests[testNumber++];
+        });
+
+        it("snapshot script "+scriptNames[0], function(done) {
           var result,
           outputDir = path.join(__dirname, "./tmp/snapshots"),
           options = {
@@ -629,21 +649,47 @@ describe("html-snapshots", function() {
           rimraf(outputDir);
 
           result = ss.run(optHelp.decorate(options), function(err, completed) {
-            // console.log('@@@ error = '+err);
-
             if (!err) {
               snapshotScriptTest.prove(completed, function(e) {
                 cleanup(done, e);
               });
             } else {
+              console.log('@@@ error = '+err+", completed="+completed.join(','));
+              cleanup(done, err);
+            }
+          });
+          assert.equal(true, result);
+        });
+
+        it("snapshot script "+scriptNames[1], function(done) {
+          var result,
+          outputDir = path.join(__dirname, "./tmp/snapshots"),
+          options = {
+            source: inputFile,
+            hostname: "localhost",
+            port: port,
+            selector: "#dynamic-content",
+            outputDir: outputDir,
+            outputDirClean: true,
+            timeout: 10000,
+            snapshotScript: snapshotScriptTest.option
+          };
+
+          rimraf(outputDir);
+
+          result = ss.run(optHelp.decorate(options), function(err, completed) {
+            if (!err) {
+              snapshotScriptTest.prove(completed, function(e) {
+                cleanup(done, e);
+              });
+            } else {
+              console.log('@@@ error = '+err+", completed="+completed.join(','));
               cleanup(done, err);
             }
           });
           assert.equal(true, result);
         });
       });
-
     });
-
   });
 });
