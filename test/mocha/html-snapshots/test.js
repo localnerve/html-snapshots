@@ -655,6 +655,7 @@ describe("html-snapshots", function() {
                 cleanup(done, e);
               });
             } else {
+              // this still fails on mac occasionally.
               console.log('@@@ error = '+err+", completed="+completed.join(','));
               cleanup(done, err);
             }
@@ -684,6 +685,7 @@ describe("html-snapshots", function() {
                 cleanup(done, e);
               });
             } else {
+              // this still fails on mac occasionally.
               console.log('@@@ error = '+err+", completed="+completed.join(','));
               cleanup(done, err);
             }
