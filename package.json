@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.11.1",
+  "version": "0.12.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -44,7 +44,7 @@
   ],
   "dependencies": {
     "async": "^1.5.2",
-    "phantomjs": "^1.9.19",
+    "phantomjs-prebuilt": "^2.1.4",
     "request": "^2.67.0",
     "rimraf": "^2.5.0",
     "lodash": "^4.0.0",
@@ -64,6 +64,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": "0.12.0 - 4.2.2"
+    "node": "0.12.x - 4.3.x"
   }
 }
