@@ -69,8 +69,8 @@ describe("async", function(){
       var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this wasn't called because of a timeout/failure
-        assert.equal(true, (Date.now() - start) < (timeout+notifier.padTimeoutFloor()));
-        
+        assert.equal(true, (Date.now() - start) < (timeout+notifier.getPadTimeoutFloor()));
+
         // compare filesDone to input files
         if (typeof err === "undefined") {
           files.sort();
@@ -117,7 +117,7 @@ describe("async", function(){
       var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this wasn't called because of a timeout/failure
-        assert.equal(true, (Date.now() - start) < (timeout+notifier.padTimeoutFloor()));
+        assert.equal(true, (Date.now() - start) < (timeout+notifier.getPadTimeoutFloor()));
 
         // compare filesDone to input files
         if (typeof err === "undefined") {
@@ -162,7 +162,7 @@ describe("async", function(){
       var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this was called because of a failure
-        assert.equal(true, (Date.now() - start) > (timeout+notifier.padTimeoutFloor()));
+        assert.equal(true, (Date.now() - start) > (timeout+notifier.getPadTimeoutFloor()));
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
 
@@ -205,10 +205,10 @@ describe("async", function(){
 
       // take the worker queue out of the equation
       notifier.qEmpty();
-      
+
       var start;
       notifier.start(timeout / pollCount, function(err, filesDone){
-        assert.equal(true, (Date.now() - start) > (timeout+notifier.padTimeoutFloor()));
+        assert.equal(true, (Date.now() - start) > (timeout+notifier.getPadTimeoutFloor()));
         assert.notStrictEqual(typeof err, "undefined");
         assert.equal(0, filesDone.length);
         done();
@@ -350,7 +350,7 @@ describe("async", function(){
 
       start = Date.now();
       createFiles(files);
-      
+
       // fake out async.queue here. In reality, q.length() would be 1 normally,
       //   but it will never become empty since async.queue doesn't run in this test.
       setTimeout(function() {
@@ -405,7 +405,7 @@ describe("async", function(){
       files.forEach(function(file) {
         q.push(worker(file, workerTime));
       });
-      
+
       // call abort in the middle of the second to last worker
       // so files.length - 2 workers should have completed since q.concurrent === 1
       setTimeout(function() {
