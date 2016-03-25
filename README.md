@@ -1,10 +1,10 @@
 # [html-snapshots](http://github.com/localnerve/html-snapshots)
 
 [![npm version](https://badge.fury.io/js/html-snapshots.svg)](http://badge.fury.io/js/html-snapshots)
-[![Build Status](https://api.travis-ci.org/localnerve/html-snapshots.png?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
+[![Build Status](https://api.travis-ci.org/localnerve/html-snapshots.svg?branch=master)](http://travis-ci.org/localnerve/html-snapshots)
 [![Coverage Status](https://img.shields.io/coveralls/localnerve/html-snapshots.svg)](https://coveralls.io/r/localnerve/html-snapshots?branch=master)
-[![Dependency Status](https://david-dm.org/localnerve/html-snapshots.png)](https://david-dm.org/localnerve/html-snapshots)
-[![devDependency Status](https://david-dm.org/localnerve/html-snapshots/dev-status.png)](https://david-dm.org/localnerve/html-snapshots#info=devDependencies)
+[![Dependency Status](https://david-dm.org/localnerve/html-snapshots.svg)](https://david-dm.org/localnerve/html-snapshots)
+[![devDependency Status](https://david-dm.org/localnerve/html-snapshots/dev-status.svg)](https://david-dm.org/localnerve/html-snapshots#info=devDependencies)
 [![Codacy Badge](https://www.codacy.com/project/badge/03d414fc2e264ef4b40456aae5b52108)](https://www.codacy.com/public/alex/html-snapshots)
 
 > Takes html snapshots of your site's crawlable pages when an element you select is rendered.
@@ -89,7 +89,7 @@ var result = htmlSnapshots.run({
   source: "/path/to/sitemap.xml",
   outputDir: "./snapshots",
   outputDirClean: true,  
-  selector: { 
+  selector: {
     "http://mysite.com": "#home-content",
     "__default": "#dynamic-content"
   },
@@ -109,7 +109,7 @@ var result = htmlSnapshots.run({
   outputDirClean: true,
   outputPath: {
     "http://mysite.com/services/?page=1": "services/page/1",
-    "http://mysite.com/services/?page=2": "services/page/2" 
+    "http://mysite.com/services/?page=2": "services/page/2"
   },
   selector: "#dynamic-content"
 });
@@ -161,13 +161,13 @@ var result = htmlSnapshots.run({
   outputDir: "./snapshots",
   outputDirClean: true,  
   selector: "#dynamic-content"
-}, function(err, snapshotsCompleted) { 
-  /* 
+}, function(err, snapshotsCompleted) {
+  /*
     Do something when html-snapshots has completed.
 
     err is undefined if all snapshots were generated successfully.
 
-    snapshotsCompleted is an array of normalized paths to output files that 
+    snapshotsCompleted is an array of normalized paths to output files that
       contain completed snapshots.
     If no snapshots are completed, this is an empty array.
 
@@ -219,9 +219,9 @@ Every option has a default value except `outputDir`.
   + `input`
     + default: `"robots"`
     + Specifies the input generator to be used to produce the urls.
-        
+
         Possible *values*:
-        
+
         + `"sitemap"` Supply urls from a local or remote sitemap.xml file. Gzipped sitemaps are supported.
         + `"array"`, supply arbitrary urls from a javascript array.
         + `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt files with wildcards are NOT supported - Use "sitemap" instead.
@@ -239,7 +239,7 @@ Every option has a default value except `outputDir`.
       + Both lastmod and changefreq tags are specifed alongside loc tags in the sitemap. In this case, both of these tags are used to determine if the url is out-of-date and needs a snapshot.
       + Only a lastmod tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the file modification time is compared against the lastmod value to see if the url is out-of-date and needs a snapshot.
       + Only a changefreq tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the last file modification time is used as a timespan \(from now\) and compared against the given changefreq to see if the url is out-of-date and needs a snapshot.
-    
+
     Not all url elements in a sitemap have to have lastmod and/or changefreq \(those tags are optional, unlike loc\), but the urls you want to be able to skip \(if they are current\) must make use of those tags. You can intermix usage of these tags, as long as the requirements are met for making an age determination. If a determination on age cannot be made for any reason, the url is processed normally. For more info on sitemap tags and acceptable values, read the [wikipedia](http://en.wikipedia.org/wiki/Sitemaps) page.
 
 ##### Robots and Textfile Only Input Options
@@ -277,7 +277,7 @@ Every option has a default value except `outputDir`.
       The value can be one of these *javascript types*:
 
       `"object"` If the value is an object, it must be a key/value pair object where the key must match the url (or path in the case of robots.txt style) found by the input generator.
-      
+
       `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The value returned for a given page must be a string that can be used on the filesystem for a path.
 
   **Notes:**   
@@ -289,29 +289,29 @@ Every option has a default value except `outputDir`.
   + `selector`
     + default: `"body"`
     + Specifies the selector to find in the output before taking the snapshot. The appearence of this selector in the output triggers a snapshot to be taken.
-        
+
         The value can be one of these *javascript types*:
-        
+
         `"string"` If the value is a string, it is used for every page.       
-        
+
         `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify selectors for individual pages. The reserved key "__default" allows you to specify the default selector so you don't have to specify a selector for every individual page.
-        
+
         `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a string.
-    
+
     NOTE: By default, selectors must conform to [this spec](http://www.w3.org/TR/selectors-api/#grammar), as they are used by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). If you need selectors not supported by this, you must specify the `useJQuery` option, and load jQuery in your page.
 
   + `useJQuery`
     + default: `false`
     + Specifies to use jQuery selectors to detect when to snapshot a page. Please note that you cannot use these selectors if the page to be snapshotted does not load jQuery itself. To return to the behavior prior to v0.6.x, set this to `true`.
-        
+
         The value can be one of these *javascript types*:
-        
+
         `"boolean"` If the value is a boolean, it is used for every page. Note that if it is any scalar type such as "string" or "number", it will be interpreted as a boolean using javascript rules. Coerced string values "true", "yes", and "1" are specifically true, all others are false.
-        
+
         `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify the use of jQuery for individual pages. The reserved key "__default" allows you to specify a default jQuery usage so you don't have to specify usage for every individual page.
-        
+
         `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a boolean.
-    
+
     NOTE: You do not *have to* use this option if your page uses jQuery. You only need this if your selector is not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). However, if you do use this option, the page being snapshotted must load jQuery itself.
 
   + `snapshotScript`
@@ -357,13 +357,13 @@ Every option has a default value except `outputDir`.
   + `timeout`
     + default: 10000 \(milliseconds\)
     + Specifies the time to wait for the selector to become visible.
-        
+
         The value can be one of these *javascript types*:
-        
+
         `"number"` If the value is a number, it is used for every page in the website.      
-        
+
         `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify timeouts for individual pages. The reserved key "__default" allows you to specify the default timeout so you don't have to specify a timeout for every individual page.
-        
+
         `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a number.
 
   + `processLimit`
@@ -380,18 +380,18 @@ Every option has a default value except `outputDir`.
 
   + `phantomjsOptions`
     + default: ""
-    + Specifies options to give to PhantomJS. Can specify per page or for all pages. Since PhantomJS instances run per page, it is possible to specify different PhantomJS options per page. Useful for debugging PhantomJS scripts on a specific page. 
+    + Specifies options to give to PhantomJS. Can specify per page or for all pages. Since PhantomJS instances run per page, it is possible to specify different PhantomJS options per page. Useful for debugging PhantomJS scripts on a specific page.
     For PhantomJS options syntax, checkout the [current options](http://phantomjs.org/api/command-line.html).
     Checkout [the source](https://github.com/ariya/phantomjs/blob/master/src/config.cpp#L49) for PhantomJS options coming next.
 
         The value can be one of these *javascript types*:
-        
+
         `"string"` If the value is a string, it is a single option string used for every page.
 
         `"array"` If the value is an array, it can contain multiple option strings used for every page.
-        
+
         `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify PhantomJS options for individual pages. The reserved key "__default" allows you to specify default options so you don't have to specify options for every individual page. The values can be either a string \(for a single option\), or an array \(for multiple options \).
-        
+
         `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be either a string or an array.
 
         Multiple Options Examples:
