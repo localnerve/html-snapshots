@@ -6,6 +6,7 @@ npm-debug.log
 tmp
 report
 coverage
+.jshint*
 .validate.json
 html-snapshots.sublime-project
 html-snapshots.sublime-workspace

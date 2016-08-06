@@ -153,7 +153,7 @@ describe("html-snapshots", function() {
           phantomjs: bogusFile,
           timeout: 1000
         };
-        var result = ss.run(options, function(err, snapshots) {
+        var result = ss.run(options, function(err) {
           // here is where the error should be
           resHelp.mustBeError(err);
           cleanup(done);
@@ -254,7 +254,7 @@ describe("html-snapshots", function() {
               timeout: 6000,
               processLimit: processLimit
             };
-            var result = ss.run(optHelp.decorate(options), function(err) {
+            var result = ss.run(optHelp.decorate(options), function() {
               done(phantomCount ?
                 new Error(phantomCount+" exceeded processLimit "+processLimit) :
                 undefined
@@ -303,7 +303,7 @@ describe("html-snapshots", function() {
               timeout: 6000,
               processLimit: processLimit
             };
-            var result = ss.run(optHelp.decorate(options), function(err) {
+            var result = ss.run(optHelp.decorate(options), function() {
               done(phantomCount ?
                 new Error(phantomCount+" exceeded processLimit "+processLimit) :
                 undefined
@@ -433,7 +433,7 @@ describe("html-snapshots", function() {
           timeout: 5000,
           phantomjsOptions: "--cookies-file="+cookiesFile
         };
-        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+        var result = ss.run(optHelp.decorate(options), function(err) {
           assert.ifError(err);
           assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
           cleanup(done);
@@ -460,7 +460,7 @@ describe("html-snapshots", function() {
             "--load-images=true"
           ]
         };
-        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+        var result = ss.run(optHelp.decorate(options), function(err) {
           assert.ifError(err);
           assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
           cleanup(done);
@@ -487,7 +487,7 @@ describe("html-snapshots", function() {
             "--load-images=false"
           ]
         };
-        var result = ss.run(optHelp.decorate(options), function(err, completed) {
+        var result = ss.run(optHelp.decorate(options), function(err) {
           resHelp.mustBeError(err);
           // maybe this is true, but why should this be true?
           // assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");

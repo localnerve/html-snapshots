@@ -282,7 +282,6 @@ describe("async", function(){
 
       rimraf(dir);
 
-      var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
@@ -306,8 +305,6 @@ describe("async", function(){
       assert.equal(files.length, notifier.fileCount());
       assert.equal(true, notifier.isStarted());
 
-      start = Date.now();
-
       notifier.abort({ length: function() { return 0; } }, abortFailure);
     });
 
@@ -322,7 +319,6 @@ describe("async", function(){
 
       rimraf(dir);
 
-      var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
@@ -348,7 +344,6 @@ describe("async", function(){
 
       files.splice(1, 1); // remove the second element
 
-      start = Date.now();
       createFiles(files);
 
       // fake out async.queue here. In reality, q.length() would be 1 normally,
@@ -368,7 +363,6 @@ describe("async", function(){
 
       rimraf(dir);
 
-      var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
@@ -401,7 +395,7 @@ describe("async", function(){
 
       // simulate work - files.length workers taking workerTime to complete.
       var workerTime = 40;
-      start = Date.now();
+
       files.forEach(function(file) {
         q.push(worker(file, workerTime));
       });
