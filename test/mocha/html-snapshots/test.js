@@ -633,7 +633,7 @@ describe("html-snapshots", function() {
           snapshotScriptTest = snapshotScriptTests[testNumber++];
         });
 
-        it("snapshot script "+scriptNames[0], function(done) {
+        function snapshotScriptTestDefinition (done) {
           var result,
           outputDir = path.join(__dirname, "./tmp/snapshots"),
           options = {
@@ -649,9 +649,9 @@ describe("html-snapshots", function() {
 
           rimraf(outputDir);
 
-          result = ss.run(optHelp.decorate(options), function(err, completed) {
+          result = ss.run(optHelp.decorate(options), function (err, completed) {
             if (!err) {
-              snapshotScriptTest.prove(completed, function(e) {
+              snapshotScriptTest.prove(completed, function (e) {
                 cleanup(done, e);
               });
             } else {
@@ -660,37 +660,12 @@ describe("html-snapshots", function() {
               cleanup(done, err);
             }
           });
+
           assert.equal(true, result);
-        });
+        }
 
-        it("snapshot script "+scriptNames[1], function(done) {
-          var result,
-          outputDir = path.join(__dirname, "./tmp/snapshots"),
-          options = {
-            source: inputFile,
-            hostname: "localhost",
-            port: port,
-            selector: "#dynamic-content",
-            outputDir: outputDir,
-            outputDirClean: true,
-            timeout: 10000,
-            snapshotScript: snapshotScriptTest.option
-          };
-
-          rimraf(outputDir);
-
-          result = ss.run(optHelp.decorate(options), function(err, completed) {
-            if (!err) {
-              snapshotScriptTest.prove(completed, function(e) {
-                cleanup(done, e);
-              });
-            } else {
-              // this still fails on mac occasionally.
-              console.log('@@@ error = '+err+", completed="+completed.join(','));
-              cleanup(done, err);
-            }
-          });
-          assert.equal(true, result);
+        scriptNames.forEach(function (scriptName) {
+          it("snapshot script "+scriptName, snapshotScriptTestDefinition);
         });
       });
     });
