@@ -1,5 +1,4 @@
-node_modules
-examples
-docs
-tmp
-coverage
+examples/*
+docs/*
+tmp/*
+coverage/*
