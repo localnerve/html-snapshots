@@ -4,7 +4,7 @@ var fs = require("fs");
 var path = require("path");
 var mkdirp = require("mkdirp");
 var rimraf = require("rimraf").sync;
-var async = require("../../../lib/async");
+var Notifier = require("../../../lib/async").Notifier;
 var asyncLib = require("async");
 
 describe("async", function(){
@@ -33,7 +33,7 @@ describe("async", function(){
     };
 
     it("should be able to call add and remove to effect the files (without starting)", function(done){
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
       var timeout = 100;
       notifier.add("one", timeout);
       notifier.add("two", timeout);
@@ -55,7 +55,7 @@ describe("async", function(){
     });
 
     it("should be able to start and watch files get created", function(done){
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
@@ -102,7 +102,7 @@ describe("async", function(){
     });
 
     it("should be able to start and watch files get created, remove one from the list", function(done){
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
       var dir = path.join(__dirname, "./files"),
           filesToDo = [],
           files = [dir+"/one", dir+"/two", dir+"/three"],
@@ -147,7 +147,7 @@ describe("async", function(){
     });
 
     it("should be able to start and watch files get created, one doesn't get created", function(done){
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           filesToDo = files.slice(),
@@ -195,7 +195,7 @@ describe("async", function(){
     });
 
     it("should be able to start and watch files get created, none get created", function(done){
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
@@ -227,7 +227,7 @@ describe("async", function(){
     });
 
     it("should fail if no callback supplied", function() {
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
 
       var result = notifier.start(1, {}, mockInput);
 
@@ -237,7 +237,7 @@ describe("async", function(){
     });
 
     it("should fail if negative poll interval supplied", function() {
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
 
       var result = notifier.start(-1, function(err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
@@ -249,7 +249,7 @@ describe("async", function(){
     });
 
     it("should fail if zero poll interval supplied", function() {
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
 
       var result = notifier.start(0, function(err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
@@ -261,7 +261,7 @@ describe("async", function(){
     });
 
     it("should fail if no input generator is supplied", function() {
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
 
       var result = notifier.start(250, function(err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
@@ -273,7 +273,7 @@ describe("async", function(){
     });
 
     it("should abort if requested, no files done yet", function(done) {
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
@@ -309,7 +309,7 @@ describe("async", function(){
     });
 
     it("should abort if requested, all but one file processed", function(done) {
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           filesToDo = files.slice(),
@@ -354,7 +354,7 @@ describe("async", function(){
     });
 
     it("should abort if requested, all but one file processed, real async", function(done) {
-      var notifier = new async.Notifier();
+      var notifier = new Notifier();
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 8,

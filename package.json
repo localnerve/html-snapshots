@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.13.2",
+  "version": "0.14.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -19,7 +19,8 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "mocha test/mocha/* --recursive --reporter spec",
+    "test": "mocha test/mocha/**/*.js --recursive --reporter spec",
+    "test:async": "mocha test/mocha/async/test.js --reporter spec",
     "coverage": "istanbul cover -- _mocha test/mocha/* --recursive --reporter spec",
     "validate": "npm ls"
   },
@@ -61,6 +62,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">= 0.12.x"
+    "node": ">= 4.x"
   }
 }
