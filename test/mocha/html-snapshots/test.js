@@ -383,7 +383,7 @@ describe("html-snapshots", function() {
           var result = ss.run(optHelp.decorate(options), function(err, completed) {
             assert.ifError(err);
             assert.equal(completed.length, 1);
-            assert.equal(completed[0], outputDir+"/nojq/index.html");
+            assert.equal(completed[0], path.join(outputDir, "nojq", "index.html"));
             cleanup(done, err);
           });
           assert.equal(true, result);
@@ -405,7 +405,7 @@ describe("html-snapshots", function() {
             //console.log("completed:\n"+require("util").inspect(completed));
             assert.ifError(err);
             assert.equal(completed.length, 1);
-            assert.equal(completed[0], outputDir+"/index.html");
+            assert.equal(completed[0], path.join(outputDir, "index.html"));
             cleanup(done);
           });
           assert.equal(true, result);
