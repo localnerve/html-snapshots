@@ -622,6 +622,10 @@ describe("html-snapshots", function() {
         assert.equal(true, result); // run returns true because it isn't discovered until later
       });
 
+      it("create space for success scripts", function (done) {
+        setTimeout(done, 3000);
+      });
+
       describe("should succeed for scripts", function () {
         var testNumber = 0, snapshotScriptTest, scriptNames = [
           snapshotScriptTests[testNumber].name,
