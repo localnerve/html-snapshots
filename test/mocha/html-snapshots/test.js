@@ -280,6 +280,10 @@ describe("html-snapshots", function() {
         }
       });
 
+      it("time spacer for process limit", function (done) {
+        setTimeout(done, 3000);
+      });
+
       it("should limit process to just one process", function(done) {
         if (process.platform === "win32") {
           assert.ok(true, "Skipping posix compliant tests for processLimit");
