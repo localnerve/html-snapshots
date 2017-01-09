@@ -21,6 +21,7 @@
     "lint": "eslint .",
     "test": "mocha test/mocha/**/*.js --recursive --reporter spec",
     "test:async": "mocha test/mocha/async/test.js --reporter spec",
+    "test:input-generators": "mocha test/mocha/input-generators/*.js --reporter spec",
     "coverage": "istanbul cover -- _mocha test/mocha/* --recursive --reporter spec",
     "validate": "npm ls"
   },
@@ -52,7 +53,7 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.12",
-    "eslint": "^3.9.0",
+    "eslint": "^3.13.0",
     "express": "^4.13.3",
     "mocha": "^3.0.1",
     "istanbul": "^0.4.2",
