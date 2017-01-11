@@ -335,7 +335,9 @@ describe("html-snapshots", function() {
               pollDone = true;
             })
               .catch(function (e) {
-                done(e || unexpectedError);
+                if (!pollDone) {
+                  done(e || unexpectedError);
+                }
               });
 
             var timer = setInterval(function() {
@@ -391,7 +393,9 @@ describe("html-snapshots", function() {
               pollDone = true;
             })
               .catch(function (e) {
-                done(e || unexpectedError);
+                if (!pollDone) {
+                  done(e || unexpectedError);
+                }
               });
 
             var timer = setInterval(function() {
