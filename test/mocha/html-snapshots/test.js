@@ -18,6 +18,7 @@ describe("html-snapshots", function() {
   var spawnedProcessPattern = "^phantomjs$";
   var urls = 3; // must match test_robots.txt
   var bogusFile = "./bogus/file.txt";
+  var timeout = 10000;
 
   // Count actual phantomjs processes in play, requires pgrep
   function countSpawnedProcesses(cb) {
@@ -155,8 +156,6 @@ describe("html-snapshots", function() {
     });
 
     describe("async runs", function () {
-      var timeout = 10000;
-
       it("should all succeed, no output dir pre-exists", function (done) {
         var options = {
           source: inputFile,
@@ -305,7 +304,7 @@ describe("html-snapshots", function() {
               selector: "#dynamic-content",
               outputDir: outputDir,
               outputDirClean: true,
-              timeout: 6000,
+              timeout: timeout,
               processLimit: processLimit
             };
 
@@ -363,7 +362,7 @@ describe("html-snapshots", function() {
               selector: "#dynamic-content",
               outputDir: outputDir,
               outputDirClean: true,
-              timeout: 6000,
+              timeout: timeout,
               processLimit: processLimit
             };
 
@@ -448,7 +447,7 @@ describe("html-snapshots", function() {
           //selector: "#pocs1",
           outputDir: outputDir,
           outputDirClean: true,
-          timeout: 5000,
+          timeout: timeout,
           useJQuery: false
         };
 
@@ -474,7 +473,7 @@ describe("html-snapshots", function() {
           selector: "#dynamic-content",
           outputDir: outputDir,
           outputDirClean: true,
-          timeout: 5000,
+          timeout: timeout,
           useJQuery: true
         };
 
@@ -512,7 +511,7 @@ describe("html-snapshots", function() {
           outputDir: outputDir,
           outputDirClean: false,
           selector: ".content-complete",
-          timeout: 5000,
+          timeout: timeout,
           phantomjsOptions: "--cookies-file="+cookiesFile
         };
 
@@ -543,7 +542,7 @@ describe("html-snapshots", function() {
           outputDir: outputDir,
           outputDirClean: false,
           selector: "#inline-image",
-          timeout: 5000,
+          timeout: timeout,
           phantomjsOptions: [
             "--cookies-file="+cookiesFile,
             "--load-images=true"
@@ -577,7 +576,7 @@ describe("html-snapshots", function() {
           outputDir: outputDir,
           outputDirClean: false,
           selector: "#inline-image",
-          timeout: 5000,
+          timeout: timeout,
           phantomjsOptions: [
             "--cookies-file="+cookiesFile,
             "--load-images=false"
@@ -743,7 +742,7 @@ describe("html-snapshots", function() {
             selector: "#dynamic-content",
             outputDir: outputDir,
             outputDirClean: true,
-            timeout: 10000,
+            timeout: 20000,
             snapshotScript: snapshotScriptTest.option
           };
 
