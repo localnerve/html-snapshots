@@ -315,7 +315,7 @@ describe("html-snapshots", function() {
 
           rimraf(outputDir);
 
-          killSpawnedProcesses(function() {
+          killSpawnedProcesses(function () {
             var options = {
               source: inputFile,
               hostname: "localhost",
@@ -327,8 +327,8 @@ describe("html-snapshots", function() {
               processLimit: processLimit
             };
 
-            ss.run(optHelp.decorate(options), function() {
-              done(phantomCount ?
+            ss.run(optHelp.decorate(options), function () {
+              cleanup(done, phantomCount ?
                 new Error(phantomCount+" exceeded processLimit "+processLimit) :
                 undefined
               );
@@ -336,15 +336,15 @@ describe("html-snapshots", function() {
             })
               .catch(function (e) {
                 if (!pollDone) {
-                  done(e || unexpectedError);
+                  cleanup(done, e || unexpectedError);
                 }
               });
 
-            var timer = setInterval(function() {
+            var timer = setInterval(function () {
               if (pollDone) {
                 clearInterval(timer);
               } else {
-                countSpawnedProcesses(function(count) {
+                countSpawnedProcesses(function (count) {
                   //console.log("@@@ DEBUG @@@ phantom count: "+count);
                   if (count > processLimit) {
                     phantomCount = count;
@@ -361,7 +361,7 @@ describe("html-snapshots", function() {
         setTimeout(done, 3000);
       });
 
-      it("should limit process to just one process", function(done) {
+      it("should limit process to just one process", function (done) {
         if (process.platform === "win32") {
           assert.ok(true, "Skipping posix compliant tests for processLimit");
           done();
@@ -373,7 +373,7 @@ describe("html-snapshots", function() {
 
           rimraf(outputDir);
 
-          killSpawnedProcesses(function() {
+          killSpawnedProcesses(function () {
             var options = {
               source: inputFile,
               hostname: "localhost",
@@ -385,8 +385,8 @@ describe("html-snapshots", function() {
               processLimit: processLimit
             };
 
-            ss.run(optHelp.decorate(options), function() {
-              done(phantomCount ?
+            ss.run(optHelp.decorate(options), function () {
+              cleanup(done, phantomCount ?
                 new Error(phantomCount+" exceeded processLimit "+processLimit) :
                 undefined
               );
@@ -394,15 +394,15 @@ describe("html-snapshots", function() {
             })
               .catch(function (e) {
                 if (!pollDone) {
-                  done(e || unexpectedError);
+                  cleanup(done, e || unexpectedError);
                 }
               });
 
-            var timer = setInterval(function() {
+            var timer = setInterval(function () {
               if (pollDone) {
                 clearInterval(timer);
               } else {
-                countSpawnedProcesses(function(count) {
+                countSpawnedProcesses(function (count) {
                   //console.log("@@@ DEBUG @@@ phantom count: "+count);
                   if (count > processLimit) {
                     phantomCount = count;
