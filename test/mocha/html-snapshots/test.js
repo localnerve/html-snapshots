@@ -14,6 +14,7 @@ var port = 8034;
 describe("html-snapshots", function() {
   var unexpectedError = new Error("unexpected error flow");
   var inputFile = path.join(__dirname, "./test_robots.txt");
+  var outputDir = path.join(__dirname, "./tmp/snapshots");
   var spawnedProcessPattern = "^phantomjs$";
   var urls = 3; // must match test_robots.txt
   var bogusFile = "./bogus/file.txt";
@@ -96,9 +97,7 @@ describe("html-snapshots", function() {
       it("no arguments should fail", function (done) {
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate({}), twice);
-
-        result
+        ss.run(optHelp.decorate({}), twice)
           .then(function () {
             assert.fail("run", "succeed", "", "should not");
           })
@@ -108,9 +107,7 @@ describe("html-snapshots", function() {
       it("invalid source should return false", function (done) {
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate({ source: bogusFile }), twice);
-
-        result
+        ss.run(optHelp.decorate({ source: bogusFile }), twice)
           .then(function () {
             assert.fail("run", "succeed", "", "should not");
           })
@@ -128,15 +125,11 @@ describe("html-snapshots", function() {
         fs.writeFileSync(file, "some data");
         assert.equal(true, fs.existsSync(dir));
 
-        var result = ss.run(
-          optHelp.decorate({
-            source: bogusFile,
-            outputDir: dir,
-            outputDirClean: true
-          }), twice
-        );
-
-        result
+        ss.run(optHelp.decorate({
+          source: bogusFile,
+          outputDir: dir,
+          outputDirClean: true
+        }), twice)
           .then(function () {
             assert.fail("run", "succeed", "unexpected success", "should not");
           })
@@ -162,7 +155,6 @@ describe("html-snapshots", function() {
     });
 
     describe("async runs", function () {
-      var outputDir = path.join(__dirname, "./tmp/snapshots");
       var timeout = 10000;
 
       it("should all succeed, no output dir pre-exists", function (done) {
@@ -179,11 +171,11 @@ describe("html-snapshots", function() {
 
         rimraf(outputDir);
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(testSuccess.bind(null, twice))
-          .catch(done);
+          .catch(function (e) {
+            cleanup(done, e);
+          });
       });
 
       it("should all succeed, output dir does pre-exist", function (done) {
@@ -198,11 +190,11 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupSuccess.bind(null, done));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(testSuccess.bind(null, twice))
-          .catch(done);
+          .catch(function (e) {
+            cleanup(done, e);
+          });
       });
 
       it("should all fail with bad phantomjs process to spawn",
@@ -219,9 +211,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(options, twice);
-
-        result
+        ss.run(options, twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -238,9 +228,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -257,9 +245,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -276,9 +262,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -296,9 +280,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, urls - 1));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -432,9 +414,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -452,9 +432,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -474,17 +452,14 @@ describe("html-snapshots", function() {
           useJQuery: false
         };
 
-        function completionHandler (err, completed) {
-          assert.ifError(err);
-          assert.equal(completed.length, 1);
-          assert.equal(completed[0], path.join(outputDir, "nojq", "index.html"));
-        }
-
-        var result = ss.run(optHelp.decorate(options), completionHandler);
-
-        result
+        ss.run(optHelp.decorate(options), function (err, completed) {
+          if (err) {
+            console.log('@@@ error = '+err+", completed="+completed.join(','));
+          }
+        })
           .then(function (completed) {
-            completionHandler(undefined, completed);
+            assert.equal(completed.length, 1);
+            assert.equal(completed[0], path.join(outputDir, "nojq", "index.html"));
             cleanup(done);
           })
           .catch(function (e) {
@@ -493,8 +468,6 @@ describe("html-snapshots", function() {
       });
 
       it("should succeed if useJQuery=true, jQuery loaded", function (done) {
-        var outputDir = path.join(__dirname, "./tmp/snapshots");
-
         var options = {
           input: "array",
           source: [ "http://localhost:"+port+"/" ],
@@ -505,17 +478,14 @@ describe("html-snapshots", function() {
           useJQuery: true
         };
 
-        function completionHandler (err, completed) {
-          assert.ifError(err);
-          assert.equal(completed.length, 1);
-          assert.equal(completed[0], path.join(outputDir, "index.html"));
-        }
-
-        var result = ss.run(optHelp.decorate(options), completionHandler);
-
-        result
+        ss.run(optHelp.decorate(options), function (err, completed) {
+          if (err) {
+            console.log('@@@ error = '+err+", completed="+completed.join(','));
+          }
+        })
           .then(function (completed) {
-            completionHandler(null, completed);
+            assert.equal(completed.length, 1);
+            assert.equal(completed[0], path.join(outputDir, "index.html"));
             cleanup(done);
           })
           .catch(function (e) {
@@ -546,16 +516,13 @@ describe("html-snapshots", function() {
           phantomjsOptions: "--cookies-file="+cookiesFile
         };
 
-        function completionHandler (err) {
-          assert.ifError(err);
-          assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
-        }
-
-        var result = ss.run(optHelp.decorate(options), completionHandler);
-
-        result
+        ss.run(optHelp.decorate(options), function (err, completed) {
+          if (err) {
+            console.log('@@@ error = '+err+", completed="+completed.join(','));
+          }
+        })
           .then(function () {
-            completionHandler();
+            assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
             cleanup(done);
           })
           .catch(function (e) {
@@ -583,16 +550,13 @@ describe("html-snapshots", function() {
           ]
         };
 
-        function completionHandler (err) {
-          assert.ifError(err);
-          assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
-        }
-
-        var result = ss.run(optHelp.decorate(options), completionHandler);
-
-        result
+        ss.run(optHelp.decorate(options), function (err, completed) {
+          if (err) {
+            console.log('@@@ error = '+err+", completed="+completed.join(','));
+          }
+        })
           .then(function () {
-            completionHandler();
+            assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
             cleanup(done);
           })
           .catch(function (e) {
@@ -626,9 +590,7 @@ describe("html-snapshots", function() {
           // assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
         }
 
-        var result = ss.run(optHelp.decorate(options), completionHandler);
-
-        result
+        ss.run(optHelp.decorate(options), completionHandler)
           .then(unexpectedSuccess.bind(null, done))
           .catch(function (e) {
             completionHandler(e);
@@ -689,16 +651,14 @@ describe("html-snapshots", function() {
           hostname: "localhost",
           port: port,
           selector: "#dynamic-content",
-          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDir: outputDir,
           outputDirClean: true,
           snapshotScript: bogusFile,
           timeout: 2000
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -709,7 +669,7 @@ describe("html-snapshots", function() {
           hostname: "localhost",
           port: port,
           selector: "#dynamic-content",
-          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDir: outputDir,
           outputDirClean: true,
           snapshotScript: {
             script: bogusFile
@@ -718,9 +678,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -731,7 +689,7 @@ describe("html-snapshots", function() {
           hostname: "localhost",
           port: port,
           selector: "#dynamic-content",
-          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDir: outputDir,
           outputDirClean: true,
           snapshotScript: {
             script: "customFilter"
@@ -740,9 +698,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -753,7 +709,7 @@ describe("html-snapshots", function() {
           hostname: "localhost",
           port: port,
           selector: "#dynamic-content",
-          outputDir: path.join(__dirname, "./tmp/snapshots"),
+          outputDir: outputDir,
           outputDirClean: true,
           snapshotScript: {
             script: "customFilter",
@@ -763,9 +719,7 @@ describe("html-snapshots", function() {
         };
         var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-        var result = ss.run(optHelp.decorate(options), twice);
-
-        result
+        ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
       });
@@ -782,9 +736,7 @@ describe("html-snapshots", function() {
         });
 
         function snapshotScriptTestDefinition (done) {
-          var
-          outputDir = path.join(__dirname, "./tmp/snapshots"),
-          options = {
+          var options = {
             source: inputFile,
             hostname: "localhost",
             port: port,
@@ -803,10 +755,12 @@ describe("html-snapshots", function() {
                 cleanup(done, e);
               });
             } else {
-              // this still fails on mac occasionally.
+              // this still fails occasionally.
               console.log('@@@ error = '+err+", completed="+completed.join(','));
               cleanup(done, err);
             }
+          }).catch(function () {
+            /* eat it */
           });
         }
 
