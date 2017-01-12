@@ -6,6 +6,7 @@
  * Use per-page output paths.
  * Remove all script tags from output.
  * Use javascript arrays.
+ * Callback style usage.
  */
 var path = require("path");
 var util = require("util");
@@ -22,7 +23,7 @@ var sites = [
   {
     label: "updates.html5rocks",
     url: "https://developers.google.com/web/updates/",
-    selector: ".mdl-grid"
+    selector: ".devsite-landing-row-item"
   }
 ];
 

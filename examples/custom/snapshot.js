@@ -1,13 +1,12 @@
 /*
  * Snapshot an example website
- * 
- * Use sitemap.xml to snapshot the entire site.
+ *
+ * Use sitemap.xml to snapshot an entire site.
  * Use a customFilter to update the output before the snapshots are written.
- * 
+ * Promise resolution.
  */
 var path = require("path");
 var util = require("util");
-var assert = require("assert");
 var htmlSnapshots = require("html-snapshots");
 
 htmlSnapshots.run({
@@ -21,11 +20,12 @@ htmlSnapshots.run({
     module: path.join(__dirname, "myFilter.js")
   },
   timeout: 15000
-}, function(err, completed) {  
-
+})
+.then(function (completed) {
   console.log("completed snapshots:");
   console.log(util.inspect(completed));
-
-  // throw if there was an error
-  assert.ifError(err);
+})
+.catch(function (err) {
+  console.error("failure", err);
+  throw err;
 });
