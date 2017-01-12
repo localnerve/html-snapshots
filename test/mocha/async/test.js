@@ -278,7 +278,7 @@ describe("async", function(){
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
           timeout = 400,
-          abortFailure = "abortFailure";
+          abortFailure = new Error("abortFailure");
 
       rimraf(dir);
 
@@ -315,7 +315,7 @@ describe("async", function(){
           filesToDo = files.slice(),
           pollCount = 8,
           timeout = 400,
-          abortFailure = "abortFailure";
+          abortFailure = new Error("abortFailure");
 
       rimraf(dir);
 
@@ -359,7 +359,7 @@ describe("async", function(){
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 8,
           timeout = 400,
-          abortFailure = "abortFailure";
+          abortFailure = new Error("abortFailure");
 
       rimraf(dir);
 

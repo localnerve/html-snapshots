@@ -14,6 +14,7 @@
 + [Getting Started](#getting-started)
 + [Grunt Task](https://github.com/localnerve/grunt-html-snapshots)
 + [More Information](#more-information)
+  + [Breaking Changes](#breaking-changes)
 + [Example Usage](#example-usage)
   + [Per-page selectors](#example---per-page-selectors-and-timeouts)
   + [Per-page output paths](#example---per-page-special-output-paths)
@@ -24,6 +25,7 @@
   + [Script removal](#example---completion-callback-remote-robotstxt-remove-script-tags-from-html-snapshots)
   + [Custom Filters](/examples/custom)
   + [Debug PhantomJS](/examples/debug-phantomjs)
++ [API Reference](#api)
 + [Option Reference](#options)
   + [Input Options](#input-control-options)
   + [Output Options](#output-control-options)
@@ -55,6 +57,13 @@ html-snapshots takes snapshots in parallel, each page getting its own PhantomJS 
 
 ### Breaking Changes
 
+#### Introduced in v0.14.x
+##### Updated run method
+The library run method no longer returns a boolean value indicating a successful start. Instead, it returns a Promise that resolves to an array of file paths to completed snapshots, or error on failure. The second argument, a completion callback, is now **optional** and provided for compatibility only. If you supply one, it will be called, but the Promise will also resolve, so it is not needed.
+
+##### Dropped support for Node <= 0.12
+Node 4.x is now the lowest version of Node supported. 0.12 (or less) is EOL and unsupported by this library from 0.14 on.
+
 #### Introduced in v0.6.x
 jQuery selectors are no longer supported by default. To restore the previous behavior, set the `useJQuery` option to `true`.
 The upside is jQuery is no longer required to be loaded by the page being snapshotted. However, if you use jQuery selectors, or selectors not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector), the page being snapshotted must load jQuery.
@@ -70,21 +79,27 @@ A growing showcase of runnable examples can be found [here](/examples)
 ### Simple example
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-var result = htmlSnapshots.run({
+htmlSnapshots.run({
   source: "/path/to/robots.txt",
   hostname: "exampledomain.com",
   outputDir: "./snapshots",
   outputDirClean: true,
   selector: "#dynamic-content"
+})
+.then(function (completed) {
+  // completed is an array of full file paths to the completed snapshots.
+})
+.catch(function (error) {
+  // error is an Error instance.
+  // error.completed is an array of the snapshot file paths that were completed.
 });
-// result === true if snapshots were successfully started
 ```
 This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site. Once this selector is visible in a page, the html snapshot is taken.
 
 ### Example - Per page selectors and timeouts
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-var result = htmlSnapshots.run({
+htmlSnapshots.run({
   input: "sitemap",
   source: "/path/to/sitemap.xml",
   outputDir: "./snapshots",
@@ -94,15 +109,21 @@ var result = htmlSnapshots.run({
     "__default": "#dynamic-content"
   },
   timeout: { "http://mysite.com/superslowpage": 20000, "__default": 10000 }
+})
+.then(function (completed) {
+  // completed is an array of full file paths to the completed snapshots.
+})
+.catch(function (error) {
+  // error is an Error instance.
+  // error.completed is an array of the snapshot file paths that were completed.
 });
-// result === true if snapshots were successfully started
 ```
 This reads the urls from your sitemap.xml and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except the home page, where "#home-content" appears \(the appearance of a selector in the output triggers the snapshot\). Finally, a default timeout of 10000 ms is set on all pages except http://mysite.com/superslowpage, where it waits 20000 ms.
 
 ### Example - Per page special output paths
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-var result = htmlSnapshots.run({
+htmlSnapshots.run({
   input: "sitemap",
   source: "/path/to/sitemap.xml",
   outputDir: "./snapshots",
@@ -112,15 +133,21 @@ var result = htmlSnapshots.run({
     "http://mysite.com/services/?page=2": "services/page/2"
   },
   selector: "#dynamic-content"
+})
+.then(function (completed) {
+  // completed is an array of full file paths to the completed snapshots.
+})
+.catch(function (error) {
+  // error is an Error instance.
+  // error.completed is an array of the snapshot file paths that were completed.
 });
-// result === true if snapshots were successfully started
 ```
 This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have a rewrite rule that reflects this same mapping when `_escaped_fragment_` shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
 
 ### Example - Per page selectors and jQuery
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-var result = htmlSnapshots.run({
+htmlSnapshots.run({
   source: "/path/to/robots.txt",
   hostname: "mysite.com",
   outputDir: "./snapshots",
@@ -133,35 +160,47 @@ var result = htmlSnapshots.run({
     "/jqpage": true,
     "__default": false
   }
+})
+.then(function (completed) {
+  // completed is an array of full file paths to the completed snapshots.
+})
+.catch(function (error) {
+  // error is an Error instance.
+  // error.completed is an array of the snapshot file paths that were completed.
 });
-// result === true if snapshots were successfully started
 ```
 This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except in "/jqpage", where a selector not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector) is used. Further, "/jqpage" loads jQuery itself \(required\). All the other pages don't need to use special selectors, so the default is set to `false`. Notice that since a robots.txt input is used, full URLs are **not** used to match selectors. Instead, paths \(and QueryStrings and any Hashes\) are used, just as specified in the robots.txt file itself.
 
 ### Example - Array
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-var result = htmlSnapshots.run({
+htmlSnapshots.run({
   input: "array",
   source: ["http://mysite.com", "http://mysite.com/contact", "http://mysite.com:82/special"],
   outputDir: "./snapshots",
   outputDirClean: true,  
   selector: "#dynamic-content"
+})
+.then(function (completed) {
+  // completed is an array of full file paths to the completed snapshots.
+})
+.catch(function (error) {
+  // error is an Error instance.
+  // error.completed is an array of the snapshot file paths that were completed.
 });
-// result === true if snapshots were successfully started
 ```
 Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out the complete [example](/examples/html5rocks).
 
 ### Example - Completion callback, Remote robots.txt
 ```javascript
 var htmlSnapshots = require('html-snapshots');
-var result = htmlSnapshots.run({
+htmlSnapshots.run({
   source: "http://localhost/robots.txt",
   hostname: "localhost",
   outputDir: "./snapshots",
   outputDirClean: true,  
   selector: "#dynamic-content"
-}, function(err, snapshotsCompleted) {
+}, function (err, snapshotsCompleted) {
   /*
     Do something when html-snapshots has completed.
 
@@ -188,7 +227,7 @@ var fs = require("fs");
 var assert = require("assert");
 var htmlSnapshots = require("html-snapshots");
 
-var result = htmlSnapshots.run({
+htmlSnapshots.run({
   source: "http://localhost/robots.txt",
   hostname: "localhost",
   outputDir: "./snapshots",
@@ -197,19 +236,36 @@ var result = htmlSnapshots.run({
   snapshotScript: {
     script: "removeScripts"
   }
-}, function(err, snapshotsCompleted) {
-  var content;
-
-  assert.ifError(err);
-
-  snapshotsCompleted.forEach(function(snapshotFile) {
-    content = fs.readFileSync(snapshotFile, { encoding: "utf8"});    
+}, function (err, snapshotsCompleted) {
+  snapshotsCompleted.forEach(function (snapshotFile) {
+    var content = fs.readFileSync(snapshotFile, { encoding: "utf8"});
     assert.equal(false, /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content));
     // there are no script tags in the html snapshots
   });
+  // throw if error
+  assert.ifError(err);
 });
 ```
 Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the complete [example](/examples/custom).
+
+## API Reference
+Just a `run` method that takes options and an optional callback. Returns a Promise.  
+Syntax:
+```javascript
+var ss = require('html-snapshots');
+ss.run (options, [callback])
+.then(function (arrayOfPathsToCompletedSnapshots) {
+  // arrayOfPathsToCompletedSnapshots
+})
+.catch(function (errorObject) {
+  // errorObject is an instance of Error
+  // errorObject.completed is an array of paths to the snapshots that did successfully complete.
+})
+```
+Optional callback signature:
+```javascript
+callback(errorObject, arrayOfPathsToCompletedSnapshots)
+```
 
 ## Options
 Every option has a default value except `outputDir`.

@@ -18,7 +18,7 @@ describe("html-snapshots", function() {
   var spawnedProcessPattern = "^phantomjs$";
   var urls = 3; // must match test_robots.txt
   var bogusFile = "./bogus/file.txt";
-  var timeout = 10000;
+  var timeout = 12000;
 
   // Count actual phantomjs processes in play, requires pgrep
   function countSpawnedProcesses(cb) {
@@ -66,12 +66,16 @@ describe("html-snapshots", function() {
     if (completed) {
       assert.equal(count, completed.length);
     }
+    assert.equal(Object.prototype.toString.call(err), "[object Error]", "error should be class Error");
+    assert.notEqual(typeof err.completed, "undefined", "error.completed should be defined");
+    // console.log("@@@ error", err);
     cleanup(done);
   }
 
   function cleanupSuccess (done, err, completed) {
     // echo for test log clarity
-    console.log('@@@ result: ' + err +', '+require('util').inspect(completed, {depth:null}));
+    // console.log('@@@ result: ' + err +', '+require('util').inspect(completed, {depth:null}));
+    assert.notEqual(typeof completed, "undefined", "completed should be defined");
     cleanup(done, err);
   }
 
