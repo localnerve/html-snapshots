@@ -293,6 +293,7 @@ describe("html-snapshots", function() {
           var pollDone = false;
           var pollInterval = 500;
           var phantomCount = 0;
+          var timer;
 
           rimraf(outputDir);
 
@@ -309,6 +310,7 @@ describe("html-snapshots", function() {
             };
 
             ss.run(optHelp.decorate(options), function () {
+              clearInterval(timer);
               cleanup(done, phantomCount ?
                 new Error(phantomCount+" exceeded processLimit "+processLimit) :
                 undefined
@@ -321,7 +323,7 @@ describe("html-snapshots", function() {
                 }
               });
 
-            var timer = setInterval(function () {
+            timer = setInterval(function () {
               if (pollDone) {
                 clearInterval(timer);
               } else {
@@ -339,7 +341,9 @@ describe("html-snapshots", function() {
       });
 
       it("time spacer for process limit", function (done) {
-        setTimeout(done, 3000);
+        setTimeout(function () {
+          cleanup(done);
+        }, 3000);
       });
 
       it("should limit process to just one process", function (done) {
@@ -351,6 +355,7 @@ describe("html-snapshots", function() {
           var pollDone = false;
           var pollInterval = 500;
           var phantomCount = 0;
+          var timer;
 
           rimraf(outputDir);
 
@@ -367,6 +372,7 @@ describe("html-snapshots", function() {
             };
 
             ss.run(optHelp.decorate(options), function () {
+              clearInterval(timer);
               cleanup(done, phantomCount ?
                 new Error(phantomCount+" exceeded processLimit "+processLimit) :
                 undefined
@@ -379,7 +385,7 @@ describe("html-snapshots", function() {
                 }
               });
 
-            var timer = setInterval(function () {
+            timer = setInterval(function () {
               if (pollDone) {
                 clearInterval(timer);
               } else {
