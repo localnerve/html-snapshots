@@ -32,28 +32,6 @@ describe("async", function(){
       EOI: function() { return true; }
     };
 
-    it("should be able to call add and remove to effect the files (without starting)", function(done){
-      var notifier = new Notifier();
-      var timeout = 100;
-      notifier.add("one", timeout);
-      notifier.add("two", timeout);
-      notifier.add("three", timeout);
-      notifier.remove("two");
-
-      assert.equal(false, notifier.isStarted());
-      assert.equal(2, notifier.fileCount());
-      assert.equal(true, notifier.exists("one"));
-      assert.equal(false, notifier.exists("two"));
-      assert.equal(true, notifier.exists("three"));
-
-      setTimeout((function(done){
-        return function() {
-          assert.equal(0, notifier.fileCount());
-          done();
-        };
-      })(done), 500);
-    });
-
     it("should be able to start and watch files get created", function(done){
       var notifier = new Notifier();
       var dir = path.join(__dirname, "./files"),
