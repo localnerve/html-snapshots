@@ -1,5 +1,6 @@
 /*
- * Snapshot an example website
+ * Snapshot an example website.
+ * Copyright (c) 2013 - 2016, Alex Grant, LocalNerve, contributors
  *
  * Use sitemap.xml to snapshot an entire site.
  * Use a customFilter to update the output before the snapshots are written.

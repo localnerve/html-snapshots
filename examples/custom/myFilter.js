@@ -1,5 +1,6 @@
 /*
- * Example custom filter for html-snapshots
+ * Example custom filter for html-snapshots.
+ * Copyright (c) 2013 - 2016, Alex Grant, LocalNerve, contributors
  *
  * Processes the snapshot output before it is finalized.
  */
