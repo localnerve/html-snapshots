@@ -58,8 +58,8 @@ html-snapshots takes snapshots in parallel, each page getting its own PhantomJS 
 ### Breaking Changes
 
 #### Introduced in v0.14.x
-##### Updated run method
-The library run method no longer returns a boolean value indicating a successful start. Instead, it returns a Promise that resolves to an array of file paths to completed snapshots, or error on failure. The second argument, a completion callback, is now **optional** and provided for compatibility only. If you supply one, it will be called, but the Promise will also resolve, so it is not needed.
+##### Run method return value
+The library `run` method no longer returns a boolean value indicating a successful start. Instead, it returns a Promise that resolves to an array of file paths to completed snapshots, or error on failure. The `run` method's second argument, a completion callback, is now **optional** and provided for compatibility only. If you supply one, it will be called, but the Promise will also resolve, so it is not needed.
 
 ##### Dropped support for Node <= 0.12
 Node 4.x is now the lowest version of Node supported. 0.12 (or less) is EOL and unsupported by this library from 0.14 on.
@@ -189,7 +189,7 @@ htmlSnapshots.run({
   // error.completed is an array of the snapshot file paths that were completed.
 });
 ```
-Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out the complete [example](/examples/html5rocks).
+Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out a simple [example](/examples/simple-promise), or a more complex [example](/examples/html5rocks).
 
 ### Example - Completion callback, Remote robots.txt
 ```javascript
@@ -237,35 +237,39 @@ htmlSnapshots.run({
     script: "removeScripts"
   }
 }, function (err, snapshotsCompleted) {
+  // throw if error
+  assert.ifError(err);
+
   snapshotsCompleted.forEach(function (snapshotFile) {
     var content = fs.readFileSync(snapshotFile, { encoding: "utf8"});
     assert.equal(false, /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content));
     // there are no script tags in the html snapshots
   });
-  // throw if error
-  assert.ifError(err);
 });
 ```
 Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the complete [example](/examples/custom).
 
-## API Reference
-Just a `run` method that takes options and an optional callback. Returns a Promise.  
-Syntax:
+## API
+### *Promise* run (options[, callback])
+A method that takes [options](#options) and an optional callback. Returns a Promise.  
+**Syntax:**
 ```javascript
-var ss = require('html-snapshots');
-ss.run (options, [callback])
+var snapshots = require('html-snapshots');
+
+snapshots.run (options[, callback])
 .then(function (arrayOfPathsToCompletedSnapshots) {
   // arrayOfPathsToCompletedSnapshots
 })
 .catch(function (errorObject) {
   // errorObject is an instance of Error
   // errorObject.completed is an array of paths to the snapshots that did successfully complete.
-})
+});
 ```
-Optional callback signature:
+Signature of the optional callback:
 ```javascript
 callback(errorObject, arrayOfPathsToCompletedSnapshots)
 ```
+*In this case, errorObject does not have a `completed` property. Since `arrayOfPathsToCompletedSnapshots` is supplied, it contains the paths to the snapshots that did successfully complete.*
 
 ## Options
 Every option has a default value except `outputDir`.
