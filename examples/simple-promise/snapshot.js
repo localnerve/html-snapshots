@@ -1,6 +1,6 @@
 /*
  * Simple page snapshots example.
- * Copyright (c) 2013 - 2016, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2017, Alex Grant, LocalNerve, contributors
  *
  * Use array input to snapshot individual pages.
  * Promise resolution.
