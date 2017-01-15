@@ -283,24 +283,31 @@ Every option has a default value except `outputDir`.
         Possible *values*:
 
         + `"sitemap"` Supply urls from a local or remote sitemap.xml file. Gzipped sitemaps are supported.
+        + `"sitemap-index"` Supply urls from a local or remote sitemap-index.xml file. Gzipped sitemap indexes are supported.
         + `"array"`, supply arbitrary urls from a javascript array.
         + `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt files with wildcards are NOT supported - Use "sitemap" instead.
         + `"textfile"` Supply urls from a local line-oriented text file in the style of robots.txt
 
   + `source`
-    + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
-    + Specifies the input source. This must be a valid array or the location of a robots, text, or sitemap file for the corresponding input generator. robots.txt and sitemap.xml(.gz) can be local or remote. However, for the array input generator, this must be a javascript array of urls.
+    + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./sitemap-index.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
+    + Specifies the input source. This must be a valid array or the location of a robots, text, or sitemap file for the corresponding input generator. robots.txt, sitemap.xml(.gz), sitemap-index.xml(.gz) can be local or remote. However, for the array input generator, this must be an array of urls.
 
-##### Sitemap Only Input Options
+##### Sitemap/Sitemap-Index Only Input Options
 
   + `sitemapPolicy`
     + default: `false`
-    + For use only with the sitemap input generator. When true, lastmod and/or changefreq sitemap url child elements can be used to determine if a snapshot needs to be taken. Here are the possibilities for usage:
-      + Both lastmod and changefreq tags are specifed alongside loc tags in the sitemap. In this case, both of these tags are used to determine if the url is out-of-date and needs a snapshot.
+    + For use only with the sitemap and sitemap-index input generators. When true, lastmod and/or changefreq sitemap url child elements can be used to determine if a snapshot needs to be taken. Here are the possibilities for usage:
+      + Both lastmod and changefreq tags are specified alongside loc tags in the sitemap. In this case, both of these tags are used to determine if the url is out-of-date and needs a snapshot.
       + Only a lastmod tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the file modification time is compared against the lastmod value to see if the url is out-of-date and needs a snapshot.
       + Only a changefreq tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the last file modification time is used as a timespan \(from now\) and compared against the given changefreq to see if the url is out-of-date and needs a snapshot.
 
+    Note that for sitemap-index, only [lastmod](https://www.sitemaps.org/protocol.html#sitemapIndexTagDefinitions) policy element is available as a policy control.
+
     Not all url elements in a sitemap have to have lastmod and/or changefreq \(those tags are optional, unlike loc\), but the urls you want to be able to skip \(if they are current\) must make use of those tags. You can intermix usage of these tags, as long as the requirements are met for making an age determination. If a determination on age cannot be made for any reason, the url is processed normally. For more info on sitemap tags and acceptable values, read the [wikipedia](http://en.wikipedia.org/wiki/Sitemaps) page.
+
+  + `sitemapOutputDir`
+    + default: `_sitemaps_`
+    + For use only with the sitemap-index input generator. Defines the name of the subdirectory under the `outputDir` where sitemaps are stored. When truthy, directs html-snapshots to store sitemaps locally for age determinations with incoming lastmod tags. Otherwise, a falsy value will prevent sitemap storage and thereby disable the usage of sitemapPolicy with sitemap-index.
 
 ##### Robots and Textfile Only Input Options
 

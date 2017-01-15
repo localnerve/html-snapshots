@@ -20,7 +20,7 @@ describe("input-generator", function () {
     });
 
     it("'_common' should return a null generator", function () {
-      assert.equal(true, factory.isNull(factory.create("_common")));
+      assert.equal(true, factory.isNull(factory.create("_base")));
     });
 
     it("'_any' should return a null generator", function () {
@@ -44,7 +44,8 @@ describe("input-generator", function () {
     });
   });
 
-  var urls = 5; // dependent on how many urls are in the test files
+  var thisOutputDir = path.join(__dirname, "snapshots");
+
   var inputGenerators = [
     {
       name: "robots",
@@ -54,9 +55,15 @@ describe("input-generator", function () {
       bad: [
         path.join(__dirname, "test_robots_bad.txt"),
         "http://localhost:"+port+"/test_robots_bad.txt"
-      ]
+      ],
+      urls: 5
     },
-    { name: "textfile", input: factory.create("textfile"), source: path.join(__dirname, "test_line.txt") },
+    {
+      name: "textfile",
+      input: factory.create("textfile"),
+      source: path.join(__dirname, "test_line.txt"),
+      urls: 5
+    },
     { name: "array", input: factory.create("array"), source:
       // same as urls in sitemap
       [
@@ -65,13 +72,15 @@ describe("input-generator", function () {
         "http://northstar.local/services/carpets",
         "http://northstar.local/services/test?arg=one",
         "https://northstar.local/services/#hash"
-      ]
+      ],
+      urls: 5
     },
     {
       name: "sitemap",
       input: factory.create("sitemap"),
       source: path.join(__dirname, "test_sitemap.xml"),
-      remote: "http://localhost:"+port+"/test_sitemap.xml"
+      remote: "http://localhost:"+port+"/test_sitemap.xml",
+      urls: 5
     },
     {
       name: "sitemap-gzip",
@@ -81,12 +90,28 @@ describe("input-generator", function () {
       bad: [
         path.join(__dirname, "test_sitemap_bad.xml.gz"),
         "http://localhost:"+port+"/test_sitemap_bad.xml.gz"
-      ]
+      ],
+      urls: 5
+    },
+    {
+      name: "sitemap-index",
+      input: factory.create("sitemap-index"),
+      source: path.join(__dirname, "test_sitemap_index.xml"),
+      remote: "http://localhost:"+port+"/test_sitemap_index.xml",
+      // this is the total number of pages referenced by sitemaps in test_sitemap_index.
+      urls: 17
     }
   ];
 
+  /**
+   * Escape a string for usage in a regular expression.
+   */
+  function regexEscape(s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  }
+
   function pathToRe (component) {
-    return component.replace("\\", "\\\\");
+    return regexEscape(component);
   }
 
   function urlToPath (url) {
@@ -115,6 +140,7 @@ describe("input-generator", function () {
       var gen = inputGeneratorTest.input;
       var source = inputGeneratorTest.source;
       var bad = inputGeneratorTest.bad;
+      var urls = inputGeneratorTest.urls;
 
       describe("general behavior", function () {
 
@@ -132,6 +158,7 @@ describe("input-generator", function () {
 
           gen.run(options.decorate({
             source: "./bogus/file.txt",
+            outputDir: thisOutputDir,
             _abort: function(err) {
               assert.equal(true, !!err);
               doneCalled = true;
@@ -152,7 +179,10 @@ describe("input-generator", function () {
         it("should produce input with all defaults and a valid source", function (done) {
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source }), function () {
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir
+          }), function () {
             count++;
             if (count === urls) {
               done();
@@ -171,10 +201,13 @@ describe("input-generator", function () {
         // this test has to match the base generator defaults
         it("base defaults should exist in input when requested", function (done) {
           var defaults = base.defaults({});
-          defaults.outputDir = "snapshots"; // default has some bad chars :-(
+          defaults.outputDir = thisOutputDir;
 
           var count = 0;
-          var result = gen.run(options.decorate({ source: source }), function (input) {
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir
+          }), function (input) {
             var re1 = new RegExp("^("+defaults.protocol+")://("+defaults.hostname+")/");
             var re2 = new RegExp("^("+pathToRe(defaults.outputDir)+")"+pathToRe(path.sep));
 
@@ -213,9 +246,13 @@ describe("input-generator", function () {
 
         it("should accept scalar and apply globally", function (done) {
           var count = 0;
-          var theTimeout = 1;
+          var theTimeout = 500;
 
-          var result = gen.run(options.decorate({ source: source, timeout: theTimeout}),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            timeout: theTimeout
+          }),
           function (input) {
             assert.equal(theTimeout, input.timeout);
             count++;
@@ -253,7 +290,11 @@ describe("input-generator", function () {
 
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, timeout: timeoutFn }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            timeout: timeoutFn
+          }),
           function (input) {
             var testTimeout =
                 timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;
@@ -284,15 +325,19 @@ describe("input-generator", function () {
             "__default": 4
           };
           var localTimeouts = {
-            "http://northstar.local": 1,
-            "http://northstar.local/contact": 2,
-            "http://northstar.local/services/carpets": 3,
-            "__default": 4
+            "http://northstar.local": 470,
+            "http://northstar.local/contact": 480,
+            "http://northstar.local/services/carpets": 490,
+            "__default": 500
           };
           var timeouts = globalUrl ? globalTimeouts : localTimeouts;
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, timeout: timeouts }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            timeout: timeouts
+          }),
           function (input) {
             var testTimeout =
                 timeouts[input.__page] ? timeouts[input.__page] : timeouts.__default;
@@ -330,7 +375,11 @@ describe("input-generator", function () {
           var timeouts = globalUrl ? globalTimeouts : localTimeouts;
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, timeout: timeouts }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            timeout: timeouts
+          }),
           function (input) {
             var testTimeout =
                 timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;
@@ -361,7 +410,11 @@ describe("input-generator", function () {
           var selector = "foo";
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, selector: selector }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            selector: selector
+          }),
           function (input) {
             assert.equal(input.selector, selector);
             count++;
@@ -397,7 +450,11 @@ describe("input-generator", function () {
           };
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, selector: selectorFn }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            selector: selectorFn
+          }),
           function (input) {
             var testSelector =
                 selectors[input.__page] ? selectors[input.__page] : base.defaults({}).selector;
@@ -436,7 +493,11 @@ describe("input-generator", function () {
           var selectors = globalUrl ? globalSelectors : localSelectors;
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, selector: selectors }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            selector: selectors
+          }),
           function (input) {
             var testSelector =
               selectors[input.__page] ? selectors[input.__page] : selectors.__default;
@@ -470,6 +531,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             useJQuery: useJQuery
           }), function (input) {
               assert.equal(input.useJQuery, useJQuery);
@@ -506,6 +568,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             useJQuery: opts
           }), function (input) {
             var testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
@@ -547,6 +610,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             useJQuery: useJQFn
           }), function (input) {
             var testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).useJQuery;
@@ -579,6 +643,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             phantomjsOptions: phantomjsOption
           }), function (input) {
 
@@ -606,6 +671,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             phantomjsOptions: phantomjsOption
           }), function (input) {
 
@@ -653,6 +719,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             phantomjsOptions: opts
           }), function (input) {
             var testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
@@ -698,6 +765,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             phantomjsOptions: phantomjsFn
           }), function (input) {
             var testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).phantomjsOptions;
@@ -728,7 +796,11 @@ describe("input-generator", function () {
           var hostname = "foo";
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, hostname: hostname }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            hostname: hostname
+          }),
           function (input) {
             var re = new RegExp("http://("+hostname+")/");
             var match = re.exec(input.url);
@@ -756,7 +828,11 @@ describe("input-generator", function () {
           var proto = "file";
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, protocol: proto }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            protocol: proto
+          }),
           function (input) {
             var re = new RegExp("^("+proto+")://");
             var match = re.exec(input.url);
@@ -785,7 +861,11 @@ describe("input-generator", function () {
           var port = 8080;
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, port: port }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            port: port
+          }),
           function (input) {
             var re = new RegExp("^http://localhost\\:("+port+")/");
             var match = re.exec(input.url);
@@ -814,7 +894,11 @@ describe("input-generator", function () {
           var auth = "user:pass";
           var count = 0;
 
-          var result = gen.run(options.decorate({ source: source, auth: auth }),
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            auth: auth
+          }),
           function (input) {
             var re = new RegExp("^http://("+auth+")@localhost/");
             var match = re.exec(input.url);
@@ -844,8 +928,9 @@ describe("input-generator", function () {
 
             var result = gen.run(options.decorate({
               source: remote,
+              outputDir: thisOutputDir,
               _abort: function (err) {
-                assert.fail(false, !!err, remote + " should not have aborted", ",");
+                assert.fail(false, !!err, remote + " should not have aborted: " + err.toString(), ",");
               }
             }), function (input) {
               assert(true, common.isUrl(input.url));
@@ -870,6 +955,7 @@ describe("input-generator", function () {
             it("should handle bad source "+badSource, function (done) {
               gen.run(options.decorate({
                 source: badSource,
+                outputDir: thisOutputDir,
                 _abort: function (err) {
                   assert.equal(true, !!err, badSource + " should have aborted with error");
                   done();
@@ -892,6 +978,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             checkInterval: checkInterval
           }), function (input) {
             assert.equal(input.checkInterval, checkInterval);
@@ -921,9 +1008,9 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
-            outputDir: snapshotDir
+            outputDir: path.join(thisOutputDir, snapshotDir)
           }), function (input) {
-            var re = new RegExp("^("+snapshotDir+")"+pathToRe(path.sep));
+            var re = new RegExp("\\"+path.sep+"("+snapshotDir+")"+"\\"+path.sep);
             var match = re.exec(input.outputFile);
             assert.equal(match[1], snapshotDir);
             count++;
@@ -965,9 +1052,9 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
-            outputDir: snapshotDir
+            outputDir: path.join(thisOutputDir, snapshotDir)
           }), function (input) {
-            var re = new RegExp("^("+snapshotDir+")("+urlToPathRe(pages[input.__page])+")");
+            var re = new RegExp("("+snapshotDir+")("+urlToPathRe(pages[input.__page])+")");
             var match = re.exec(input.outputFile);
 
             assert.equal(true, match[1] === snapshotDir && match[2] === urlToPath(pages[input.__page]));
@@ -1013,19 +1100,20 @@ describe("input-generator", function () {
           var count = 0;
 
           var result = gen.run(options.decorate({
-              source: source,
-              outputPath: function (p) {
-                return pages[p];
-              }
-            }), function (input) {
-              var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
-              var match = re.exec(input.outputFile);
-              assert.equal(match[1], urlToPath(pages[input.__page]));
-              count++;
-              if (count === urls) {
-                done();
-              }
-            });
+            source: source,
+            outputPath: function (p) {
+              return pages[p];
+            },
+            outputDir: thisOutputDir
+          }), function (input) {
+            var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
+            var match = re.exec(input.outputFile);
+            assert.equal(match[1], urlToPath(pages[input.__page]));
+            count++;
+            if (count === urls) {
+              done();
+            }
+          });
 
           result
             .then(function () {
@@ -1065,6 +1153,7 @@ describe("input-generator", function () {
 
           var result = gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             outputPath: outputPath
           }), function (input) {
             var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
@@ -1111,6 +1200,7 @@ describe("input-generator", function () {
 
           gen.run(options.decorate({
             source: source,
+            outputDir: thisOutputDir,
             // add listener hook for robots, sitemap generators
             _abort: function (err) {
               assert.equal(true, !!err);
