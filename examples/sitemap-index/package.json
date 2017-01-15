@@ -1,0 +1,9 @@
+{
+  "name": "html-snapshots-example",
+  "version": "0.1.0",
+  "author": "Alex Grant <alex@localnerve.com>",
+  "description": "An example using html-snapshots",
+  "dependencies": {
+    "html-snapshots": "github:localnerve/html-snapshots#rc-0.14.0-4"
+   }
+}
