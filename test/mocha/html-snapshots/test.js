@@ -18,7 +18,7 @@ describe("html-snapshots", function() {
   var spawnedProcessPattern = "^phantomjs$";
   var urls = 3; // must match test_robots.txt
   var bogusFile = "./bogus/file.txt";
-  var timeout = 12000;
+  var timeout = 20000;
 
   // Count actual phantomjs processes in play, requires pgrep
   function countSpawnedProcesses(cb) {
@@ -731,6 +731,12 @@ describe("html-snapshots", function() {
         ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
           .catch(twice);
+      });
+
+      it("time spacer for success script tests", function (done) {
+        setTimeout(function () {
+          cleanup(done);
+        }, 3000);
       });
 
       describe("should succeed for scripts", function () {
