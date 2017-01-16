@@ -13,7 +13,7 @@ describe("input-generator", function () {
   // NOTE: see main input-generator test suite for the standard coverage tests
   // This is just about specific sitemap index option processing
 
-  describe("sitemap", function () {
+  describe("sitemap-index", function () {
 
     before(function () {
       // server.start(path.join(__dirname, "./server"), port);
