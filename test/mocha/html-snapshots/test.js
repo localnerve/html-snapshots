@@ -752,7 +752,7 @@ describe("html-snapshots", function() {
             selector: "#dynamic-content",
             outputDir: outputDir,
             outputDirClean: true,
-            timeout: 20000,
+            timeout: 30000,
             snapshotScript: snapshotScriptTest.option
           };
 
@@ -774,9 +774,7 @@ describe("html-snapshots", function() {
         }
 
         scriptNames.forEach(function (scriptName) {
-          it("snapshot script "+scriptName, function (done) {
-            setTimeout(snapshotScriptTestDefinition, 3000, done);
-          });
+          it("snapshot script "+scriptName, snapshotScriptTestDefinition);
         });
       });
     });
