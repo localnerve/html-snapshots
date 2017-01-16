@@ -68,9 +68,35 @@ Node 4.x is now the lowest version of Node supported. 0.12 (or less) is EOL and 
 jQuery selectors are no longer supported by default. To restore the previous behavior, set the `useJQuery` option to `true`.
 The upside is jQuery is no longer required to be loaded by the page being snapshotted. However, if you use jQuery selectors, or selectors not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector), the page being snapshotted must load jQuery.
 
+## API
+The api is just one `run` method that returns a Promise.
+
+### *Promise* run (options[, callback])
+A method that takes [options](#options) and an optional callback. Returns a Promise.  
+**Syntax:**
+```javascript
+var htmlSnapshots = require('html-snapshots');
+
+htmlSnapshots.run (options[, callback])
+.then(function (arrayOfPathsToCompletedSnapshots) {
+  // arrayOfPathsToCompletedSnapshots
+})
+.catch(function (errorObject) {
+  // errorObject is an instance of Error
+  // errorObject.completed is an array of paths to the snapshots that did successfully complete.
+});
+```
+#### Callback
+The callback is optional because the run method returns a Promise that resolves on completion. If you supply a callback, it will be called, but the Promise will ALSO resolve. Callback usage is deprecated, and is made available for compatibility with older versions.
+
+Signature of the optional callback:
+```javascript
+callback (errorObject, arrayOfPathsToCompletedSnapshots)
+```
+*For the callback, in the error case, the errorObject does not have a `completed` property. Since `arrayOfPathsToCompletedSnapshots` is supplied, it contains the paths to the snapshots that successfully completed.*
 
 ## Example Usage
-Simple examples to demonstrate the options can be found in this section.   
+Simple examples to demonstrate the usage of [options](#options).  
 
 A more in-depth usage example is located in this [article](/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
 
@@ -249,28 +275,6 @@ htmlSnapshots.run({
 ```
 Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the complete [example](/examples/custom).
 
-## API
-### *Promise* run (options[, callback])
-A method that takes [options](#options) and an optional callback. Returns a Promise.  
-**Syntax:**
-```javascript
-var snapshots = require('html-snapshots');
-
-snapshots.run (options[, callback])
-.then(function (arrayOfPathsToCompletedSnapshots) {
-  // arrayOfPathsToCompletedSnapshots
-})
-.catch(function (errorObject) {
-  // errorObject is an instance of Error
-  // errorObject.completed is an array of paths to the snapshots that did successfully complete.
-});
-```
-Signature of the optional callback:
-```javascript
-callback(errorObject, arrayOfPathsToCompletedSnapshots)
-```
-*In this case, errorObject does not have a `completed` property. Since `arrayOfPathsToCompletedSnapshots` is supplied, it contains the paths to the snapshots that did successfully complete.*
-
 ## Options
 Every option has a default value except `outputDir`.
 
@@ -307,7 +311,8 @@ Every option has a default value except `outputDir`.
 
   + `sitemapOutputDir`
     + default: `_sitemaps_`
-    + For use only with the sitemap-index input generator. Defines the name of the subdirectory under the `outputDir` where sitemaps are stored. When truthy, directs html-snapshots to store sitemaps locally for age determinations with incoming lastmod tags. Otherwise, a falsy value will prevent sitemap storage and thereby disable the usage of sitemapPolicy with sitemap-index.
+    + For use only with the sitemap-index input generator, this option directs the storage of sitemaps locally. It is a string that defines the name of the subdirectory under the `outputDir` where sitemaps are stored.
+    Locally stored sitemaps are used for age determinations with incoming lastmod tags. If this option is falsy, it will prevent sitemap storage and thereby disable sitemapPolicy for sitemaps referenced in a sitemap-index.
 
 ##### Robots and Textfile Only Input Options
 
