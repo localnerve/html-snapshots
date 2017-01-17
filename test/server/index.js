@@ -4,9 +4,7 @@
 var pathm = require("path");
 var express = require("express");
 
-var server = express();
-
-function setHeaders(res, path) {
+function setHeaders (res, path) {
   // if we are serving a sitemap.xml.gz, then content-type is application/xml
   if (pathm.extname(path) === ".gz") {
     res.set("content-type", "application/xml");
@@ -15,7 +13,8 @@ function setHeaders(res, path) {
 
 module.exports = {
 
-  start: function(rootDir, port, cb) {
+  start: function (rootDir, port, cb) {
+    var server = express();
     server.use(express.static(rootDir, {
       setHeaders: setHeaders
     }));

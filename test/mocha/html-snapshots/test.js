@@ -288,7 +288,37 @@ describe("html-snapshots", function() {
           .catch(twice);
       });
 
-      it("should limit process as expected", function (done) {
+      it("should fail for some bad sitemaps but not others", function (done) {
+        assert.ok(true);
+        done();
+      });
+/*
+      it("should succeed for typical sitemap-index usage", function (done) {
+        this.timeout(50000);
+        var options = {
+          source: "http://localhost:"+port+"/test_sitemap_index.xml",
+          input: "sitemap-index",
+          selector: "#dynamic-content",
+          outputDir: outputDir,
+          outputDirClean: true,
+          timeout: timeout
+        };
+
+        ss.run(optHelp.decorate(options))
+          .then(function (completed) {
+            assert.equal(Object.prototype.toString.call(completed), "[object Array]");
+            assert.equal(completed.length > 0, true);
+            cleanup(done);
+          })
+          .catch(function (err) {
+            cleanup(done, err || unexpectedError);
+          });
+      });
+*/
+    });
+
+    describe("process limit", function () {
+      it("should limit as expected", function (done) {
         if (process.platform === "win32") {
           assert.ok(true, "Skipping posix compliant tests for processLimit");
           done();
@@ -350,7 +380,7 @@ describe("html-snapshots", function() {
         }, 3000);
       });
 
-      it("should limit process to just one process", function (done) {
+      it("should limit to just one process", function (done) {
         if (process.platform === "win32") {
           assert.ok(true, "Skipping posix compliant tests for processLimit");
           done();
