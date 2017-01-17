@@ -4,8 +4,9 @@ var fs = require("fs");
 var path = require("path");
 var mkdirp = require("mkdirp");
 var rimraf = require("rimraf").sync;
-var Notifier = require("../../../lib/async").Notifier;
 var asyncLib = require("async");
+var asyncLocal = require("../../../lib/async");
+var Notifier = asyncLocal.Notifier;
 
 describe("async", function(){
 
@@ -47,7 +48,7 @@ describe("async", function(){
       var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this wasn't called because of a timeout/failure
-        assert.equal(true, (Date.now() - start) < (timeout+notifier.getPadTimeoutFloor()));
+        assert.equal(true, (Date.now() - start) < (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
 
         // compare filesDone to input files
         if (typeof err === "undefined") {
@@ -72,7 +73,7 @@ describe("async", function(){
         notifier.add(file, timeout);
       });
 
-      assert.equal(files.length, notifier.fileCount());
+      assert.equal(files.length, notifier._fileCount());
       assert.equal(true, notifier.isStarted());
 
       start = Date.now();
@@ -95,7 +96,7 @@ describe("async", function(){
       var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this wasn't called because of a timeout/failure
-        assert.equal(true, (Date.now() - start) < (timeout+notifier.getPadTimeoutFloor()));
+        assert.equal(true, (Date.now() - start) < (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
 
         // compare filesDone to input files
         if (typeof err === "undefined") {
@@ -117,7 +118,7 @@ describe("async", function(){
       notifier.remove(files[2]);
       filesToDo.push(files[0], files[1]);
 
-      assert.equal(files.length-1, notifier.fileCount());
+      assert.equal(files.length-1, notifier._fileCount());
       assert.equal(true, notifier.isStarted());
 
       start = Date.now();
@@ -140,7 +141,7 @@ describe("async", function(){
       var start;
       notifier.start(timeout / pollCount, function(err, filesDone) {
         // make sure this was called because of a failure
-        assert.equal(true, (Date.now() - start) > (timeout+notifier.getPadTimeoutFloor()));
+        assert.equal(true, (Date.now() - start) > (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
 
@@ -163,7 +164,7 @@ describe("async", function(){
         notifier.add(file, timeout);
       });
 
-      assert.equal(files.length, notifier.fileCount());
+      assert.equal(files.length, notifier._fileCount());
       assert.equal(true, notifier.isStarted());
 
       files.splice(1, 1); // remove the second element
@@ -186,7 +187,7 @@ describe("async", function(){
 
       var start;
       notifier.start(timeout / pollCount, function(err, filesDone){
-        assert.equal(true, (Date.now() - start) > (timeout+notifier.getPadTimeoutFloor()));
+        assert.equal(true, (Date.now() - start) > (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
         assert.notStrictEqual(typeof err, "undefined");
         assert.equal(0, filesDone.length);
         done();
@@ -199,7 +200,7 @@ describe("async", function(){
         notifier.add(file, timeout);
       });
 
-      assert.equal(files.length, notifier.fileCount());
+      assert.equal(files.length, notifier._fileCount());
       assert.equal(true, notifier.isStarted());
       start = Date.now();
     });
@@ -210,7 +211,7 @@ describe("async", function(){
       var result = notifier.start(1, {}, mockInput);
 
       assert.equal(result, false);
-      assert.equal(0, notifier.fileCount());
+      assert.equal(0, notifier._fileCount());
       assert.equal(false, notifier.isStarted());
     });
 
@@ -222,7 +223,7 @@ describe("async", function(){
       }, mockInput);
 
       assert.equal(result, false);
-      assert.equal(0, notifier.fileCount());
+      assert.equal(0, notifier._fileCount());
       assert.equal(false, notifier.isStarted());
     });
 
@@ -234,7 +235,7 @@ describe("async", function(){
       }, mockInput);
 
       assert.equal(result, false);
-      assert.equal(0, notifier.fileCount());
+      assert.equal(0, notifier._fileCount());
       assert.equal(false, notifier.isStarted());
     });
 
@@ -246,7 +247,7 @@ describe("async", function(){
       });
 
       assert.equal(result, false);
-      assert.equal(0, notifier.fileCount());
+      assert.equal(0, notifier._fileCount());
       assert.equal(false, notifier.isStarted());
     });
 
@@ -280,7 +281,7 @@ describe("async", function(){
         notifier.add(file, timeout);
       });
 
-      assert.equal(files.length, notifier.fileCount());
+      assert.equal(files.length, notifier._fileCount());
       assert.equal(true, notifier.isStarted());
 
       notifier.abort({ length: function() { return 0; } }, abortFailure);
@@ -317,7 +318,7 @@ describe("async", function(){
         notifier.add(file, timeout);
       });
 
-      assert.equal(files.length, notifier.fileCount());
+      assert.equal(files.length, notifier._fileCount());
       assert.equal(true, notifier.isStarted());
 
       files.splice(1, 1); // remove the second element
@@ -368,7 +369,7 @@ describe("async", function(){
         notifier.add(file, timeout);
       });
 
-      assert.equal(files.length, notifier.fileCount());
+      assert.equal(files.length, notifier._fileCount());
       assert.equal(true, notifier.isStarted());
 
       // simulate work - files.length workers taking workerTime to complete.
