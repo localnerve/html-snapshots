@@ -100,6 +100,14 @@ describe("input-generator", function () {
       remote: "http://localhost:"+port+"/test_sitemap_index.xml",
       // this is the total number of pages referenced by sitemaps in test_sitemap_index.
       urls: 17
+    },
+    {
+      name: "sitemap-index-gzip",
+      input: factory.create("sitemap-index"),
+      source: path.join(__dirname, "test_sitemap_index.xml.gz"),
+      remote: "http://localhost:"+port+"/test_sitemap_index.xml.gz",
+      // this is the total number of pages referenced by sitemaps in test_sitemap_index.
+      urls: 17
     }
   ];
 
