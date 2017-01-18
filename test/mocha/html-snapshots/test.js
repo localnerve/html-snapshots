@@ -19,6 +19,7 @@ describe("html-snapshots", function() {
   var urls = 3; // must match test_robots.txt
   var bogusFile = "./bogus/file.txt";
   var timeout = 20000;
+  var suiteTimeout = timeout * urls;
 
   // Count actual phantomjs processes in play, requires pgrep
   function countSpawnedProcesses(cb) {
@@ -92,7 +93,7 @@ describe("html-snapshots", function() {
   }
 
   describe("library", function () {
-    this.timeout(30000);
+    this.timeout(suiteTimeout);
 
     before(function (done) {
       server.start(path.join(__dirname, "./server"), port, done);
@@ -294,7 +295,6 @@ describe("html-snapshots", function() {
       });
 
       it("should succeed for typical sitemap-index usage", function (done) {
-        this.timeout(50000);
         var options = {
           source: "http://localhost:"+port+"/test_sitemap_index.xml",
           input: "sitemap-index",
