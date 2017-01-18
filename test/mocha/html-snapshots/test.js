@@ -292,7 +292,7 @@ describe("html-snapshots", function() {
         assert.ok(true);
         done();
       });
-/*
+
       it("should succeed for typical sitemap-index usage", function (done) {
         this.timeout(50000);
         var options = {
@@ -314,7 +314,6 @@ describe("html-snapshots", function() {
             cleanup(done, err || unexpectedError);
           });
       });
-*/
     });
 
     describe("process limit", function () {
