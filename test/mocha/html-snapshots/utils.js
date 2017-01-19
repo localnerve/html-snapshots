@@ -12,7 +12,7 @@ var unexpectedError = new Error("unexpected error flow");
 var outputDir = path.join(__dirname, "./tmp/snapshots");
 var spawnedProcessPattern = "^phantomjs$";
 var bogusFile = "./bogus/file.txt";
-var timeout = 40000;
+var timeout = 60000;
 
 // Count actual phantomjs processes in play, requires pgrep
 function countSpawnedProcesses (cb) {
