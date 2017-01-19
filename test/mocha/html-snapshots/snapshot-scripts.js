@@ -145,12 +145,6 @@ function snapshotScriptTests (options) {
         .catch(twice);
     });
 
-    it("time spacer for success script tests", function (done) {
-      setTimeout(function () {
-        cleanup(done);
-      }, 3000);
-    });
-
     describe("should succeed for scripts", function () {
       var testNumber = 0, snapshotScriptTest, scriptNames = [
         snapshotScriptTests[testNumber].name,
@@ -173,28 +167,33 @@ function snapshotScriptTests (options) {
           timeout: timeout,
           snapshotScript: snapshotScriptTest.option
         };
+        var alreadyDone = false;
 
         rimraf(outputDir);
 
         ss.run(optHelp.decorate(options), function (err, completed) {
-          if (!err) {
-            snapshotScriptTest.prove(completed, function (e) {
-              cleanup(done, e);
-            });
-          } else {
-            // this still fails occasionally.
-            console.log('@@@ error = '+err+", completed="+completed.join(','));
+          try {
+            if (!err) {
+              snapshotScriptTest.prove(completed, function (e) {
+                cleanup(done, e);
+              });
+            } else {
+              // this still fails occasionally.
+              console.log('@@@ error = '+err+", completed="+completed.join(','));
+              cleanup(done, err);
+            }
+          } catch (e) {
+            cleanup(done, e);
+          }
+        }).catch(function (err) {
+          if (!alreadyDone) {
             cleanup(done, err);
           }
-        }).catch(function () {
-          /* eat it */
         });
       }
 
       scriptNames.forEach(function (scriptName) {
-        it("snapshot script "+scriptName, function (done) {
-          setTimeout(snapshotScriptTestDefinition, 100, done);
-        });
+        it("snapshot script "+scriptName, snapshotScriptTestDefinition);
       });
     });
   };
