@@ -19,7 +19,7 @@ var port = 8034;
 
 describe("html-snapshots", function () {
   describe("library", function () {
-    this.timeout(utils.timeout * robots.urlCount);
+    this.timeout(utils.timeout * (robots.urlCount - 1));
 
     before(function (done) {
       server.start(path.join(__dirname, "./server"), port, done);

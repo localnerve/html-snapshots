@@ -12,7 +12,7 @@ var unexpectedError = new Error("unexpected error flow");
 var outputDir = path.join(__dirname, "./tmp/snapshots");
 var spawnedProcessPattern = "^phantomjs$";
 var bogusFile = "./bogus/file.txt";
-var timeout = 30000;
+var timeout = 40000;
 
 // Count actual phantomjs processes in play, requires pgrep
 function countSpawnedProcesses (cb) {
@@ -57,33 +57,49 @@ function cleanup (done, arg) {
  * @param {String|Object} err - The error.
  */
 function cleanupError (done, count, err, completed) {
-  resHelp.mustBeError(err);
-  if (completed) {
-    assert.equal(count, completed.length);
+  var assertionError;
+
+  try {
+    resHelp.mustBeError(err);
+    if (completed) {
+      assert.equal(count, completed.length);
+    }
+    assert.ok(err instanceof Error, "should be instanceof Error");
+    assert.notEqual(typeof err.completed, "undefined", "error.completed should be defined");
+  } catch (e) {
+    assertionError = e;
   }
-  assert.equal(Object.prototype.toString.call(err), "[object Error]", "error should be class Error");
-  assert.notEqual(typeof err.completed, "undefined", "error.completed should be defined");
-  // console.log("@@@ error", err);
-  cleanup(done);
+
+  cleanup(done, assertionError);
 }
 
 function cleanupSuccess (done, err, completed) {
-  // echo for test log clarity
-  // console.log('@@@ result: ' + err +', '+require('util').inspect(completed, {depth:null}));
-  assert.notEqual(typeof completed, "undefined", "completed should be defined");
-  cleanup(done, err);
+  var assertionError;
+
+  try {
+    assert.notEqual(typeof completed, "undefined", "completed should be defined");
+  } catch (e) {
+    assertionError = e;
+  }
+
+  cleanup(done, err || assertionError);
 }
 
 function testSuccess (cb, completed) {
-  assert.equal(Array.isArray(completed), true);
-  assert.equal(completed.length > 0, true);
-  cb(undefined, completed);
+  var assertionError;
+
+  try {
+    assert.equal(Array.isArray(completed), true);
+    assert.equal(completed.length > 0, true);
+  } catch (e) {
+    assertionError = e;
+  }
+
+  cb(assertionError, completed);
 }
 
 function unexpectedSuccess (cb) {
-  var errMsg = "unexpected success";
-  assert.fail("run", "succeed", errMsg, "should not");
-  cleanup(cb, new Error(errMsg));
+  cleanup(cb, new Error("unexpected success"));
 }
 
 module.exports = {

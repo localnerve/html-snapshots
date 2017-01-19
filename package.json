@@ -47,6 +47,7 @@
   "dependencies": {
     "async": "2.x || 1.x",
     "async-lock": "~0.3.9",
+    "combine-errors": "^3.0.3",
     "lodash": "^4.0.0",
     "mkdirp": "^0.5.1",
     "phantomjs-prebuilt": "2.1.13",

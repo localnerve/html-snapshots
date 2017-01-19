@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, beforeEach, it */
 var assert = require("assert");
 var fs = require("fs");
 var path = require("path");
@@ -6,15 +6,17 @@ var mkdirp = require("mkdirp");
 var rimraf = require("rimraf").sync;
 var asyncLib = require("async");
 var asyncLocal = require("../../../lib/async");
+
 var Notifier = asyncLocal.Notifier;
 
-describe("async", function(){
+describe("async", function () {
 
-  describe("Notifier", function(){
+  describe("Notifier", function () {
+    var notifier;
 
-    function createFiles(files) {
+    function createFiles (files) {
       var fd;
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         fd = fs.openSync(file, 'w');
         fs.closeSync(fd);
       });
@@ -22,31 +24,54 @@ describe("async", function(){
 
     // create a worker for asyncLib.queue
     function worker(file, timeout) {
-      return function(cb) {
-        setTimeout(function() {
+      return function (cb) {
+        setTimeout(function () {
           fs.close(fs.openSync(file, 'w'), cb);
         }, timeout);
       };
     }
 
     var mockInput = {
-      EOI: function() { return true; }
+      EOI: function () { return true; }
     };
 
-    it("should be able to start and watch files get created", function(done){
-      var notifier = new Notifier();
+    beforeEach(function () {
+      notifier = new Notifier();
+    });
+
+    it("should throw if started more than once", function (done) {
+      notifier.start(1000, function () {}, {});
+
+      assert.throws(function () {
+        notifier.start(100, function () {}, {});
+      }, function (err) {
+        assert.ok(err instanceof Error);
+        done();
+      });
+    });
+
+    it("should throw if add called before start", function (done) {
+      assert.throws(function () {
+        notifier.add();
+      }, function (err) {
+        assert.ok(err instanceof Error);
+        done();
+      })
+    });
+
+    it("should be able to start and watch files get created", function (done) {
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
-          timeout = 100;
+          timeout = 100,
+          start;
 
       rimraf(dir);
 
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      var start;
-      notifier.start(timeout / pollCount, function(err, filesDone) {
+      notifier.start(timeout / pollCount, function (err, filesDone) {
         // make sure this wasn't called because of a timeout/failure
         assert.equal(true, (Date.now() - start) < (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
 
@@ -69,7 +94,7 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         notifier.add(file, timeout);
       });
 
@@ -80,21 +105,21 @@ describe("async", function(){
       createFiles(files);
     });
 
-    it("should be able to start and watch files get created, remove one from the list", function(done){
-      var notifier = new Notifier();
+    it("should be able to start and watch files get created, remove one from the list",
+    function (done) {
       var dir = path.join(__dirname, "./files"),
           filesToDo = [],
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
-          timeout = 100;
+          timeout = 100,
+          start;
 
       rimraf(dir);
 
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      var start;
-      notifier.start(timeout / pollCount, function(err, filesDone) {
+      notifier.start(timeout / pollCount, function (err, filesDone) {
         // make sure this wasn't called because of a timeout/failure
         assert.equal(true, (Date.now() - start) < (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
 
@@ -125,21 +150,21 @@ describe("async", function(){
       createFiles(files);
     });
 
-    it("should be able to start and watch files get created, one doesn't get created", function(done){
-      var notifier = new Notifier();
+    it("should be able to start and watch files get created, one doesn't get created",
+    function (done) {
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           filesToDo = files.slice(),
           pollCount = 4,
-          timeout = 100;
+          timeout = 100,
+          start;
 
       rimraf(dir);
 
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      var start;
-      notifier.start(timeout / pollCount, function(err, filesDone) {
+      notifier.start(timeout / pollCount, function (err, filesDone) {
         // make sure this was called because of a failure
         assert.equal(true, (Date.now() - start) > (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
         // make sure this was a failure
@@ -160,7 +185,7 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         notifier.add(file, timeout);
       });
 
@@ -173,20 +198,20 @@ describe("async", function(){
       createFiles(files);
     });
 
-    it("should be able to start and watch files get created, none get created", function(done){
-      var notifier = new Notifier();
+    it("should be able to start and watch files get created, none get created",
+    function (done) {
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
-          timeout = 100;
+          timeout = 100,
+          start;
 
       rimraf(dir);
 
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      var start;
-      notifier.start(timeout / pollCount, function(err, filesDone){
+      notifier.start(timeout / pollCount, function (err, filesDone){
         assert.equal(true, (Date.now() - start) > (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
         assert.notStrictEqual(typeof err, "undefined");
         assert.equal(0, filesDone.length);
@@ -196,7 +221,7 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         notifier.add(file, timeout);
       });
 
@@ -205,9 +230,7 @@ describe("async", function(){
       start = Date.now();
     });
 
-    it("should fail if no callback supplied", function() {
-      var notifier = new Notifier();
-
+    it("should fail if no callback supplied", function () {
       var result = notifier.start(1, {}, mockInput);
 
       assert.equal(result, false);
@@ -215,10 +238,8 @@ describe("async", function(){
       assert.equal(false, notifier.isStarted());
     });
 
-    it("should fail if negative poll interval supplied", function() {
-      var notifier = new Notifier();
-
-      var result = notifier.start(-1, function(err){
+    it("should fail if negative poll interval supplied", function () {
+      var result = notifier.start(-1, function (err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
       }, mockInput);
 
@@ -227,10 +248,8 @@ describe("async", function(){
       assert.equal(false, notifier.isStarted());
     });
 
-    it("should fail if zero poll interval supplied", function() {
-      var notifier = new Notifier();
-
-      var result = notifier.start(0, function(err){
+    it("should fail if zero poll interval supplied", function () {
+      var result = notifier.start(0, function (err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
       }, mockInput);
 
@@ -239,10 +258,8 @@ describe("async", function(){
       assert.equal(false, notifier.isStarted());
     });
 
-    it("should fail if no input generator is supplied", function() {
-      var notifier = new Notifier();
-
-      var result = notifier.start(250, function(err){
+    it("should fail if no input generator is supplied", function () {
+      var result = notifier.start(250, function (err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
       });
 
@@ -251,8 +268,7 @@ describe("async", function(){
       assert.equal(false, notifier.isStarted());
     });
 
-    it("should abort if requested, no files done yet", function(done) {
-      var notifier = new Notifier();
+    it("should abort if requested, no files done yet", function (done) {
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 4,
@@ -261,7 +277,7 @@ describe("async", function(){
 
       rimraf(dir);
 
-      notifier.start(timeout / pollCount, function(err, filesDone) {
+      notifier.start(timeout / pollCount, function (err, filesDone) {
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
 
@@ -277,18 +293,17 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         notifier.add(file, timeout);
       });
 
       assert.equal(files.length, notifier._fileCount());
       assert.equal(true, notifier.isStarted());
 
-      notifier.abort({ length: function() { return 0; } }, abortFailure);
+      notifier.abort({ length: function () { return 0; } }, abortFailure);
     });
 
-    it("should abort if requested, all but one file processed", function(done) {
-      var notifier = new Notifier();
+    it("should abort if requested, all but one file processed", function (done) {
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           filesToDo = files.slice(),
@@ -298,7 +313,7 @@ describe("async", function(){
 
       rimraf(dir);
 
-      notifier.start(timeout / pollCount, function(err, filesDone) {
+      notifier.start(timeout / pollCount, function (err, filesDone) {
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
 
@@ -314,7 +329,7 @@ describe("async", function(){
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
 
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         notifier.add(file, timeout);
       });
 
@@ -327,13 +342,13 @@ describe("async", function(){
 
       // fake out async.queue here. In reality, q.length() would be 1 normally,
       //   but it will never become empty since async.queue doesn't run in this test.
-      setTimeout(function() {
+      setTimeout(function () {
         notifier.abort({ length: function() { return 0; } }, abortFailure);
       }, 100);
     });
 
-    it("should abort if requested, all but one file processed, real async", function(done) {
-      var notifier = new Notifier();
+    it("should abort if requested, all but one file processed, real async",
+    function (done) {
       var dir = path.join(__dirname, "./files"),
           files = [dir+"/one", dir+"/two", dir+"/three"],
           pollCount = 8,
@@ -359,13 +374,13 @@ describe("async", function(){
       assert.equal(true, fs.existsSync(dir));
 
       // create a worker queue, attach qEmpty
-      var q = asyncLib.queue(function(task, callback) {
+      var q = asyncLib.queue(function (task, callback) {
         task(callback);
       }, 1);
       q.empty = notifier.qEmpty.bind(notifier);
 
       // simulate input activity
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         notifier.add(file, timeout);
       });
 
@@ -375,13 +390,13 @@ describe("async", function(){
       // simulate work - files.length workers taking workerTime to complete.
       var workerTime = 40;
 
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         q.push(worker(file, workerTime));
       });
 
       // call abort in the middle of the second to last worker
       // so files.length - 2 workers should have completed since q.concurrent === 1
-      setTimeout(function() {
+      setTimeout(function () {
         notifier.abort(q, abortFailure);
       },
         (workerTime * (files.length-1)) - (workerTime/2)
