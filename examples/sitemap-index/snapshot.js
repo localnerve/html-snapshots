@@ -15,17 +15,19 @@ var failure = false;
 // Do it:
 htmlSnapshots.run({
   input: 'sitemap-index',
-  source: 'https://core.codekraft.it/public/wordpress/sitemap_index.xml',
+  source: 'https://tech.jet.com/sitemap_index.xml',
   outputDir: outputDir,
   outputDirClean: true,
-  selector: '.content',
+  selector: 'body',
   timeout: 60000
 })
 .then(function (completed) {
+  console.log('completed #', completed ? completed.length : 0);
   console.log('completed snapshots:');
   console.log(require('util').inspect(completed));
 })
 .catch(function (err) {
+  console.error('completed #', err.completed ? err.completed.length : 0);
   console.error('failure', err);
   failure = true;
 })
