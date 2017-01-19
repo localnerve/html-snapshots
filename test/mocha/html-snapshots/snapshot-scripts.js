@@ -175,15 +175,18 @@ function snapshotScriptTests (options) {
           try {
             if (!err) {
               snapshotScriptTest.prove(completed, function (e) {
+                alreadyDone = true;
                 cleanup(done, e);
               });
             } else {
               // this still fails occasionally.
               console.log('@@@ error = '+err+", completed="+completed.join(','));
-              cleanup(done, err);
             }
           } catch (e) {
-            cleanup(done, e);
+            if (!alreadyDone) {
+              alreadyDone = true;
+              cleanup(done, e);
+            }
           }
         }).catch(function (err) {
           if (!alreadyDone) {
