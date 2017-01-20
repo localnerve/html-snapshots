@@ -21,6 +21,7 @@
     "lint": "eslint .",
     "test": "mocha test/mocha/**/*.js --recursive --reporter spec",
     "test:async": "mocha test/mocha/async/test.js --reporter spec",
+    "test:common": "mocha test/mocha/common/*.js --reporter spec",
     "test:input-generators": "mocha test/mocha/input-generators/*.js --reporter spec",
     "test:html-snapshots": "mocha test/mocha/html-snapshots/*.js --reporter spec",
     "coverage": "istanbul cover -- _mocha test/mocha/**/*.js --recursive --reporter spec",
