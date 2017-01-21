@@ -40,9 +40,14 @@ function sitemapIndexTests (options) {
 
       ss.run(optHelp.decorate(options))
         .then(function (completed) {
-          assert.equal(Object.prototype.toString.call(completed), "[object Array]");
-          assert.equal(completed.length, urls);
-          cleanup(done);
+          var assertionError;
+          try {
+            assert.equal(Object.prototype.toString.call(completed), "[object Array]");
+            assert.equal(completed.length, urls);
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
         })
         .catch(function (err) {
           cleanup(done, err || unexpectedError);

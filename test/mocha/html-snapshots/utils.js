@@ -3,6 +3,7 @@
  */
 /* global require, process */
 var path = require("path");
+var _ = require("lodash");
 var spawn = require('child_process').spawn;
 var assert = require("assert");
 var resHelp = require("../../helpers/result");
@@ -34,13 +35,20 @@ function countSpawnedProcesses (cb) {
 // Clear any lingering phantomjs processes in play
 function killSpawnedProcesses (cb) {
   var pkill = spawn("pkill", [spawnedProcessPattern]);
-  pkill.on("exit", cb);
+  var guardedCb = _.once(cb);
+
+  pkill.on("exit", function () {
+    guardedCb();
+  });
+  pkill.on("error", function () {
+    guardedCb(new Error("failed to kill phantomjs processes"));
+  });
 }
 
 // Complete a test and kill any spawned processes.
 function cleanup (done, arg) {
   if (process.platform === "win32") {
-    setTimeout(done, 3000, arg);
+    setTimeout(done, 1000, arg);
   } else {
     setImmediate(function () {
       killSpawnedProcesses(function() {

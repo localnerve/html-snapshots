@@ -78,9 +78,14 @@ function useJQueryTests (options) {
         }
       })
         .then(function (completed) {
-          assert.equal(completed.length, 1);
-          assert.equal(completed[0], path.join(useJQOutputDir, "nojq", "index.html"));
-          cleanup(done);
+          var assertionError;
+          try {
+            assert.equal(completed.length, 1);
+            assert.equal(completed[0], path.join(useJQOutputDir, "nojq", "index.html"));
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
         })
         .catch(function (e) {
           cleanup(done, e || unexpectedError);
@@ -104,9 +109,14 @@ function useJQueryTests (options) {
         }
       })
         .then(function (completed) {
-          assert.equal(completed.length, 1);
-          assert.equal(completed[0], path.join(outputDir, "index.html"));
-          cleanup(done);
+          var assertionError;
+          try {
+            assert.equal(completed.length, 1);
+            assert.equal(completed[0], path.join(outputDir, "index.html"));
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
         })
         .catch(function (e) {
           cleanup(done, e || unexpectedError);

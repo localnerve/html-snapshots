@@ -44,8 +44,13 @@ function phantomjsOptionsTests (options) {
         }
       })
         .then(function () {
-          assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
-          cleanup(done);
+          var assertionError;
+          try {
+            assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
         })
         .catch(function (e) {
           cleanup(done, e || unexpectedError);
@@ -74,8 +79,13 @@ function phantomjsOptionsTests (options) {
         }
       })
         .then(function () {
-          assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
-          cleanup(done);
+          var assertionError;
+          try {
+            assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
         })
         .catch(function (e) {
           cleanup(done, e || unexpectedError);
@@ -106,9 +116,14 @@ function phantomjsOptionsTests (options) {
 
       ss.run(optHelp.decorate(options), completionHandler)
         .then(unexpectedSuccess.bind(null, done))
-        .catch(function (e) {
-          completionHandler(e);
-          cleanup(done);
+        .catch(function (err) {
+          var assertionError;
+          try {
+            completionHandler(err);
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
         });
     });
 

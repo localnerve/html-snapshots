@@ -36,7 +36,7 @@ function snapshotScriptTests (options) {
           for (var i = 0; i < completed.length; i++) {
             content = fs.readFileSync(completed[i], { encoding: "utf8" });
             if (/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content)) {
-              err = "removeScripts failed. Script tag found in "+completed[i];
+              err = new Error("removeScripts failed. Script tag found in "+completed[i]);
               break;
             }
           }
@@ -57,7 +57,7 @@ function snapshotScriptTests (options) {
             content = fs.readFileSync(completed[i], { encoding: "utf8" });
             // this is dependent on myFilter.js adding someattrZZQy anywhere
             if (content.indexOf("someattrZZQy") < 0) {
-              err = "customFilter snapshotScript failed. Special sequence not found in "+completed[i];
+              err = new Error("customFilter snapshotScript failed. Special sequence not found in "+completed[i]);
               break;
             }
           }
