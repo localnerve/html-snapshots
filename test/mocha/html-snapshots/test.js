@@ -18,13 +18,25 @@ var phantomJSOptions = require("./phantomjs-options");
 var port = 8034;
 
 describe("html-snapshots", function () {
-  this.timeout(utils.timeout * robots.urlCount);
+  this.timeout(utils.timeout * robots.urlCount - 1);
 
   before(function (done) {
     server.start(path.join(__dirname, "./server"), port, done);
   });
 
   describe("run basics", basics.testSuite({
+    port: port
+  }));
+
+  describe("phantomjsOptions option", phantomJSOptions.testSuite({
+    port: port
+  }));
+
+  describe("additional snapshot scripts", snapshotScripts.testSuite({
+    port: port
+  }));
+
+  describe("useJQuery option", useJQuery.testSuite({
     port: port
   }));
 
@@ -41,18 +53,6 @@ describe("html-snapshots", function () {
   }));
 
   describe("processLimit option", processLimit.testSuite({
-    port: port
-  }));
-
-  describe("useJQuery option", useJQuery.testSuite({
-    port: port
-  }));
-
-  describe("phantomjsOptions option", phantomJSOptions.testSuite({
-    port: port
-  }));
-
-  describe("additional snapshot scripts", snapshotScripts.testSuite({
     port: port
   }));
 });

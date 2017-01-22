@@ -14,12 +14,11 @@ function setHeaders (res, path) {
 module.exports = {
 
   start: function (rootDir, port, cb) {
-    var httpServer, server = express();
+    var server = express();
     server.use(express.static(rootDir, {
       setHeaders: setHeaders
     }));
-    httpServer = server.listen(parseInt(port, 10), cb);
-    httpServer.timeout = 0;
+    server.listen(parseInt(port, 10), cb);
   }
 
 };
