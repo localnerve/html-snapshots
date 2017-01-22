@@ -53,16 +53,20 @@ function processLimitTests (options) {
       var phantomCount = 0;
       var timer;
 
-      function complete (e) {
+      function complete (e, files) {
         var countError = phantomCount ?
           new Error(phantomCount + " exceeded processLimit " + processLimit) :
           undefined;
 
         clearInterval(timer);
 
-        checkActualFiles.then(function () {
+        if (files) {
+          checkActualFiles(files).then(function () {
+            cleanup(done, multiError(e, countError));
+          });
+        } else {
           cleanup(done, multiError(e, countError));
-        });
+        }
       }
 
       if (process.platform === "win32") {
@@ -88,7 +92,7 @@ function processLimitTests (options) {
               complete();
             })
             .catch(function (e) {
-              complete(e || unexpectedError);
+              complete(e || unexpectedError, e.notCompleted);
             });
 
           timer = setInterval(function () {
@@ -116,16 +120,20 @@ function processLimitTests (options) {
       var phantomCount = 0;
       var timer;
 
-      function complete (e) {
+      function complete (e, files) {
         var countError = phantomCount ?
           new Error(phantomCount + " exceeded processLimit " + processLimit) :
           undefined;
 
         clearInterval(timer);
 
-        checkActualFiles.then(function () {
+        if (files) {
+          checkActualFiles(files).then(function () {
+            cleanup(done, multiError(e, countError));
+          });
+        } else {
           cleanup(done, multiError(e, countError));
-        });
+        }
       }
 
       if (process.platform === "win32") {
@@ -151,7 +159,7 @@ function processLimitTests (options) {
               complete();
             })
             .catch(function (e) {
-              complete(e || unexpectedError);
+              complete(e || unexpectedError, e.notCompleted);
             });
 
           timer = setInterval(function () {
