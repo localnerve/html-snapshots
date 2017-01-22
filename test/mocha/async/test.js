@@ -211,11 +211,16 @@ describe("async", function () {
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      notifier.start(timeout / pollCount, function (err, filesDone){
-        assert.equal(true, (Date.now() - start) > (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
-        assert.notStrictEqual(typeof err, "undefined");
-        assert.equal(0, filesDone.length);
-        done();
+      notifier.start(timeout / pollCount, function (err, filesDone) {
+        var assertionError;
+        try {
+          assert.equal(true, (Date.now() - start) > (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
+          assert.notStrictEqual(typeof err, "undefined");
+          assert.equal(0, filesDone.length);
+        } catch (e) {
+          assertionError = e;
+        }
+        done(assertionError);
       }, mockInput);
 
       mkdirp.sync(dir);

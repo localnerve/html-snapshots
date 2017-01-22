@@ -28,7 +28,7 @@ function processLimitTests (options) {
   return function () {
     it("should limit as expected", function (done) {
       var processLimit = urls - 1;
-      var pollInterval = 500;
+      var pollInterval = 50;
       var phantomCount = 0;
       var timer;
 
@@ -95,7 +95,7 @@ function processLimitTests (options) {
 
     it("should limit to just one process", function (done) {
       var processLimit = 1;
-      var pollInterval = 500;
+      var pollInterval = 50;
       var phantomCount = 0;
       var timer;
 
