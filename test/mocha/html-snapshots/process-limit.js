@@ -1,13 +1,19 @@
 /**
  * Library tests focused on the processLimit option.
  */
-/* global module, require, process, clearInterval, setTimeout, it */
+/* global module, require, process, clearInterval, setTimeout, it, Promise */
 var assert = require("assert");
 var rimraf = require("rimraf").sync;
 var utils = require("./utils");
 var optHelp = require("../../helpers/options");
 var ss = require("../../../lib/html-snapshots");
 var robotsTests = require("./robots");
+
+// @@@
+var fs = require("fs");
+var F_OK = (fs.constants && fs.constants.F_OK) || fs.F_OK;
+var nodeCall = require("../../../common/node");
+// @@@
 
 // missing destructuring, will write postcard...
 var timeout = utils.timeout;
@@ -21,6 +27,22 @@ var multiError = utils.multiError;
 var urls = robotsTests.urlCount;
 var inputFile = robotsTests.inputFile;
 
+// @@@
+function checkActualFiles (files) {
+  return Promise.all(files.map(function (file) {
+    return nodeCall(fs.access, file, F_OK)
+      .then(function () {
+        console.log('@@@ exists:' + file);
+        return true;
+      })
+      .catch(function () {
+        console.log('@@@ NOT exists:' + file);
+        return false;
+      });
+  }));
+}
+// @@@
+
 function processLimitTests (options) {
   var port = options.port;
 
@@ -33,11 +55,14 @@ function processLimitTests (options) {
 
       function complete (e) {
         var countError = phantomCount ?
-          new Error(phantomCount+" exceeded processLimit "+processLimit) :
+          new Error(phantomCount + " exceeded processLimit " + processLimit) :
           undefined;
 
-        cleanup(done, multiError(e, countError));
         clearInterval(timer);
+
+        checkActualFiles.then(function () {
+          cleanup(done, multiError(e, countError));
+        });
       }
 
       if (process.platform === "win32") {
@@ -57,7 +82,6 @@ function processLimitTests (options) {
             timeout: timeout,
             processLimit: processLimit
           };
-
 
           ss.run(optHelp.decorate(options))
             .then(function () {
@@ -94,11 +118,14 @@ function processLimitTests (options) {
 
       function complete (e) {
         var countError = phantomCount ?
-          new Error(phantomCount+" exceeded processLimit "+processLimit) :
+          new Error(phantomCount + " exceeded processLimit " + processLimit) :
           undefined;
 
-        cleanup(done, multiError(e, countError));
         clearInterval(timer);
+
+        checkActualFiles.then(function () {
+          cleanup(done, multiError(e, countError));
+        });
       }
 
       if (process.platform === "win32") {
