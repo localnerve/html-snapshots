@@ -92,6 +92,7 @@ function phantomjsOptionsTests (options) {
           cleanup(done, assertionError);
         })
         .catch(function (e) {
+          console.log('@@@ in catch, HOW?', e);
           checkActualFiles(e.notCompleted)
             .then(function () {
               cleanup(done, e || unexpectedError);
