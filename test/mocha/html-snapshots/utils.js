@@ -20,6 +20,8 @@ var bogusFile = "./bogus/file.txt";
 var timeout = 60000;
 
 function checkActualFiles (files) {
+  console.log('@@@ caf files', files);
+
   return Promise.all(files.map(function (file) {
     return nodeCall(fs.access, file, F_OK)
       .then(function () {
