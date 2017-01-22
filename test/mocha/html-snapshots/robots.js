@@ -18,6 +18,7 @@ var cleanupError = utils.cleanupError;
 var testSuccess = utils.testSuccess;
 var bogusFile = utils.bogusFile;
 var unexpectedSuccess = utils.unexpectedSuccess;
+var checkActualFiles = utils.checkActualFiles;
 
 // Robots constants
 var inputFile = path.join(__dirname, "./test_robots.txt");
@@ -47,7 +48,10 @@ function robotsTests (options) {
       ss.run(optHelp.decorate(options), twice)
         .then(testSuccess.bind(null, twice))
         .catch(function (e) {
-          cleanup(done, e);
+          checkActualFiles(e.notCompleted)
+            .then(function () {
+              cleanup(done, e);
+            });
         });
     });
 
@@ -66,7 +70,10 @@ function robotsTests (options) {
       ss.run(optHelp.decorate(options), twice)
         .then(testSuccess.bind(null, twice))
         .catch(function (e) {
-          cleanup(done, e);
+          checkActualFiles(e.notCompleted)
+            .then(function () {
+              cleanup(done, e);
+            });
         });
     });
 

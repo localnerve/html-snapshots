@@ -1,20 +1,37 @@
 /**
  * html-snapshots test utilities and constants.
  */
-/* global require, process */
+/* global require, process, Promise */
 var path = require("path");
+var fs = require("fs");
 var _ = require("lodash");
 var spawn = require('child_process').spawn;
 var assert = require("assert");
 var combineErrors = require("combine-errors");
 var resHelp = require("../../helpers/result");
+var nodeCall = require("../../../lib/common/node");
 
 // Constants
+var F_OK = (fs.constants && fs.constants.F_OK) || fs.F_OK;
 var unexpectedError = new Error("unexpected error flow");
 var outputDir = path.join(__dirname, "./tmp/snapshots");
 var spawnedProcessPattern = "^phantomjs$";
 var bogusFile = "./bogus/file.txt";
 var timeout = 60000;
+
+function checkActualFiles (files) {
+  return Promise.all(files.map(function (file) {
+    return nodeCall(fs.access, file, F_OK)
+      .then(function () {
+        console.log('@@@ exists:' + file);
+        return true;
+      })
+      .catch(function () {
+        console.log('@@@ NOT exists:' + file);
+        return false;
+      });
+  }));
+}
 
 function multiError () {
   var errors = Array.prototype.slice.call(arguments);
@@ -139,5 +156,6 @@ module.exports = {
   outputDir: outputDir,
   bogusFile: bogusFile,
   multiError: multiError,
+  checkActualFiles: checkActualFiles,
   timeout: timeout
 };

@@ -16,6 +16,7 @@ var cleanup = utils.cleanup;
 var cleanupError = utils.cleanupError;
 var unexpectedError = utils.unexpectedError;
 var unexpectedSuccess = utils.unexpectedSuccess;
+var checkActualFiles = utils.checkActualFiles;
 
 var useJQOutputDir = path.resolve(outputDir, "..", "useJQuery");
 
@@ -88,7 +89,10 @@ function useJQueryTests (options) {
           cleanup(done, assertionError);
         })
         .catch(function (e) {
-          cleanup(done, e || unexpectedError);
+          checkActualFiles(e.notCompleted)
+            .then(function () {
+              cleanup(done, e || unexpectedError);
+            });
         });
     });
 
@@ -119,7 +123,10 @@ function useJQueryTests (options) {
           cleanup(done, assertionError);
         })
         .catch(function (e) {
-          cleanup(done, e || unexpectedError);
+          checkActualFiles(e.notCompleted)
+            .then(function () {
+              cleanup(done, e || unexpectedError);
+            });
         });
     });
 

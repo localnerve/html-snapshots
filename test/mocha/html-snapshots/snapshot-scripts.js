@@ -19,6 +19,7 @@ var cleanup = utils.cleanup;
 var bogusFile = utils.bogusFile;
 var cleanupError = utils.cleanupError;
 var unexpectedSuccess = utils.unexpectedSuccess;
+var checkActualFiles = utils.checkActualFiles;
 
 function snapshotScriptTests (options) {
   var port = options.port;
@@ -167,32 +168,20 @@ function snapshotScriptTests (options) {
           timeout: timeout,
           snapshotScript: snapshotScriptTest.option
         };
-        var alreadyDone = false;
 
         rimraf(outputDir);
 
-        ss.run(optHelp.decorate(options), function (err, completed) {
-          try {
-            if (!err) {
-              snapshotScriptTest.prove(completed, function (e) {
-                alreadyDone = true;
-                cleanup(done, e);
-              });
-            } else {
-              // this still fails occasionally.
-              console.log('@@@ error = '+err+", completed="+completed.join(','));
-            }
-          } catch (e) {
-            if (!alreadyDone) {
-              alreadyDone = true;
+        ss.run(optHelp.decorate(options))
+          .then(function (completed) {
+            snapshotScriptTest.prove(completed, function (e) {
               cleanup(done, e);
-            }
-          }
-        })
+            });
+          })
           .catch(function (err) {
-            if (!alreadyDone) {
-              cleanup(done, err);
-            }
+            checkActualFiles(err.notCompleted)
+              .then(function () {
+                cleanup(done, err);
+              });
           });
       }
 

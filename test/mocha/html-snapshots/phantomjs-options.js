@@ -17,6 +17,7 @@ var outputDir = utils.outputDir;
 var cleanup = utils.cleanup;
 var unexpectedError = utils.unexpectedError;
 var unexpectedSuccess = utils.unexpectedSuccess;
+var checkActualFiles = utils.checkActualFiles;
 
 var outputBase = path.resolve(outputDir, "..");
 var cookiesFile = path.join(outputBase, "cookies.txt");
@@ -53,7 +54,10 @@ function phantomjsOptionsTests (options) {
           cleanup(done, assertionError);
         })
         .catch(function (e) {
-          cleanup(done, e || unexpectedError);
+          checkActualFiles(e.notCompleted)
+            .then(function () {
+              cleanup(done, e || unexpectedError);
+            });
         });
     });
 
@@ -88,7 +92,10 @@ function phantomjsOptionsTests (options) {
           cleanup(done, assertionError);
         })
         .catch(function (e) {
-          cleanup(done, e || unexpectedError);
+          checkActualFiles(e.notCompleted)
+            .then(function () {
+              cleanup(done, e || unexpectedError);
+            });
         });
     });
 
@@ -117,13 +124,16 @@ function phantomjsOptionsTests (options) {
       ss.run(optHelp.decorate(options), completionHandler)
         .then(unexpectedSuccess.bind(null, done))
         .catch(function (err) {
-          var assertionError;
-          try {
-            completionHandler(err);
-          } catch (e) {
-            assertionError = e;
-          }
-          cleanup(done, assertionError);
+          checkActualFiles(err.notCompleted)
+            .then(function () {
+              var assertionError;
+              try {
+                completionHandler(err);
+              } catch (e) {
+                assertionError = e;
+              }
+              cleanup(done, assertionError);
+            });
         });
     });
 

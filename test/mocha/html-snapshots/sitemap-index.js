@@ -13,6 +13,7 @@ var outputDir = utils.outputDir;
 var timeout = utils.timeout;
 var unexpectedError = utils.unexpectedError;
 var cleanup = utils.cleanup;
+var checkActualFiles = utils.checkActualFiles;
 
 // Sitemap-index constants
 var sitemapIndexFile = "test_sitemap_index.xml";
@@ -50,7 +51,10 @@ function sitemapIndexTests (options) {
           cleanup(done, assertionError);
         })
         .catch(function (err) {
-          cleanup(done, err || unexpectedError);
+          checkActualFiles(err.notCompleted)
+            .then(function () {
+              cleanup(done, err || unexpectedError);
+            });
         });
     });
   };

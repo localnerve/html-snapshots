@@ -1,19 +1,13 @@
 /**
  * Library tests focused on the processLimit option.
  */
-/* global module, require, process, clearInterval, setTimeout, it, Promise */
+/* global module, require, process, clearInterval, setTimeout, it */
 var assert = require("assert");
 var rimraf = require("rimraf").sync;
 var utils = require("./utils");
 var optHelp = require("../../helpers/options");
 var ss = require("../../../lib/html-snapshots");
 var robotsTests = require("./robots");
-
-// @@@
-var fs = require("fs");
-var F_OK = (fs.constants && fs.constants.F_OK) || fs.F_OK;
-var nodeCall = require("../../../lib/common/node");
-// @@@
 
 // missing destructuring, will write postcard...
 var timeout = utils.timeout;
@@ -23,25 +17,10 @@ var killSpawnedProcesses = utils.killSpawnedProcesses;
 var countSpawnedProcesses = utils.countSpawnedProcesses;
 var unexpectedError = utils.unexpectedError;
 var multiError = utils.multiError;
+var checkActualFiles = utils.checkActualFiles;
 
 var urls = robotsTests.urlCount;
 var inputFile = robotsTests.inputFile;
-
-// @@@
-function checkActualFiles (files) {
-  return Promise.all(files.map(function (file) {
-    return nodeCall(fs.access, file, F_OK)
-      .then(function () {
-        console.log('@@@ exists:' + file);
-        return true;
-      })
-      .catch(function () {
-        console.log('@@@ NOT exists:' + file);
-        return false;
-      });
-  }));
-}
-// @@@
 
 function processLimitTests (options) {
   var port = options.port;
