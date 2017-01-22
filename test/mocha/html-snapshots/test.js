@@ -18,43 +18,41 @@ var phantomJSOptions = require("./phantomjs-options");
 var port = 8034;
 
 describe("html-snapshots", function () {
-  describe("library", function () {
-    this.timeout(utils.timeout * robots.urlCount);
+  this.timeout(utils.timeout * robots.urlCount);
 
-    before(function (done) {
-      server.start(path.join(__dirname, "./server"), port, done);
-    });
-
-    describe("run basics", basics.testSuite({
-      port: port
-    }));
-
-    describe("robots", robots.testSuite({
-      port: port
-    }));
-
-    describe("sitemap", sitemap.testSuite({
-      port: port
-    }));
-
-    describe("sitemap-index", sitemapIndex.testSuite({
-      port: port
-    }));
-
-    describe("processLimit option", processLimit.testSuite({
-      port: port
-    }));
-
-    describe("useJQuery option", useJQuery.testSuite({
-      port: port
-    }));
-
-    describe("phantomjsOptions option", phantomJSOptions.testSuite({
-      port: port
-    }));
-
-    describe("additional snapshot scripts", snapshotScripts.testSuite({
-      port: port
-    }));
+  before(function (done) {
+    server.start(path.join(__dirname, "./server"), port, done);
   });
+
+  describe("run basics", basics.testSuite({
+    port: port
+  }));
+
+  describe("robots", robots.testSuite({
+    port: port
+  }));
+
+  describe("sitemap", sitemap.testSuite({
+    port: port
+  }));
+
+  describe("sitemap-index", sitemapIndex.testSuite({
+    port: port
+  }));
+
+  describe("processLimit option", processLimit.testSuite({
+    port: port
+  }));
+
+  describe("useJQuery option", useJQuery.testSuite({
+    port: port
+  }));
+
+  describe("phantomjsOptions option", phantomJSOptions.testSuite({
+    port: port
+  }));
+
+  describe("additional snapshot scripts", snapshotScripts.testSuite({
+    port: port
+  }));
 });
