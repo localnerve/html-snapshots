@@ -20,16 +20,15 @@ var bogusFile = "./bogus/file.txt";
 var timeout = 60000;
 
 function checkActualFiles (files) {
-  console.log('@@@ caf files', files);
+  console.log('@@@ caf input', files);
 
   return Promise.all(files.map(function (file) {
     return nodeCall(fs.access, file, F_OK)
       .then(function () {
-        console.log('@@@ exists:' + file);
+        console.log('@@@ actually exists:' + file);
         return true;
       })
       .catch(function () {
-        console.log('@@@ NOT exists:' + file);
         return false;
       });
   }));
