@@ -138,5 +138,6 @@ module.exports = {
   unexpectedError: unexpectedError,
   outputDir: outputDir,
   bogusFile: bogusFile,
+  multiError: multiError,
   timeout: timeout
 };

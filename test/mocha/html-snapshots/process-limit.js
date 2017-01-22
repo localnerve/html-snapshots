@@ -16,6 +16,7 @@ var cleanup = utils.cleanup;
 var killSpawnedProcesses = utils.killSpawnedProcesses;
 var countSpawnedProcesses = utils.countSpawnedProcesses;
 var unexpectedError = utils.unexpectedError;
+var multiError = utils.multiError;
 
 var urls = robotsTests.urlCount;
 var inputFile = robotsTests.inputFile;
@@ -25,16 +26,24 @@ function processLimitTests (options) {
 
   return function () {
     it("should limit as expected", function (done) {
+      var processLimit = urls - 1;
+      var pollInterval = 500;
+      var phantomCount = 0;
+      var timer;
+
+      function complete (e) {
+        var countError = phantomCount ?
+          new Error(phantomCount+" exceeded processLimit "+processLimit) :
+          undefined;
+
+        cleanup(done, multiError(e, countError));
+        clearInterval(timer);
+      }
+
       if (process.platform === "win32") {
         assert.ok(true, "Skipping posix compliant tests for processLimit");
         done();
       } else {
-        var processLimit = urls - 1;
-        var pollDone = false;
-        var pollInterval = 500;
-        var phantomCount = 0;
-        var timer;
-
         rimraf(outputDir);
 
         killSpawnedProcesses(function () {
@@ -49,24 +58,16 @@ function processLimitTests (options) {
             processLimit: processLimit
           };
 
-          ss.run(optHelp.decorate(options), function () {
-            clearInterval(timer);
-            cleanup(done, phantomCount ?
-              new Error(phantomCount+" exceeded processLimit "+processLimit) :
-              undefined
-            );
-            pollDone = true;
-          })
+
+          ss.run(optHelp.decorate(options))
+            .then(function () {
+              complete();
+            })
             .catch(function (e) {
-              if (!pollDone) {
-                cleanup(done, e || unexpectedError);
-              }
+              complete(e || unexpectedError);
             });
 
           timer = setInterval(function () {
-            if (pollDone) {
-              clearInterval(timer);
-            } else {
               countSpawnedProcesses(function (count) {
                 //console.log("@@@ DEBUG @@@ phantom count: "+count);
                 if (count > processLimit) {
@@ -74,7 +75,6 @@ function processLimitTests (options) {
                   clearInterval(timer);
                 }
               });
-            }
           }, pollInterval);
         });
       }
@@ -87,16 +87,24 @@ function processLimitTests (options) {
     });
 
     it("should limit to just one process", function (done) {
+      var processLimit = 1;
+      var pollInterval = 500;
+      var phantomCount = 0;
+      var timer;
+
+      function complete (e) {
+        var countError = phantomCount ?
+          new Error(phantomCount+" exceeded processLimit "+processLimit) :
+          undefined;
+
+        cleanup(done, multiError(e, countError));
+        clearInterval(timer);
+      }
+
       if (process.platform === "win32") {
         assert.ok(true, "Skipping posix compliant tests for processLimit");
         done();
       } else {
-        var processLimit = 1;
-        var pollDone = false;
-        var pollInterval = 500;
-        var phantomCount = 0;
-        var timer;
-
         rimraf(outputDir);
 
         killSpawnedProcesses(function () {
@@ -111,32 +119,22 @@ function processLimitTests (options) {
             processLimit: processLimit
           };
 
-          ss.run(optHelp.decorate(options), function () {
-            clearInterval(timer);
-            cleanup(done, phantomCount ?
-              new Error(phantomCount+" exceeded processLimit "+processLimit) :
-              undefined
-            );
-            pollDone = true;
-          })
+          ss.run(optHelp.decorate(options))
+            .then(function () {
+              complete();
+            })
             .catch(function (e) {
-              if (!pollDone) {
-                cleanup(done, e || unexpectedError);
-              }
+              complete(e || unexpectedError);
             });
 
           timer = setInterval(function () {
-            if (pollDone) {
-              clearInterval(timer);
-            } else {
-              countSpawnedProcesses(function (count) {
-                //console.log("@@@ DEBUG @@@ phantom count: "+count);
-                if (count > processLimit) {
-                  phantomCount = count;
-                  clearInterval(timer);
-                }
-              });
-            }
+            countSpawnedProcesses(function (count) {
+              //console.log("@@@ DEBUG @@@ phantom count: "+count);
+              if (count > processLimit) {
+                phantomCount = count;
+                clearInterval(timer);
+              }
+            });
           }, pollInterval);
         });
       }
