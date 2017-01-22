@@ -6,6 +6,7 @@ var path = require("path");
 var _ = require("lodash");
 var spawn = require('child_process').spawn;
 var assert = require("assert");
+var combineErrors = require("combine-errors");
 var resHelp = require("../../helpers/result");
 
 // Constants
@@ -14,6 +15,22 @@ var outputDir = path.join(__dirname, "./tmp/snapshots");
 var spawnedProcessPattern = "^phantomjs$";
 var bogusFile = "./bogus/file.txt";
 var timeout = 60000;
+
+function multiError () {
+  var errors = Array.prototype.slice.call(arguments);
+
+  errors = errors.filter(function (error) {
+    return !!error;
+  });
+
+  if (errors.length > 0) {
+    errors = combineErrors(errors);
+  } else {
+    errors = undefined;
+  }
+
+  return errors;
+}
 
 // Count actual phantomjs processes in play, requires pgrep
 function countSpawnedProcesses (cb) {
@@ -51,8 +68,8 @@ function cleanup (done, arg) {
     setTimeout(done, 1000, arg);
   } else {
     setImmediate(function () {
-      killSpawnedProcesses(function() {
-        done(arg);
+      killSpawnedProcesses(function (err) {
+        done(multiError(err, arg));
       });
     });
   }
@@ -90,7 +107,7 @@ function cleanupSuccess (done, err, completed) {
     assertionError = e;
   }
 
-  cleanup(done, err || assertionError);
+  cleanup(done, multiError(err, assertionError));
 }
 
 function testSuccess (cb, completed) {

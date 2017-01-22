@@ -188,15 +188,18 @@ function snapshotScriptTests (options) {
               cleanup(done, e);
             }
           }
-        }).catch(function (err) {
-          if (!alreadyDone) {
-            cleanup(done, err);
-          }
-        });
+        })
+          .catch(function (err) {
+            if (!alreadyDone) {
+              cleanup(done, err);
+            }
+          });
       }
 
       scriptNames.forEach(function (scriptName) {
-        it("snapshot script "+scriptName, snapshotScriptTestDefinition);
+        it("snapshot script "+scriptName, function (done) {
+          setTimeout(snapshotScriptTestDefinition, 3000, done);
+        });
       });
     });
   };
