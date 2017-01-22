@@ -12,7 +12,7 @@ var robotsTests = require("./robots");
 // @@@
 var fs = require("fs");
 var F_OK = (fs.constants && fs.constants.F_OK) || fs.F_OK;
-var nodeCall = require("../../../common/node");
+var nodeCall = require("../../../lib/common/node");
 // @@@
 
 // missing destructuring, will write postcard...
