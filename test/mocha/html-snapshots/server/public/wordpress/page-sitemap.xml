@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="//core.codekraft.it/public/wordpress/main-sitemap.xsl"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<url>
-		<loc>http://localhost:8034/</loc>
+		<loc>http://localhost:8040/</loc>
 	</url>
 	<url>
-		<loc>http://localhost:8034/contact</loc>
+		<loc>http://localhost:8040/contact</loc>
 		<lastmod>2017-01-06T21:06:08+01:00</lastmod>
 	</url>
 	<url>
-		<loc>http://localhost:8034/services/carpets</loc>
+		<loc>http://localhost:8040/services/carpets</loc>
 		<lastmod>2017-01-09T22:38:33+01:00</lastmod>
 	</url>
 </urlset>

@@ -18,7 +18,9 @@ module.exports = {
     server.use(express.static(rootDir, {
       setHeaders: setHeaders
     }));
-    server.listen(parseInt(port, 10), cb);
+    var httpServer = server.listen(parseInt(port, 10), function (err) {
+      cb(err, httpServer);
+    });
   }
 
 };

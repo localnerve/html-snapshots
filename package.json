@@ -63,6 +63,7 @@
     "mocha": "^3.0.1",
     "istanbul": "^0.4.2",
     "precommit-hook": "^3.0.0",
+    "server-destroy": "^1.0.1",
     "sitemap-xml": "~0.1.0"
   },
   "license": "MIT",
