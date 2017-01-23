@@ -7,7 +7,6 @@
  * Use per-page output paths.
  * Remove all script tags from output.
  * Use javascript arrays.
- * Callback style usage.
  */
 var path = require("path");
 var util = require("util");
@@ -59,11 +58,11 @@ htmlSnapshots.run({
     // key must match url exactly
     "https://developers.google.com/web/updates/": ["--ssl-protocol=any", "--ignore-ssl-errors=true"]
   }
-}, function(err, completed) {
-
+})
+.then(function (completed) {
   console.log("completed snapshots:");
   console.log(util.inspect(completed));
-
-  // throw if there was an error
-  assert.ifError(err);
+})
+.catch(function (err) {
+  console.error(err);
 });

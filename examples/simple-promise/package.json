@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "author": "Alex Grant <alex@localnerve.com>",
   "description": "An example using html-snapshots",
+  "scripts": {
+    "start": "node ./snapshot.js"
+  },
   "dependencies": {
-    "html-snapshots": ">= 0.14.0"
+    "html-snapshots": "github:localnerve/html-snapshots#rc-0.14.0-5"
    }
 }

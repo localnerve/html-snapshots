@@ -9,7 +9,7 @@
 2. Open a command prompt
 3. Change to the examples/html5rocks directory
 4. Run `npm install`
-5. Run `node ./snapshot.js`
+5. Run `npm start`
 
 ## What It Does
 This example snapshots the root page from two domains of html5rocks.com. The techniques shown could be used on any arbirary urls, not just root pages of different domains.

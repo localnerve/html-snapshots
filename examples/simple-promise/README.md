@@ -9,7 +9,7 @@
 2. Open a command prompt
 3. Change to the examples/simple-promise directory
 4. Run `npm install`
-5. Run `node ./snapshot.js`
+5. Run `npm start`
 
 ## What It Does
 This example snapshots a couple of google pages.

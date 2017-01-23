@@ -9,7 +9,7 @@
 2. Open a command prompt
 3. Change to the examples/sitemap-index directory
 4. Run `npm install`
-5. Run `node ./snapshot.js`
+5. Run `npm start`
 
 ## What It Does
 Snapshots a site using a sitemap-index to drive input processing.

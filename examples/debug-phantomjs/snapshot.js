@@ -38,7 +38,7 @@ htmlSnapshots.run({
     // The key must exactly match the loc as defined in the sitemap.xml
     "http://enigmatic-refuge-9006.herokuapp.com:80/hello-world": "--remote-debugger-port=9000"
   }
-}, function(err, completed) {
+}, function (err, completed) {
 
   console.log("completed snapshots:");
   console.log(util.inspect(completed));

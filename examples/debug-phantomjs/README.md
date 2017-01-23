@@ -9,7 +9,7 @@
 2. Open a command prompt
 3. Change to the examples/debug-phantomjs directory
 4. Run `npm install`
-5. Run `node ./snapshot.js`
+5. Run `npm start`
 
 ## What It Does
 This example snapshots the entire website of the WPSPA example application using its sitemap to drive.

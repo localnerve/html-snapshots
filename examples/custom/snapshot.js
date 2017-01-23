@@ -4,7 +4,6 @@
  *
  * Use sitemap.xml to snapshot an entire site.
  * Use a customFilter to update the output before the snapshots are written.
- * Promise resolution.
  */
 var path = require("path");
 var util = require("util");
@@ -27,6 +26,5 @@ htmlSnapshots.run({
   console.log(util.inspect(completed));
 })
 .catch(function (err) {
-  console.error("failure", err);
-  throw err;
+  console.error(err);
 });
