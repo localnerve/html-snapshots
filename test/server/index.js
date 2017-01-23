@@ -19,7 +19,9 @@ module.exports = {
       setHeaders: setHeaders
     }));
     var httpServer = server.listen(parseInt(port, 10), function (err) {
-      cb(err, httpServer);
+      if (cb) {
+        cb(err, httpServer);
+      }
     });
   }
 
