@@ -76,7 +76,7 @@ function processLimitTests (options) {
 
           timer = setInterval(function () {
               countSpawnedProcesses(function (count) {
-                //console.log("@@@ DEBUG @@@ phantom count: "+count);
+                // console.log("@@@ DEBUG @@@ phantom count: "+count);
                 if (count > processLimit) {
                   phantomCount = count;
                   clearInterval(timer);
@@ -143,7 +143,7 @@ function processLimitTests (options) {
 
           timer = setInterval(function () {
             countSpawnedProcesses(function (count) {
-              //console.log("@@@ DEBUG @@@ phantom count: "+count);
+              // console.log("@@@ DEBUG @@@ phantom count: "+count);
               if (count > processLimit) {
                 phantomCount = count;
                 clearInterval(timer);
