@@ -50,13 +50,16 @@ function multiError () {
 
 // Count actual phantomjs processes in play, requires pgrep
 function countSpawnedProcesses (cb) {
-  var pgrep;
+  var wc, pgrep;
   // std mac pgrep doesn't have a count option. How stupid is that?
   if (process.platform === "darwin") {
-    var wc = spawn("wc", ["-l"]);
+    wc = spawn("wc", ["-l"]);
     pgrep = spawn("pgrep", [spawnedProcessPattern]);
     pgrep.stdout.on("data", function (data) {
       wc.stdin.write(data);
+    });
+    pgrep.stdout.on("end", function () {
+      wc.stdin.end();
     });
     wc.stdout.on("data", cb);
   } else {
