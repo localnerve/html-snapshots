@@ -1,7 +1,14 @@
 # Background and Other Notes
 
-## Why does this exist?
+## Why Does This Exist?
 The whole reason I created this library was so that I could be certain I snapshotted the page when expected content arrived (not after some arbitrary time expiration). This way, I could be certain the snapshot actually contained the content I expect.
+
+## What if I Don't Know About The Rendered Page Content?
+If you aren't interested in exact snapshots, or just want to explore because you don't know about the content detail yet, try this:
+1. Use `"body"` as the `selector` option value (every page will probably have a body).
+2. Set the `checkInterval` option high to give the page some time to render before it is written out. `checkInterval` is the time the phantomjs script waits to check for `selector`, so consider this "render time".
+3. Set the `pollInterval` option higher than `checkInterval`.
+4. Set the `timeout` option much higher to give the whole thing time to transpire. Consider `timeout` as a multiple of `pollInterval`.
 
 ## What Happens If Your Content Does Not Appear
 If your content does not show up visibly in a page according to the page's selector you configured in options, you get a timeout error - not a snapshot.

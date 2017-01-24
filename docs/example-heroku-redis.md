@@ -1,9 +1,9 @@
 # A Real html-snapshots Usage Example
 
-> This article explains an implementation using [html-snapshots](https://github.com/localnerve/html-snapshots) in the wild \(with real, working code\). Please note the code referenced in this article was written by LocalNerve and is subject to the terms of this [license](https://github.com/localnerve/wpspa/blob/master/LICENSE.txt).
+> This article explains an implementation using [html-snapshots](https://github.com/localnerve/html-snapshots) in the wild \(with real, working code\). Please note the code referenced in this article was written by LocalNerve and is subject to the terms of this [license](https://github.com/localnerve/wpspa/blob/master/LICENSE.txt). **NOTE:** This is an older article and usage style is html-snapshots version 0.13.2.
 
 ## Summary
-The [WPSPA](http://github.com/localnerve/wpspa) project uses [html-snapshots](https://github.com/localnerve/html-snapshots) on [Heroku](https://www.heroku.com/) to populate a Redis store from which the snapshotted html is served on \_escaped\_fragment\_ requests. The [html-snapshots](https://github.com/localnerve/html-snapshots) library is run in a Heroku worker process that periodically keeps the snapshots up-to-date with a CMS. 
+The [WPSPA](http://github.com/localnerve/wpspa) project uses [html-snapshots](https://github.com/localnerve/html-snapshots) on [Heroku](https://www.heroku.com/) to populate a Redis store from which the snapshotted html is served on \_escaped\_fragment\_ requests. The [html-snapshots](https://github.com/localnerve/html-snapshots) library is run in a Heroku worker process that periodically keeps the snapshots up-to-date with a CMS.
 
 The application content and routes in [WPSPA](http://github.com/localnerve/wpspa) are dynamic, so this required me to run [html-snapshots](https://github.com/localnerve/html-snapshots) in a worker on the server to get the dynamic content updates over time.
 
@@ -12,7 +12,7 @@ The application content and routes in [WPSPA](http://github.com/localnerve/wpspa
 > Tools: NodeJS, ExpressJS, PhantomJS, Redis
 
 ## Serving Html Snapshots in a Scalable Cloud Environment
-Since [WPSPA](http://github.com/localnerve/wpspa) runs on Heroku, it is serving the application from [Dynos](https://devcenter.heroku.com/articles/dynos). In essence, Dynos are billable CPU/Memory hours with independent, ephemeral file systems. Dynos can be created and destroyed at will to scale the application. Which one you get when you visit the site is up to the [Heroku routing mesh](https://devcenter.heroku.com/articles/http-routing). 
+Since [WPSPA](http://github.com/localnerve/wpspa) runs on Heroku, it is serving the application from [Dynos](https://devcenter.heroku.com/articles/dynos). In essence, Dynos are billable CPU/Memory hours with independent, ephemeral file systems. Dynos can be created and destroyed at will to scale the application. Which one you get when you visit the site is up to the [Heroku routing mesh](https://devcenter.heroku.com/articles/http-routing).
 
 When a Dyno is started, it gets a copy of the files that it was deployed with in its ephemeral file system. So if your app serves dynamic content from a CMS \(as is the case with [WPSPA](http://github.com/localnerve/wpspa)\), anytime your Dyno starts you get an out-of-date version of the snapshots in the ephemeral file system. In general, managing and serving continually updated content with static html snapshot files will not work on Heroku \(or probably any scalable environment\).
 

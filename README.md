@@ -15,17 +15,18 @@
 + [Grunt Task](https://github.com/localnerve/grunt-html-snapshots)
 + [More Information](#more-information)
   + [Breaking Changes](#breaking-changes)
++ [API Reference](#api)
 + [Example Usage](#example-usage)
   + [Per-page selectors](#example---per-page-selectors-and-timeouts)
   + [Per-page output paths](#example---per-page-special-output-paths)
   + [Per-page jquery](#example---per-page-selectors-and-jquery)
   + [Array input](#example---array)
   + [Array input DRY](/examples/html5rocks)
-  + [Completion callback](#example---completion-callback-remote-robotstxt)
-  + [Script removal](#example---completion-callback-remote-robotstxt-remove-script-tags-from-html-snapshots)
+  + [Sitemap Index](/examples/sitemap-index)
+  + [Process Limit](/examples/process-limit)
+  + [Script removal](#example---remote-robotstxt-remove-script-tags-from-html-snapshots)
   + [Custom Filters](/examples/custom)
   + [Debug PhantomJS](/examples/debug-phantomjs)
-+ [API Reference](#api)
 + [Option Reference](#options)
   + [Input Options](#input-control-options)
   + [Output Options](#output-control-options)
@@ -46,11 +47,17 @@ html-snapshots gets urls to process from either a robots.txt or sitemap.xml. Alt
 The simplest way to install html-snapshots is to use [npm](http://npmjs.org), just `npm
 install html-snapshots` will download html-snapshots and all dependencies.
 
+### Gulp Task
+This is a node library that just works with gulp as-is.
+
 ### Grunt Task
 If you are interested in the grunt task that uses this library, check out [grunt-html-snapshots](http://github.com/localnerve/grunt-html-snapshots).
 
 ## More Information
 Here are some [background and other notes](/docs/notes.md) regarding this project.
+  + [Why Does This Library Exist?](/docs/notes.md#why-does-this-exist)
+  + [How To Use Without Knowing About Page Content](/docs/notes.md#what-if-i-dont-know-about-the-rendered-page-content)
+  + [Caveats](/docs/notes.md#caveats)
 
 ### Process Model
 html-snapshots takes snapshots in parallel, each page getting its own PhantomJS process. Each PhantomJS process dies after snapshotting one page. You can limit the number of PhantomJS processes that can ever run at once with the `processLimit` option. This effectively sets up a process pool for PhantomJS instances. The default processLimit is 4 PhantomJS instances. When a PhantomJS process dies, and another snapshot needs to be taken, a new PhantomJS process is spawned to take the vacant slot. This continues until a `processLimit` number of processes are running at once.
@@ -78,12 +85,13 @@ A method that takes [options](#options) and an optional callback. Returns a Prom
 var htmlSnapshots = require('html-snapshots');
 
 htmlSnapshots.run (options[, callback])
-.then(function (arrayOfPathsToCompletedSnapshots) {
-  // arrayOfPathsToCompletedSnapshots
+.then(function (completed) {
+  // `completed` is an array of paths to the completed snapshots.
 })
 .catch(function (errorObject) {
-  // errorObject is an instance of Error
-  // errorObject.completed is an array of paths to the snapshots that did successfully complete.
+  // `errorObject` is an instance of Error
+  // `errorObject.completed` is an array of paths to the snapshots that did successfully complete.
+  // `errorObject.notCompleted` is an array of paths to files that DID NOT successfully complete.
 });
 ```
 #### Callback
@@ -93,14 +101,14 @@ Signature of the optional callback:
 ```javascript
 callback (errorObject, arrayOfPathsToCompletedSnapshots)
 ```
-*For the callback, in the error case, the errorObject does not have a `completed` property. Since `arrayOfPathsToCompletedSnapshots` is supplied, it contains the paths to the snapshots that successfully completed.*
+*For the callback, in the error case, the errorObject does not have the new extra properties `completed` and `notCompleted`. However, `arrayOfPathsToCompletedSnapshots` is supplied, and contains the paths to the snapshots that successfully completed.*
 
 ## Example Usage
 Simple examples to demonstrate the usage of [options](#options).  
 
-A more in-depth usage example is located in this [article](/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
+A growing showcase of runnable examples can be found [here](/examples).
 
-A growing showcase of runnable examples can be found [here](/examples)
+An older (version 0.13.2), more in depth usage example is located in this [article](/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
 
 ### Simple example
 ```javascript
@@ -117,7 +125,8 @@ htmlSnapshots.run({
 })
 .catch(function (error) {
   // error is an Error instance.
-  // error.completed is an array of the snapshot file paths that were completed.
+  // error.completed is an array of snapshot file paths that were completed.
+  // error.notCompleted is an array of file paths that did NOT complete.
 });
 ```
 This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site. Once this selector is visible in a page, the html snapshot is taken.
@@ -129,19 +138,23 @@ htmlSnapshots.run({
   input: "sitemap",
   source: "/path/to/sitemap.xml",
   outputDir: "./snapshots",
-  outputDirClean: true,  
+  outputDirClean: true,
   selector: {
     "http://mysite.com": "#home-content",
     "__default": "#dynamic-content"
   },
-  timeout: { "http://mysite.com/superslowpage": 20000, "__default": 10000 }
+  timeout: {
+    "http://mysite.com/superslowpage": 20000,
+    "__default": 10000
+  }
 })
 .then(function (completed) {
   // completed is an array of full file paths to the completed snapshots.
 })
 .catch(function (error) {
   // error is an Error instance.
-  // error.completed is an array of the snapshot file paths that were completed.
+  // error.completed is an array of snapshot file paths that were completed.
+  // error.notCompleted is an array of file paths that did NOT complete.
 });
 ```
 This reads the urls from your sitemap.xml and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except the home page, where "#home-content" appears \(the appearance of a selector in the output triggers the snapshot\). Finally, a default timeout of 10000 ms is set on all pages except http://mysite.com/superslowpage, where it waits 20000 ms.
@@ -165,7 +178,8 @@ htmlSnapshots.run({
 })
 .catch(function (error) {
   // error is an Error instance.
-  // error.completed is an array of the snapshot file paths that were completed.
+  // error.completed is an array of snapshot file paths that were completed.
+  // error.notCompleted is an array of file paths that did NOT complete.
 });
 ```
 This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have a rewrite rule that reflects this same mapping when `_escaped_fragment_` shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
@@ -192,7 +206,8 @@ htmlSnapshots.run({
 })
 .catch(function (error) {
   // error is an Error instance.
-  // error.completed is an array of the snapshot file paths that were completed.
+  // error.completed is an array of snapshot file paths that were completed.
+  // error.notCompleted is an array of file paths that did NOT complete.
 });
 ```
 This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except in "/jqpage", where a selector not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector) is used. Further, "/jqpage" loads jQuery itself \(required\). All the other pages don't need to use special selectors, so the default is set to `false`. Notice that since a robots.txt input is used, full URLs are **not** used to match selectors. Instead, paths \(and QueryStrings and any Hashes\) are used, just as specified in the robots.txt file itself.
@@ -212,45 +227,16 @@ htmlSnapshots.run({
 })
 .catch(function (error) {
   // error is an Error instance.
-  // error.completed is an array of the snapshot file paths that were completed.
+  // error.completed is an array of snapshot file paths that were completed.
+  // error.notCompleted is an array of file paths that did NOT complete.
 });
 ```
-Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out a simple [example](/examples/simple-promise), or a more complex [example](/examples/html5rocks).
+Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out a [simple example](/examples/simple-promise), or a more [complex example](/examples/html5rocks).
 
-### Example - Completion callback, Remote robots.txt
+### Example - Remote robots.txt, remove script tags from html snapshots
 ```javascript
-var htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
-  source: "http://localhost/robots.txt",
-  hostname: "localhost",
-  outputDir: "./snapshots",
-  outputDirClean: true,  
-  selector: "#dynamic-content"
-}, function (err, snapshotsCompleted) {
-  /*
-    Do something when html-snapshots has completed.
-
-    err is undefined if all snapshots were generated successfully.
-
-    snapshotsCompleted is an array of normalized paths to output files that
-      contain completed snapshots.
-    If no snapshots are completed, this is an empty array.
-
-    You can use snapshotsCompleted to populate shared storage if you are running
-      in a scalable server environment with an ephemeral file system:
-  */
-  if (!err) {
-    // safe to use snapshotsCompleted to update alternative storage
-    //   Example: https://github.com/localnerve/wpspa/blob/master/server/workers/snapshots/lib/index.js
-  }  
-});
-```
-Generates snapshots in the ./snapshots directory for paths found in http://localhost/robots.txt. Uses those paths against "localhost" to get the actual html output. Expects "#dynamic-content" to appear in all output. The callback function is called when snapshots concludes.
-
-### Example - Completion callback, Remote robots.txt, remove script tags from html snapshots
-```javascript
-var fs = require("fs");
 var assert = require("assert");
+var fs = require("fs");
 var htmlSnapshots = require("html-snapshots");
 
 htmlSnapshots.run({
@@ -262,21 +248,25 @@ htmlSnapshots.run({
   snapshotScript: {
     script: "removeScripts"
   }
-}, function (err, snapshotsCompleted) {
-  // throw if error
-  assert.ifError(err);
-
-  snapshotsCompleted.forEach(function (snapshotFile) {
+})
+.then(function (completed) {
+  completed.forEach(function (snapshotFile) {
     var content = fs.readFileSync(snapshotFile, { encoding: "utf8"});
     assert.equal(false, /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content));
-    // there are no script tags in the html snapshots
   });
+  // It didn't throw b/c there are no script tags in the html snapshots
+  console.log('stripped all script tags as expected');
+})
+.catch(function (error) {
+  // error is an Error instance.
+  // error.completed is an array of snapshot file paths that were completed.
+  // error.notCompleted is an array of file paths that did NOT complete.
 });
 ```
-Same as previous example, but removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the complete [example](/examples/custom).
+Removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the concrete [example](/examples/custom).
 
 ## Options
-Every option has a default value except `outputDir`.
+> Every option has a default value except `outputDir`.
 
 ### Input Control Options
 
@@ -305,7 +295,7 @@ Every option has a default value except `outputDir`.
       + Only a lastmod tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the file modification time is compared against the lastmod value to see if the url is out-of-date and needs a snapshot.
       + Only a changefreq tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the last file modification time is used as a timespan \(from now\) and compared against the given changefreq to see if the url is out-of-date and needs a snapshot.
 
-    Note that for sitemap-index, only [lastmod](https://www.sitemaps.org/protocol.html#sitemapIndexTagDefinitions) policy element is available as a policy control.
+    Note that for `sitemap-index`, only [lastmod](https://www.sitemaps.org/protocol.html#sitemapIndexTagDefinitions) policy element is available as a policy control.
 
     Not all url elements in a sitemap have to have lastmod and/or changefreq \(those tags are optional, unlike loc\), but the urls you want to be able to skip \(if they are current\) must make use of those tags. You can intermix usage of these tags, as long as the requirements are met for making an age determination. If a determination on age cannot be made for any reason, the url is processed normally. For more info on sitemap tags and acceptable values, read the [wikipedia](http://en.wikipedia.org/wiki/Sitemaps) page.
 
@@ -314,6 +304,7 @@ Every option has a default value except `outputDir`.
     + For use only with the sitemap-index input generator, this option directs the storage of sitemaps locally. It is a string that defines the name of the subdirectory under the `outputDir` where sitemaps are stored.
     Locally stored sitemaps are used for age determinations with incoming lastmod tags. If this option is falsy, it will prevent sitemap storage and thereby disable sitemapPolicy for sitemaps referenced in a sitemap-index.
 
+    The [examples](/examples) directory contains a [sitemap-index](/examples/sitemap-index) example.
 ##### Robots and Textfile Only Input Options
 
   + `hostname`
