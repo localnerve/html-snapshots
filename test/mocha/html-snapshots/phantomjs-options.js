@@ -106,7 +106,7 @@ function phantomjsOptionsTests (options) {
         outputDir: outputDir,
         outputDirClean: false,
         selector: "#inline-image",
-        timeout: timeout,
+        timeout: 5000, // this should fail, so don't wait too long.
         phantomjsOptions: [
           "--cookies-file="+cookiesFile,
           "--load-images=false"
