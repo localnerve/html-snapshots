@@ -24,42 +24,6 @@ function useJQueryTests (options) {
   var port = options.port;
 
   return function () {
-    it("should fail if useJQuery is true and no jQuery loads in target page",
-    function (done) {
-      var options = {
-        input: "array",
-        source: [ "http://localhost:"+port+"/nojq" ],
-        selector: "#pocs1",
-        outputDir: useJQOutputDir,
-        outputDirClean: true,
-        timeout: 5000,
-        useJQuery: true
-      };
-      var twice = _.after(2, cleanupError.bind(null, done, 0));
-
-      ss.run(optHelp.decorate(options), twice)
-        .then(unexpectedSuccess.bind(null, done))
-        .catch(twice);
-    });
-
-    it("should fail if useJQuery is false, no jQuery loads in page, BUT the element is not visible",
-    function (done) {
-      var options = {
-        input: "array",
-        source: [ "http://localhost:"+port+"/nojq" ],
-        selector: ".nojq-notvisible",
-        outputDir: useJQOutputDir,
-        outputDirClean: true,
-        timeout: 5000,
-        useJQuery: true
-      };
-      var twice = _.after(2, cleanupError.bind(null, done, 0));
-
-      ss.run(optHelp.decorate(options), twice)
-        .then(unexpectedSuccess.bind(null, done))
-        .catch(twice);
-    });
-
     it("should succeed if useJQuery=false, jQuery NOT loaded, dynamic element",
     function (done) {
       var options = {
@@ -128,6 +92,42 @@ function useJQueryTests (options) {
               cleanup(done, e || unexpectedError);
             });
         });
+    });
+
+    it("should fail if useJQuery is true and no jQuery loads in target page",
+    function (done) {
+      var options = {
+        input: "array",
+        source: [ "http://localhost:"+port+"/nojq" ],
+        selector: "#pocs1",
+        outputDir: useJQOutputDir,
+        outputDirClean: true,
+        timeout: 5000,
+        useJQuery: true
+      };
+      var twice = _.after(2, cleanupError.bind(null, done, 0));
+
+      ss.run(optHelp.decorate(options), twice)
+        .then(unexpectedSuccess.bind(null, done))
+        .catch(twice);
+    });
+
+    it("should fail if useJQuery is false, no jQuery loads in page, BUT the element is not visible",
+    function (done) {
+      var options = {
+        input: "array",
+        source: [ "http://localhost:"+port+"/nojq" ],
+        selector: ".nojq-notvisible",
+        outputDir: useJQOutputDir,
+        outputDirClean: true,
+        timeout: 5000,
+        useJQuery: true
+      };
+      var twice = _.after(2, cleanupError.bind(null, done, 0));
+
+      ss.run(optHelp.decorate(options), twice)
+        .then(unexpectedSuccess.bind(null, done))
+        .catch(twice);
     });
 
     // most of these tests use useJQuery false and jQuery loads in target page,

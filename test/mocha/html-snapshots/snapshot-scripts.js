@@ -67,6 +67,53 @@ function snapshotScriptTests (options) {
       }
     ];
 
+    describe("should succeed for scripts", function () {
+      var testNumber = 0, snapshotScriptTest, scriptNames = [
+        snapshotScriptTests[testNumber].name,
+        snapshotScriptTests[testNumber + 1].name
+        //, testNumber + 2, etc
+      ];
+
+      beforeEach(function () {
+        snapshotScriptTest = snapshotScriptTests[testNumber++];
+      });
+
+      function snapshotScriptTestDefinition (done) {
+        var options = {
+          source: inputFile,
+          hostname: "localhost",
+          port: port,
+          selector: "#dynamic-content",
+          outputDir: outputDir,
+          outputDirClean: true,
+          timeout: timeout,
+          snapshotScript: snapshotScriptTest.option
+        };
+
+        rimraf(outputDir);
+
+        ss.run(optHelp.decorate(options))
+          .then(function (completed) {
+            console.log('@@@ script complete succesfully');
+            snapshotScriptTest.prove(completed, function (e) {
+              cleanup(done, e);
+            });
+          })
+          .catch(function (err) {
+            checkActualFiles(err.notCompleted)
+              .then(function () {
+                cleanup(done, err);
+              });
+          });
+      }
+
+      scriptNames.forEach(function (scriptName) {
+        it("snapshot script "+scriptName, function (done) {
+          setTimeout(snapshotScriptTestDefinition, 3000, done);
+        });
+      });
+    });
+
     it("should fail if a bogus script string is supplied", function (done) {
       var options = {
         source: inputFile,
@@ -144,53 +191,6 @@ function snapshotScriptTests (options) {
       ss.run(optHelp.decorate(options), twice)
         .then(unexpectedSuccess.bind(null, done))
         .catch(twice);
-    });
-
-    describe("should succeed for scripts", function () {
-      var testNumber = 0, snapshotScriptTest, scriptNames = [
-        snapshotScriptTests[testNumber].name,
-        snapshotScriptTests[testNumber + 1].name
-        //, testNumber + 2, etc
-      ];
-
-      beforeEach(function () {
-        snapshotScriptTest = snapshotScriptTests[testNumber++];
-      });
-
-      function snapshotScriptTestDefinition (done) {
-        var options = {
-          source: inputFile,
-          hostname: "localhost",
-          port: port,
-          selector: "#dynamic-content",
-          outputDir: outputDir,
-          outputDirClean: true,
-          timeout: timeout,
-          snapshotScript: snapshotScriptTest.option
-        };
-
-        rimraf(outputDir);
-
-        ss.run(optHelp.decorate(options))
-          .then(function (completed) {
-            console.log('@@@ script complete succesfully');
-            snapshotScriptTest.prove(completed, function (e) {
-              cleanup(done, e);
-            });
-          })
-          .catch(function (err) {
-            checkActualFiles(err.notCompleted)
-              .then(function () {
-                cleanup(done, err);
-              });
-          });
-      }
-
-      scriptNames.forEach(function (scriptName) {
-        it("snapshot script "+scriptName, function (done) {
-          setTimeout(snapshotScriptTestDefinition, 3000, done);
-        });
-      });
     });
   };
 }

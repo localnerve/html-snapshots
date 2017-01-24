@@ -31,6 +31,35 @@ function sitemapIndexTests (options) {
   var port = options.port;
 
   return function () {
+    it("should succeed for typical sitemap-index usage", function (done) {
+      var options = {
+        source: "http://localhost:"+port+"/"+sitemapIndexFile,
+        input: "sitemap-index",
+        selector: "#dynamic-content",
+        outputDir: outputDir,
+        outputDirClean: true,
+        timeout: timeout
+      };
+
+      ss.run(optHelp.decorate(options))
+        .then(function (completed) {
+          var assertionError;
+          try {
+            assert.equal(getClass(completed), "Array");
+            assert.equal(completed.length, urls);
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
+        })
+        .catch(function (err) {
+          checkActualFiles(err.notCompleted)
+            .then(function () {
+              cleanup(done, err || unexpectedError);
+            });
+        });
+    });
+
     it("should fail fast for bad sitemap url", function (done) {
       var sitemapIndexFile3 = path.basename(sitemapIndexFile, ".xml") + "-3" +
         path.extname(sitemapIndexFile);
@@ -87,35 +116,6 @@ function sitemapIndexTests (options) {
             assertionError = e;
           }
           cleanup(done, assertionError);
-        });
-    });
-
-    it("should succeed for typical sitemap-index usage", function (done) {
-      var options = {
-        source: "http://localhost:"+port+"/"+sitemapIndexFile,
-        input: "sitemap-index",
-        selector: "#dynamic-content",
-        outputDir: outputDir,
-        outputDirClean: true,
-        timeout: timeout
-      };
-
-      ss.run(optHelp.decorate(options))
-        .then(function (completed) {
-          var assertionError;
-          try {
-            assert.equal(getClass(completed), "Array");
-            assert.equal(completed.length, urls);
-          } catch (e) {
-            assertionError = e;
-          }
-          cleanup(done, assertionError);
-        })
-        .catch(function (err) {
-          checkActualFiles(err.notCompleted)
-            .then(function () {
-              cleanup(done, err || unexpectedError);
-            });
         });
     });
   };
