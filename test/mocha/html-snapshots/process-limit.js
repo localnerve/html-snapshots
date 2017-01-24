@@ -24,13 +24,13 @@ var inputFile = robotsTests.inputFile;
 
 function processLimitTests (options) {
   var port = options.port;
+  var pollInterval = 50;
+  var phantomCount = 0;
+  var timer;
 
   return function () {
     it("should limit as expected", function (done) {
       var processLimit = urls - 1;
-      var pollInterval = 50;
-      var phantomCount = 0;
-      var timer;
 
       function complete (e, files) {
         var countError = phantomCount ?
@@ -54,7 +54,7 @@ function processLimitTests (options) {
       } else {
         rimraf(outputDir);
 
-        killSpawnedProcesses(function () {
+        killSpawnedProcesses(function (err) {
           var options = {
             source: inputFile,
             hostname: "localhost",
@@ -65,6 +65,10 @@ function processLimitTests (options) {
             timeout: timeout,
             processLimit: processLimit
           };
+
+          if (err) {
+            return done(err);
+          }
 
           ss.run(optHelp.decorate(options))
             .then(function () {
@@ -87,17 +91,8 @@ function processLimitTests (options) {
       }
     });
 
-    it("time spacer for process limit", function (done) {
-      setTimeout(function () {
-        cleanup(done);
-      }, 3000);
-    });
-
     it("should limit to just one process", function (done) {
       var processLimit = 1;
-      var pollInterval = 50;
-      var phantomCount = 0;
-      var timer;
 
       function complete (e, files) {
         var countError = phantomCount ?
@@ -121,7 +116,7 @@ function processLimitTests (options) {
       } else {
         rimraf(outputDir);
 
-        killSpawnedProcesses(function () {
+        killSpawnedProcesses(function (err) {
           var options = {
             source: inputFile,
             hostname: "localhost",
@@ -132,6 +127,10 @@ function processLimitTests (options) {
             timeout: timeout,
             processLimit: processLimit
           };
+
+          if (err) {
+            return done(err);
+          }
 
           ss.run(optHelp.decorate(options))
             .then(function () {
