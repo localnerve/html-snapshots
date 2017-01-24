@@ -19,7 +19,7 @@ describe("input-generator", function () {
       // server.start(path.join(__dirname, "./server"), port);
     });
 
-    it("TODO: place tests here", function () {
+    it("TODO: write specific sitemap-index tests", function () {
       assert.ok(true);
     })
   });

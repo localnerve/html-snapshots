@@ -1,7 +1,7 @@
 /**
  * Library tests focused on the processLimit option.
  */
-/* global module, require, process, clearInterval, setTimeout, it */
+/* global module, require, process, clearInterval, setInterval, it */
 var assert = require("assert");
 var rimraf = require("rimraf").sync;
 var utils = require("./utils");
@@ -28,25 +28,26 @@ function processLimitTests (options) {
   var phantomCount = 0;
   var timer;
 
+  function completeTest (done, processLimit, e, files) {
+    var countError = phantomCount ?
+      new Error(phantomCount + " exceeded processLimit " + processLimit) :
+      undefined;
+
+    clearInterval(timer);
+
+    if (files) {
+      checkActualFiles(files).then(function () {
+        cleanup(done, multiError(e, countError));
+      });
+    } else {
+      cleanup(done, multiError(e, countError));
+    }
+  }
+
   return function () {
     it("should limit as expected", function (done) {
       var processLimit = urls - 1;
-
-      function complete (e, files) {
-        var countError = phantomCount ?
-          new Error(phantomCount + " exceeded processLimit " + processLimit) :
-          undefined;
-
-        clearInterval(timer);
-
-        if (files) {
-          checkActualFiles(files).then(function () {
-            cleanup(done, multiError(e, countError));
-          });
-        } else {
-          cleanup(done, multiError(e, countError));
-        }
-      }
+      var complete = completeTest.bind(null, done, processLimit);
 
       if (process.platform === "win32") {
         assert.ok(true, "Skipping posix compliant tests for processLimit");
@@ -79,13 +80,13 @@ function processLimitTests (options) {
             });
 
           timer = setInterval(function () {
-              countSpawnedProcesses(function (count) {
-                // console.log("@@@ DEBUG @@@ phantom count: "+count);
-                if (count > processLimit) {
-                  phantomCount = count;
-                  clearInterval(timer);
-                }
-              });
+            countSpawnedProcesses(function (count) {
+              // console.log("@@@ DEBUG @@@ phantom count: "+count);
+              if (count > processLimit) {
+                phantomCount = count;
+                clearInterval(timer);
+              }
+            });
           }, pollInterval);
         });
       }
@@ -93,22 +94,7 @@ function processLimitTests (options) {
 
     it("should limit to just one process", function (done) {
       var processLimit = 1;
-
-      function complete (e, files) {
-        var countError = phantomCount ?
-          new Error(phantomCount + " exceeded processLimit " + processLimit) :
-          undefined;
-
-        clearInterval(timer);
-
-        if (files) {
-          checkActualFiles(files).then(function () {
-            cleanup(done, multiError(e, countError));
-          });
-        } else {
-          cleanup(done, multiError(e, countError));
-        }
-      }
+      var complete = completeTest.bind(null, done, processLimit);
 
       if (process.platform === "win32") {
         assert.ok(true, "Skipping posix compliant tests for processLimit");
