@@ -16,6 +16,15 @@ var useJQuery = require("./use-jquery");
 var snapshotScripts = require("./snapshot-scripts");
 var phantomJSOptions = require("./phantomjs-options");
 
+/**
+ * Create a test context with a new server on a port.
+ * Why? Managing the resources (sockets) closely makes a real difference
+ * on test services like Travis.
+ *
+ * @param {Function} testSuiteFactory - The test suite.
+ * @param {Number} port - The server port.
+ * @returns {Function} A test context with server management.
+ */
 function serverContext (testSuiteFactory, port) {
   var server = require("../../server");
 
@@ -28,7 +37,7 @@ function serverContext (testSuiteFactory, port) {
         if (err) {
           return done(err);
         }
-        
+
         httpServer = srv;
         enableDestroy(httpServer);
         done();
