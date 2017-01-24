@@ -40,10 +40,10 @@ describe("async", function () {
     });
 
     it("should throw if started more than once", function (done) {
-      notifier.start(1000, function () {}, {});
+      notifier.start(1000, {}, function () {});
 
       assert.throws(function () {
-        notifier.start(100, function () {}, {});
+        notifier.start(100, {}, function () {});
       }, function (err) {
         assert.ok(err instanceof Error);
         done();
@@ -71,7 +71,7 @@ describe("async", function () {
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      notifier.start(timeout / pollCount, function (err, filesDone) {
+      notifier.start(timeout / pollCount, mockInput, function (err, filesDone) {
         // make sure this wasn't called because of a timeout/failure
         assert.equal(true, (Date.now() - start) < (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
 
@@ -89,7 +89,7 @@ describe("async", function () {
         }
 
         done(err);
-      }, mockInput);
+      });
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -119,7 +119,7 @@ describe("async", function () {
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      notifier.start(timeout / pollCount, function (err, filesDone) {
+      notifier.start(timeout / pollCount, mockInput, function (err, filesDone) {
         // make sure this wasn't called because of a timeout/failure
         assert.equal(true, (Date.now() - start) < (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
 
@@ -131,7 +131,7 @@ describe("async", function () {
         }
 
         done(err);
-      }, mockInput);
+      });
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -164,7 +164,7 @@ describe("async", function () {
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      notifier.start(timeout / pollCount, function (err, filesDone) {
+      notifier.start(timeout / pollCount, mockInput, function (err, filesDone) {
         // make sure this was called because of a failure
         assert.equal(true, (Date.now() - start) > (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
         // make sure this was a failure
@@ -180,7 +180,7 @@ describe("async", function () {
         assert.deepEqual(files, filesDone);
 
         done();
-      }, mockInput);
+      });
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -211,7 +211,7 @@ describe("async", function () {
       // take the worker queue out of the equation
       notifier.qEmpty();
 
-      notifier.start(timeout / pollCount, function (err, filesDone) {
+      notifier.start(timeout / pollCount, mockInput, function (err, filesDone) {
         var assertionError;
         try {
           assert.equal(true, (Date.now() - start) > (timeout+asyncLocal.TIMEOUT_PAD_FLOOR));
@@ -221,7 +221,7 @@ describe("async", function () {
           assertionError = e;
         }
         done(assertionError);
-      }, mockInput);
+      });
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -236,7 +236,7 @@ describe("async", function () {
     });
 
     it("should fail if no callback supplied", function () {
-      var result = notifier.start(1, {}, mockInput);
+      var result = notifier.start(1, mockInput);
 
       assert.equal(result, false);
       assert.equal(0, notifier._fileCount());
@@ -244,9 +244,9 @@ describe("async", function () {
     });
 
     it("should fail if negative poll interval supplied", function () {
-      var result = notifier.start(-1, function (err){
+      var result = notifier.start(-1, mockInput, function (err) {
         assert.fail(err, "[not undefined]", "should never have been called", "?");
-      }, mockInput);
+      });
 
       assert.equal(result, false);
       assert.equal(0, notifier._fileCount());
@@ -254,9 +254,9 @@ describe("async", function () {
     });
 
     it("should fail if zero poll interval supplied", function () {
-      var result = notifier.start(0, function (err){
+      var result = notifier.start(0, mockInput, function (err){
         assert.fail(err, "[not undefined]", "should never have been called", "?");
-      }, mockInput);
+      });
 
       assert.equal(result, false);
       assert.equal(0, notifier._fileCount());
@@ -264,7 +264,7 @@ describe("async", function () {
     });
 
     it("should fail if no input generator is supplied", function () {
-      var result = notifier.start(250, function (err){
+      var result = notifier.start(250, undefined, function (err) {
         assert.fail(err, "[not undefined]", "should never have been called", "?");
       });
 
@@ -282,7 +282,7 @@ describe("async", function () {
 
       rimraf(dir);
 
-      notifier.start(timeout / pollCount, function (err, filesDone) {
+      notifier.start(timeout / pollCount, mockInput, function (err, filesDone) {
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
 
@@ -293,7 +293,7 @@ describe("async", function () {
         assert.equal(filesDone.length, 0);
 
         done();
-      }, mockInput);
+      });
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -318,7 +318,7 @@ describe("async", function () {
 
       rimraf(dir);
 
-      notifier.start(timeout / pollCount, function (err, filesDone) {
+      notifier.start(timeout / pollCount, mockInput, function (err, filesDone) {
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
 
@@ -329,7 +329,7 @@ describe("async", function () {
         assert.equal(filesToDo.length - 1, filesDone.length);
 
         done();
-      }, mockInput);
+      });
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
@@ -362,7 +362,7 @@ describe("async", function () {
 
       rimraf(dir);
 
-      notifier.start(timeout / pollCount, function(err, filesDone) {
+      notifier.start(timeout / pollCount, mockInput, function(err, filesDone) {
         // make sure this was a failure
         assert.notStrictEqual(typeof err, "undefined");
 
@@ -373,7 +373,7 @@ describe("async", function () {
         assert.equal(files.length - 2, filesDone.length);
 
         done();
-      }, mockInput);
+      });
 
       mkdirp.sync(dir);
       assert.equal(true, fs.existsSync(dir));
