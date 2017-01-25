@@ -115,25 +115,16 @@ function phantomjsOptionsTests (options) {
 
       rimraf(outputBase);
 
-      function completionHandler (err) {
-        resHelp.mustBeError(err);
-        // maybe this is true, but why should this be true?
-        // assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
-      }
-
-      ss.run(optHelp.decorate(options), completionHandler)
+      ss.run(optHelp.decorate(options))
         .then(unexpectedSuccess.bind(null, done))
         .catch(function (err) {
-          checkActualFiles(err.notCompleted)
-            .then(function () {
-              var assertionError;
-              try {
-                completionHandler(err);
-              } catch (e) {
-                assertionError = e;
-              }
-              cleanup(done, assertionError);
-            });
+          var assertionError;
+          try {
+            resHelp.mustBeError(err);
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
         });
     });
 

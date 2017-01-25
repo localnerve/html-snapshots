@@ -94,7 +94,6 @@ function snapshotScriptTests (options) {
 
         ss.run(optHelp.decorate(options))
           .then(function (completed) {
-            console.log('@@@ script complete succesfully');
             snapshotScriptTest.prove(completed, function (e) {
               cleanup(done, e);
             });
