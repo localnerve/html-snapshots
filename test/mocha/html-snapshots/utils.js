@@ -35,12 +35,15 @@ function checkActualFiles (files) {
   var shortFile, outputRoot;
 
   if (files.length > 0) {
+    shortFile = outputDir;
+    /*
     shortFile = files.reduce(function (prev, curr) {
       if (curr.length < prev.length) {
         prev = curr;
       }
       return prev;
     }, files[0]);
+    */
     outputRoot = path.dirname(shortFile);
     if (fs.existsSync(outputRoot)) {
       dumpTree(outputRoot);
