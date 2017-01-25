@@ -3,6 +3,7 @@
  */
 /* global require, process, Promise */
 var path = require("path");
+var fs = require("fs");
 var _ = require("lodash");
 var spawn = require('child_process').spawn;
 var assert = require("assert");
@@ -17,7 +18,36 @@ var spawnedProcessPattern = "^phantomjs$";
 var bogusFile = "./bogus/file.txt";
 var timeout = 40000;
 
+function dumpTree (p) {
+  fs.readdirSync(p).forEach(function (file) {
+    var curPath = path.join(p, path.sep, file);
+    var stats = fs.statSync(curPath);
+
+    if (stats.isDirectory()) {
+      dumpTree(curPath);
+    } else if (stats.isFile(curPath)) {
+      console.log("@@@ existing file: " + curPath);
+    }
+  });
+}
+
 function checkActualFiles (files) {
+  var shortFile, outputRoot;
+
+  if (files.length > 0) {
+    shortFile = files.reduce(function (prev, curr) {
+      if (curr.length < prev.length) {
+        prev = curr;
+      }
+      return prev;
+    }, files[0]);
+    outputRoot = path.dirname(shortFile);
+    if (fs.existsSync(outputRoot)) {
+      dumpTree(outputRoot);
+    } else {
+      console.log("@@@ outputRoot not exist", outputRoot);
+    }
+  }
   return Promise.all(files.map(function (file) {
     return pathExists(file)
       .then(function (result) {
