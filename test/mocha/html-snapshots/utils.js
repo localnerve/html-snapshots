@@ -5,7 +5,7 @@
 var path = require("path");
 var fs = require("fs");
 var _ = require("lodash");
-var spawn = require('child_process').spawn;
+var spawn = require("child_process").spawn;
 var assert = require("assert");
 var combineErrors = require("combine-errors");
 var resHelp = require("../../helpers/result");
@@ -26,7 +26,7 @@ function dumpTree (p) {
     if (stats.isDirectory()) {
       dumpTree(curPath);
     } else if (stats.isFile(curPath)) {
-      console.log("@@@ existing file: " + curPath);
+      console.log("@@@ exists: " + curPath);
     }
   });
 }
@@ -48,11 +48,12 @@ function checkActualFiles (files) {
       console.log("@@@ outputRoot not exist", outputRoot);
     }
   }
+
   return Promise.all(files.map(function (file) {
     return pathExists(file)
       .then(function (result) {
         if (result) {
-          console.log('@@@ actually exists:' + file);
+          console.log("@@@ actually exists:" + file);
         }
         return result;
       });
@@ -101,7 +102,7 @@ function killSpawnedProcesses (cb) {
   var guardedCb = _.once(cb);
 
   pkill.on("exit", function () {
-    guardedCb();
+    setTimeout(guardedCb, 2000);
   });
   pkill.on("error", function () {
     guardedCb(new Error("failed to kill phantomjs processes"));

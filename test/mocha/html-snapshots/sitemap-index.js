@@ -125,4 +125,4 @@ module.exports = {
   testSuite: sitemapIndexTests,
   inputFile: inputFile,
   urlCount: urls
-}
+};

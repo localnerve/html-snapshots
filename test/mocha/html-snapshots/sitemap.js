@@ -55,4 +55,4 @@ module.exports = {
   testSuite: sitemapTests,
   inputFile: inputFile,
   urlCount: urls
-}
+};

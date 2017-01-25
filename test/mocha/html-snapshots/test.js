@@ -46,7 +46,7 @@ function serverContext (testSuiteFactory, port) {
 
     after(function (done) {
       httpServer.destroy(function () {
-        setTimeout(done, 5000);
+        setTimeout(done, 2000);
       });
     });
 
