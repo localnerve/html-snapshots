@@ -232,6 +232,7 @@ describe("input-generator", function () {
             assert.equal(defaults.timeout, input.timeout);
             assert.equal(defaults.checkInterval, input.checkInterval);
             assert.equal(defaults.useJQuery, input.useJQuery);
+            assert.equal(defaults.verbose, input.verbose);
 
             count++;
             if (count === urls) {
@@ -625,6 +626,119 @@ describe("input-generator", function () {
 
             assert.equal(input.useJQuery, testOption,
               input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
+
+            count++;
+            if (count === urls) {
+              done();
+            }
+          });
+
+          result
+            .then(function () {
+              assert.ok(true);
+            })
+            .catch(function (err) {
+              assert.fail("run", "fail", err.toString(), "should not");
+            });
+        });
+
+      });
+
+      describe("verbose option", function () {
+
+        it("should accept a scalar and apply globally",
+        function (done) {
+          var verbose = true;
+          var count = 0;
+
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            verbose: verbose
+          }), function (input) {
+              assert.equal(input.verbose, verbose);
+              count++;
+              if (count === urls) {
+                done();
+              }
+          });
+
+          result
+            .then(function () {
+              assert.ok(true);
+            })
+            .catch(function (err) {
+              assert.fail("run", "fail", err.toString(), "should not");
+            });
+        });
+
+        it("should accept an object and apply per url", function (done) {
+          var globalOptions = {
+            "/": false,
+            "/contact": true,
+            "/services/carpets": false,
+            "__default": true
+          };
+          var localOptions = {
+            "http://northstar.local/": false,
+            "http://northstar.local/contact": true,
+            "http://northstar.local/services/carpets": false,
+            "__default": true
+          };
+          var opts = globalUrl ? globalOptions : localOptions;
+          var count = 0;
+
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            verbose: opts
+          }), function (input) {
+            var testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+
+            assert.equal(input.verbose, testOption,
+              input.__page+":\ninput.verbose: "+input.verbose+" != testVerbose: "+testOption);
+
+            count++;
+            if (count === urls) {
+              done();
+            }
+          });
+
+          result
+            .then(function () {
+              assert.ok(true);
+            })
+            .catch(function (err) {
+              assert.fail("run", "fail", err.toString(), "should not");
+            });
+        });
+
+        it("should accept a function and apply per url", function (done) {
+          var globalOptions = {
+            "/": false,
+            "/contact": true,
+            "/services/carpets": false
+          };
+          var localOptions = {
+            "http://northstar.local/": false,
+            "http://northstar.local/contact": true,
+            "http://northstar.local/services/carpets": false
+          };
+          var count = 0;
+          var opts = globalUrl ? globalOptions : localOptions;
+          var useVerboseFn = function (url) {
+            return opts[url];
+          };
+
+          var result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            verbose: useVerboseFn
+          }), function (input) {
+            var testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).verbose;
+
+            assert.equal(input.verbose, testOption,
+              input.__page+":\ninput.verbose: "+input.verbose+" != testUseVerbose: "+testOption);
 
             count++;
             if (count === urls) {

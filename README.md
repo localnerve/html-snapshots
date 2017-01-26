@@ -334,15 +334,15 @@ Removes all script tags from the output of the html snapshot. Custom filters are
     + default: `false`
     + Specifies if html-snapshots should clean the output directory before it creates the snapshots. If you are using sitemapPolicy and only specifying one of lastmod or changefreq in your sitemap \(thereby relying on file modification times on output files from a previous run\) this value must be false.
 
-+ `outputPath`
-  + default: none
-  + Specifies per url overrides to the generated snapshot output path. The default output path for a snapshot file, while rooted at outputDir, is simply an echo of the input path - plus any arguments. Depending on your urls, your `_escaped_fragment_` rewrite rule (see below), or the characters allowed in directory names in your environment, it might be necessary to use this option to change the output paths.
+  + `outputPath`
+    + default: none
+    + Specifies per url overrides to the generated snapshot output path. The default output path for a snapshot file, while rooted at outputDir, is simply an echo of the input path - plus any arguments. Depending on your urls, your `_escaped_fragment_` rewrite rule (see below), or the characters allowed in directory names in your environment, it might be necessary to use this option to change the output paths.
 
-      The value can be one of these *javascript types*:
+        The value can be one of these *javascript types*:
 
-      `"object"` If the value is an object, it must be a key/value pair object where the key must match the url (or path in the case of robots.txt style) found by the input generator.
+        `"object"` If the value is an object, it must be a key/value pair object where the key must match the url (or path in the case of robots.txt style) found by the input generator.
 
-      `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The value returned for a given page must be a string that can be used on the filesystem for a path.
+        `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The value returned for a given page must be a string that can be used on the filesystem for a path.
 
   **Notes:**   
   + If you already have pretty urls, this option may not be wanted/needed.
@@ -382,22 +382,24 @@ Removes all script tags from the output of the html snapshot. Custom filters are
     + default: This library's [default](/lib/phantom/default.js) snapshot script. This script runs in PhantomJS and takes the snapshot when the supplied selector becomes visible.
     + Specifies the PhantomJS script to run to actually produce the snapshot. The script supplied in this option is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
 
-      The value can be one of these *javascript types*:
+        The value can be one of these *javascript types*:
 
-      `"string"` If the value is a string, it must an absolute path to a custom PhantomJS script you supply. html-snapshots will spawn a separate PhantomJS instance to run your snapshot script and give it the following [arguments](http://phantomjs.org/api/system/property/args.html):
-        + `system.args[0]` The path to your PhantomJS script.
-        + `system.args[1]` The output path.
-        + `system.args[2]` The url to snapshot.
-        + `system.args[3]` The selector to watch for to signal page completion.
-        + `system.args[4]` The overall timeout \(milliseconds\).
-        + `system.args[5]` The interval \(milliseconds\) to watch for the selector.
-        + `system.args[6]` A flag indicating jQuery selectors should be supported.
+        `"string"` If the value is a string, it must an absolute path to a custom PhantomJS script you supply. html-snapshots will spawn a separate PhantomJS instance to run your snapshot script and give it the following [arguments](http://phantomjs.org/api/system/property/args.html):
+          + `system.args[0]` The path to your PhantomJS script.
+          + `system.args[1]` The output path.
+          + `system.args[2]` The url to snapshot.
+          + `system.args[3]` The selector to watch for to signal page completion.
+          + `system.args[4]` The overall timeout \(milliseconds\).
+          + `system.args[5]` The interval \(milliseconds\) to watch for the selector.
+          + `system.args[6]` A flag indicating jQuery selectors should be supported.
+          + `system.args[7]` A flag indicating verbose output is desired.
+          + `system.args[8]` A custom module to load.
 
-      `"object"` If an object is supplied, it has the following properties:
-        + `script` This must be one of the following values:
-          + `"removeScripts"` This runs the default snapshot script with an output filter that removes all script tags are removed from the html snapshot before it is saved.
-          + `"customFilter"` This runs the default snapshot script, but allows you to supply any output filter.
-        + `module` This property is required only if you supplied a value of `"customFilter"` for the `script` property. This must be an absolute path to a PhantomJS module you supply. Your module will be `require`d and called as a function to filter the html snapshot output. Your module's function will receive the entire raw html content as a single input string, and must return the filtered html content.
+        `"object"` If an object is supplied, it has the following properties:
+          + `script` This must be one of the following values:
+            + `"removeScripts"` This runs the default snapshot script with an output filter that removes all script tags are removed from the html snapshot before it is saved.
+            + `"customFilter"` This runs the default snapshot script, but allows you to supply any output filter.
+          + `module` This property is required only if you supplied a value of `"customFilter"` for the `script` property. This must be an absolute path to a PhantomJS module you supply. Your module will be `require`d and called as a function to filter the html snapshot output. Your module's function will receive the entire raw html content as a single input string, and must return the filtered html content.
 
         customFilter Example:
         ```javascript
@@ -415,6 +417,18 @@ Removes all script tags from the output of the html snapshot. Custom filters are
         }
         ```
         A more complete example using custom options is available [here](/examples/custom).
+
+  + `verbose`
+    + default: `false`
+    + Specifies to turn on extended console output in the PhantomJS process for debugging purposes. Can be applied to all pages, or just specific page(s). See following explanation of types for how:
+
+        The value can be one of these *javascript types*:
+
+        `"boolean"` If the value is a boolean, it is used for every page. Note that if it is any scalar type such as "string" or "number", it will be interpreted as a boolean using javascript rules. Coerced string values "true", "yes", and "1" are specifically true, all others are false.
+
+        `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify the use of jQuery for individual pages. The reserved key "__default" allows you to specify a default jQuery usage so you don't have to specify usage for every individual page.
+
+        `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a boolean.
 
 ### Process Control Options
 
