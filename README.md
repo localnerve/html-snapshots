@@ -17,16 +17,17 @@
   + [Breaking Changes](#breaking-changes)
 + [API Reference](#api)
 + [Example Usage](#example-usage)
-  + [Per-page selectors](#example---per-page-selectors-and-timeouts)
-  + [Per-page output paths](#example---per-page-special-output-paths)
-  + [Per-page jquery](#example---per-page-selectors-and-jquery)
-  + [Array input](#example---array)
-  + [Array input DRY](/examples/html5rocks)
+  + [Per-page Selectors](#example---per-page-selectors-and-timeouts)
+  + [Per-page Output Paths](#example---per-page-special-output-paths)
+  + [Per-page jQuery](#example---per-page-selectors-and-jquery)
+  + [Array Input](#example---array)
+  + [Array Input DRY](/examples/html5rocks)
   + [Sitemap Index](/examples/sitemap-index)
   + [Process Limit](/examples/process-limit)
-  + [Script removal](#example---remote-robotstxt-remove-script-tags-from-html-snapshots)
+  + [Script Removal](#example---remote-robotstxt-remove-script-tags-from-html-snapshots)
   + [Custom Filters](/examples/custom)
-  + [Debug PhantomJS](/examples/debug-phantomjs)
+  + [Debug PhantomJS w/Verbose Output](/examples/verbose)
+  + [Debug PhantomJS w/Attach](/examples/debug-phantomjs)
 + [Option Reference](#options)
   + [Input Options](#input-control-options)
   + [Output Options](#output-control-options)
@@ -304,7 +305,7 @@ Removes all script tags from the output of the html snapshot. Custom filters are
     + For use only with the sitemap-index input generator, this option directs the storage of sitemaps locally. It is a string that defines the name of the subdirectory under the `outputDir` where sitemaps are stored.
     Locally stored sitemaps are used for age determinations with incoming lastmod tags. If this option is falsy, it will prevent sitemap storage and thereby disable sitemapPolicy for sitemaps referenced in a sitemap-index.
 
-    The [examples](/examples) directory contains a [sitemap-index](/examples/sitemap-index) example.
+    The [examples](/examples) directory contains [sitemap-index](/examples/sitemap-index) and [sitemap](/examples/custom) usage examples.
 
 ##### Robots and Textfile Only Input Options
 
@@ -420,7 +421,7 @@ Removes all script tags from the output of the html snapshot. Custom filters are
 
   + `verbose`
     + default: `false`
-    + Specifies to turn on extended console output in the PhantomJS process for debugging purposes. Can be applied to all pages, or just specific page(s). See following explanation of types for how:
+    + Specifies to turn on extended console output in the PhantomJS process for debugging purposes. Can be applied to all pages, or just specific page(s). It is recommended to do this one page at a time, as the output can be large, and interleaved with parallel processes. See following explanation of types for how to debug just one page, and also [this example](/examples/verbose).
 
         The value can be one of these *javascript types*:
 
