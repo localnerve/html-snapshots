@@ -305,6 +305,7 @@ Removes all script tags from the output of the html snapshot. Custom filters are
     Locally stored sitemaps are used for age determinations with incoming lastmod tags. If this option is falsy, it will prevent sitemap storage and thereby disable sitemapPolicy for sitemaps referenced in a sitemap-index.
 
     The [examples](/examples) directory contains a [sitemap-index](/examples/sitemap-index) example.
+
 ##### Robots and Textfile Only Input Options
 
   + `hostname`
