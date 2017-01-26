@@ -1,0 +1,58 @@
+<div class="row">
+  <div class="header-top-block">
+    <div class="header-top-left">
+      <div class="contact-facebook">
+        <a href="http://www.facebook.com/pages/North-Star-Cleaning-Service/135904801375" target="_blank">
+          <span class="contact-facebook-text">facebook</span>
+        </a>
+      </div>
+    </div>
+    <div class="header-top-right">
+      <div class="top-pill">
+        <a data-bypass href="tel:1-207-892-6433">207-892-6433</a>
+      </div>
+    </div>
+  </div>
+  <div class="header-top-block">
+    <div class="header-top-left-switch">
+      <div class="top-pill">
+        <a href="<%= contact.url %>">Contact</a>
+      </div>      
+    </div>
+    <div class="header-top-right-switch">
+      <ul class="nav-bar">
+        <li class="has-flyout top-pill">
+          <a href="#" data-bypass class="hide-for-small">Services</a>
+          <a href="#" data-bypass class="show-for-small line-menu">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a href="#" data-bypass class="flyout-toggle"><span> </span></a>
+          <ul class="flyout right">
+            <% _.each(services, function(service) { %>
+              <li><a href="<%= service.url %>"><%= service.name %></a></li>
+            <% }); %>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="logo-outer">
+    <div class="logo-inner">          
+      <a href="/">
+        <img width="<%= logoWidth %>" height="<%= logoHeight %>" src="/images/logo-300.png" />
+      </a>
+    </div>
+  </div>
+  
+  <div class="slider-outer">
+    <div class="slider-inner">
+      <div id="<%= orbitId %>"></div>
+    </div>
+  </div>
+  
+</div>

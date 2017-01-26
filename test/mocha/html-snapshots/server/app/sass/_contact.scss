@@ -1,0 +1,21 @@
+.form-message {
+  min-height: 100px;
+}
+#contact-content {
+  position: relative;
+  @extend %level-page;
+  overflow: visible;  
+}
+.contact-inner-input {
+  @include column(6);
+}
+.contact-inner {
+  @include column(12);
+}
+.contact-button {
+  color: $site-black;
+  font: {
+    weight: bold;
+    size: ms(1);
+  }
+}

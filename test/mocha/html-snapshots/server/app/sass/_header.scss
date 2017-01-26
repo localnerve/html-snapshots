@@ -1,0 +1,319 @@
+.header-top-block {
+  @extend %grid-half;
+  @include clearfix();
+}
+.header-top-left {
+  float: left;
+}
+.header-top-right {
+  float: right;
+}
+%topline-item {
+  margin-top: 5px;
+  @include breakpoint(small) {
+    margin: 15px auto 0 auto;
+  }  
+}
+.header-top-left-switch {
+  @include switcher(left, small);
+}
+.header-top-right-switch {
+  @include switcher(right, small);
+}
+
+//
+// Logo
+// ----------------------------------------------------------------------
+$logo-width: 265px;
+$logo-height: 211px;
+$logo-margin-top: -30px; // -50
+$logo-margin-top-ms-reduction: 15px; // 35
+
+.logo-img-js {
+  width: $logo-width;
+  height: $logo-height;
+}
+.logo-outer {
+  @extend %grid-half;
+}
+.logo-inner {
+  margin: $logo-margin-top 0 $panel-bottom-margin -20px;
+  min-height: $logo-height;// + abs($logo-margin-top);
+  text-align: center;  
+  @include breakpoint(medium-small) {
+    // reduce to make room for nav
+    margin-top: $logo-margin-top + $logo-margin-top-ms-reduction;
+    //min-height: $logo-height + abs($logo-margin-top + $logo-margin-top-ms-reduction);
+    //margin-bottom: abs($logo-margin-top + $logo-margin-top-ms-reduction) / 2 * -1;
+  }
+  @include breakpoint(small) {
+    margin-top: $logo-margin-top - $logo-margin-top-ms-reduction;
+    //min-height: $logo-height + abs($logo-margin-top - $logo-margin-top-ms-reduction);
+    //margin-bottom: abs($logo-margin-top - $logo-margin-top-ms-reduction) / 2 * -1;
+  }
+  @include breakpoint(extra-small) {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+  position: relative;
+  @extend %level-logo;
+}
+.logo-inner a {
+  //display: block;  
+  height: $logo-height;
+  width: $logo-width; // 100%
+}
+
+//
+// Slider
+// ----------------------------------------------------------------------
+
+$slider-container-height: 240px;
+// this is really the foundation panel bottom margin value
+$slider-container-bottom-margin: $panel-bottom-margin;
+.slider-1 {
+  @include background(image-url('/images/slider1.jpg') no-repeat);
+  @include breakpoint(small) {
+    background: image-url('/images/slider1-lg.jpg') no-repeat;
+  }
+  @include breakpoint(very-small) {
+    background: image-url('/images/slider1.jpg') no-repeat;
+  }
+}
+.slider-outer {
+  @extend %grid-half;
+}
+.slider-inner {
+  //@include background($primary-4);
+  //border: 1px solid $secondary-b-3;
+  //padding: 10px;
+  margin: 0 0 $slider-container-bottom-margin 0;
+  @include box-shadow(rgba($primary-3, 0.6) 0 0 25px);
+}
+/* .ie7 .orbit-wrapper {
+  height: $slider-container-height !important;
+}
+.ie7 #featured-orbit {
+  height: inherit !important;
+}
+ */
+#featured-orbit div {
+  // extra right for timer
+  padding: 10px 30px 10px 20px;
+}
+#featured-orbit h1 {
+  @include breakpoint(super-small) {
+    font-size: 22px;
+  }
+}
+#featured-orbit h2 {
+  @include breakpoint(super-small) {
+    font-size: 22px;
+  }
+}
+.orbit-wrapper {
+  @extend %level-canvas;  
+}
+.no-touch .orbit-wrapper {
+  .slider-nav span { @include opacity(0); @include single-transition(opacity, 400ms); }
+  &:hover .slider-nav span { @include opacity(1); }  
+}
+.ie8 .orbit-wrapper, .ie7 .orbit-wrapper  {
+  .slider-nav span { display: none; }
+  &:hover .slider-nav span { display: none; }
+}
+.ie8 .orbit-wrapper .timer, .ie7 .orbit-wrapper .timer {
+  display: none;
+}
+.orbit-wrapper .timer {
+  @include breakpoint(super-small) {
+    display: none;
+  }
+}
+
+//
+// top buttons
+// ----------------------------------------------------------------------
+
+//%top-pill-box-shadow {
+//  @include box-shadow(rgba($primary-4, 0.8) 0 0 25px, rgba($primary-5, 0.6) 0 0 3px 1px inset);
+//}
+%top-pill-box-shadow {
+  -webkit-box-shadow: rgba($primary-4, 0.8) 0 0 25px, rgba($primary-5, 0.6) 0 0 3px 1px inset !important;
+  -moz-box-shadow: rgba($primary-4, 0.8) 0 0 25px, rgba($primary-5, 0.6) 0 0 3px 1px inset !important;
+  box-shadow: rgba($primary-4, 0.8) 0 0 25px, rgba($primary-5, 0.6) 0 0 3px 1px inset !important;  
+}
+%top-pill-hover {
+  @include background($primary-1 !important);
+  @extend %top-pill-box-shadow;
+}
+%top-text {
+  font : {
+    size: ms(2) !important;
+    weight: bold;
+  }
+  color: $site-black;
+  @include breakpoint(very-small-super-small) {
+    font-size: ms(1) !important;
+  }
+  @include breakpoint(extra-small) {
+    font-size: 14px !important;
+  }
+}
+.top-pill {
+  @extend %radius-panel;
+  @extend %topline-item;
+
+  position: relative;
+  @extend %level-page;
+
+  @include background($primary-4);
+  padding: 5px 18px;
+  border: {
+    color: #eba104 !important; // transparent
+    width: 1px;
+    style: solid;
+  };
+  @include box-shadow(0 1px 0 $shinyEdge inset);
+
+  @include breakpoint(super-small) {
+    padding: 5px 8px;
+  }
+  
+  //-webkit-transition: background-color 0.3s ease-in-out;
+  @include transition-property(background-color);
+  @include transition-duration(0.3s);
+  @include transition-timing-function(ease-in-out);
+}
+.top-pill:hover {
+  @extend %top-pill-hover;
+}
+.top-pill a {
+  @extend %top-text;
+  text-align: center;
+}
+.ie7 .top-pill {
+  box-sizing: content-box;
+}
+.ie7 .has-flyout.top-pill {
+  box-sizing: border-box;
+}
+
+$contact-facebook-width: 149px;
+.contact-facebook {
+  @extend %radius-panel;
+  @extend %topline-item;
+  position: relative;
+  @extend %level-page;
+  
+  @include single-box-shadow(white, 0px, 1px, 1px, 0px, true);
+  border: {
+    style: solid;
+    width: 1px;
+    color: #29447e #29447e #1a356e;
+  };
+  @include background(#2e4a83);
+  @include clearfix();
+  width: $contact-facebook-width;
+  @include breakpoint(very-small-super-small) {
+    width: 100px;
+  }
+  @include breakpoint(extra-small) {
+    width: 80px;
+  }
+}
+.contact-facebook-text {
+  float: left;
+  font-family: 'facebook_letter_facesregular';
+  font-weight: normal;
+  font-size: ms(2);
+  text-shadow: none;
+  color: white;
+  line-height: 31px;
+  text-align: center !important;
+  width: $contact-facebook-width;
+  margin-top: 2px;  
+  @include breakpoint(very-small-super-small) {
+    line-height: 26px;
+    width: 100px;
+    font-size: ms(1);
+  }
+  @include breakpoint(extra-small) {
+    width: 80px;
+  }  
+}
+
+//
+// Navbar
+// ----------------------------------------------------------------------
+
+$icon-width: 20px;
+$icon-height: 3px;
+$icon-container-height: 35px;
+$icon-container-width: 35px;
+
+.nav-bar {
+  @extend %topline-item;  
+  @include background(transparent);
+  //@include breakpoint(small) {
+    //margin-top: inherit;
+  //}
+}
+.nav-bar li.has-flyout {
+  @include box-shadow(0 1px 0 $shinyEdge inset);
+  @include breakpoint(small) {
+    width: $icon-container-width;
+    height: $icon-container-height;
+  }
+}
+.nav-bar li:hover {
+  @extend %top-pill-box-shadow;
+ }
+.nav-bar li a {
+  @extend %top-text;
+}
+.flyout {
+  //@include box-shadow(rgba($primary-3, 0.6) 0 1px 5px);
+  //border: 1px solid darken($primary-3, 2%);
+  @include background($primary-4);
+  @include breakpoint(small) {
+    position: absolute;
+    width: 200px !important; // this is tied to the text size
+  }
+}
+ul.flyout li, .nav-bar li ul li {
+  border-left: solid 3px darken($primary-1, 10%);
+}
+ul.flyout li a, .nav-bar li ul li a {
+  @include background($primary-4);
+  border: 1px solid $primary-1;
+}
+.ie7 ul.flyout li a, .ie7 .nav-bar li ul li a {
+  box-sizing: content-box;
+}
+ul.flyout li a:hover, ul.flyout li a:focus, .nav-bar li ul li a:hover, .nav-bar li ul li a:focus {
+  @extend %top-pill-hover;
+}
+.nav-bar > li.has-flyout > a:first-child:after {
+  border: {
+    width: 6px;
+    color: $site-black transparent transparent transparent;
+  }
+}
+.line-menu {
+  padding: ((($icon-height*3+6)/$icon-container-height)*100/2)#{"%"} (((1 - $icon-width / $icon-container-width) * 100) / 2)#{"%"};
+  width: $icon-container-width;
+  height: $icon-container-height;
+  @include breakpoint(very-small-super-small) {
+    height: 26px;
+  }
+}
+.line-menu .icon-bar {
+  display: block;
+  width: $icon-width;
+  height: $icon-height;
+  margin-top: $icon-height - 1;
+  @include background($site-black);
+  @include border-radius(1px);
+  @include box-shadow(0 1px 0 rgba(0, 0, 0, 0.25));
+}

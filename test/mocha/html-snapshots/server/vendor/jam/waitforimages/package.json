@@ -1,0 +1,15 @@
+{
+  "name": "waitforimages",
+  "version": "1.0.1",
+  "description": "Provides useful callbacks once descendant images have loaded. waitForImages also supports images referenced in CSS, such as the background-image property. It can be useful when WebKit incorrectly reports element dimensions/offsets on document ready, because it has not calculated their descendant img dimensions yet.",
+  "keywords": [ "images", "loading", "callback", "event", "background-image" ],
+  "main": "jquery.waitforimages.js",
+  "homepage": "https://github.com/alexanderdickson/waitForImages",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/alexanderdickson/waitForImages.git"
+  },
+  "bugs": {
+    "url" : "https://github.com/alexanderdickson/waitForImages/issues"
+  }
+}

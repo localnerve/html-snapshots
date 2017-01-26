@@ -1,0 +1,193 @@
+{
+    "home": {
+      "name": "home",
+      "type": "target",
+      "url": "/",
+      "displayName": "Home",      
+      "slides": [
+        {
+          "cssclass": "slider-1",
+          "content": "<h1>Welcome to North Star Cleaning</h1>"
+        },
+        {
+          "cssclass": "slider-1",
+          "content": "<h2>The next slide</h2>"
+        }
+      ],
+      "mainArt": "/images/art1.jpg",
+      "mainArtAlt": "Test Art",
+      "pageTitle": "North Star Cleaning Service",
+      "pageDescription": "this is the home page",
+      "pageKeywords": "home page",
+      "vectorArt": true,
+      "images": []
+    },
+    "contact": {
+      "name": "contact",
+      "type": "target",
+      "slides": [
+        {
+          "cssclass": "slider-1",
+          "content": "<h1>Contact us today!</h1>"
+        }
+      ],
+      "mainArt": "",
+      "mainArtAlt": "",
+      "pageTitle": "Contact - North Star Cleaning Service",
+      "pageDescription": "this is the contact page",
+      "pageKeywords": "contact page",
+      "displayName": "Contact",
+      "url": "/contact",
+      "mailTo": "info@northstarcleaningme.com",
+      "responseTime": "24 hours",
+      "vectorArt": false
+    },
+    "footer": {
+      "name": "footer",
+      "type": "component",
+      "mainArt": "/images/art1.jpg",
+      "mainArtAlt": "Footer Art"
+    },
+    "carpets": {
+      "name": "carpets",
+      "type": "service",
+      "slides": [
+        {
+          "cssclass": "",
+          "content": "<h1>We Clean Carpets</h1><p>Oh yes we do. We really really do - believe it!</p>"
+        }
+      ],
+      "mainArt": "/images/art1.jpg",
+      "mainArtAlt": "Test Art",
+      "pageTitle": "Carpet Cleaning - North Star Cleaning Service",
+      "pageDescription": "this is the carpets page",
+      "pageKeywords": "carpets page",
+      "displayName": "Carpets",
+      "url": "/services/carpets",
+      "vectorArt": true,
+      "images": [
+        {
+          "pair": 0,
+          "revealId": "carpet1",
+          "th_src": "/images/carpets/carpet1_th.jpg",
+          "th_alt": "small carpet",
+          "th_width": "300px",
+          "th_height": "300px",
+          "m_src": "/images/carpets/carpet1.jpg",
+          "m_alt": "big carpet",
+          "m_width": "600px",
+          "m_height": "600px",
+          "title": "carpet one"
+        },
+        {
+          "pair": 0,
+          "revealId": "carpet2",
+          "th_src": "/images/carpets/carpet2_th.jpg",
+          "th_alt": "small carpet",
+          "th_width": "300px",
+          "th_height": "300px",
+          "m_src": "/images/carpets/carpet2.jpg",
+          "m_alt": "big carpet",
+          "m_width": "600px",
+          "m_height": "600px",
+          "title": "carpet two"
+        },
+        {
+          "pair": 1,
+          "revealId": "carpet3",
+          "th_src": "/images/carpets/carpet3_th.jpg",
+          "th_alt": "small carpet",
+          "th_width": "300px",
+          "th_height": "300px",
+          "m_src": "/images/carpets/carpet3.jpg",
+          "m_alt": "big carpet",
+          "m_width": "600px",
+          "m_height": "600px",
+          "title": "carpet three"
+        },
+        {
+          "pair": 1,
+          "revealId": "carpet4",
+          "th_src": "/images/carpets/carpet4_th.jpg",
+          "th_alt": "small carpet",
+          "th_width": "300px",
+          "th_height": "300px",
+          "m_src": "/images/carpets/carpet4.jpg",
+          "m_alt": "big carpet",
+          "m_width": "600px",
+          "m_height": "600px",
+          "title": "carpet four"
+        }
+      ]
+    },
+    "floors": {
+      "name": "floors",
+      "type": "service",
+      "slides": [],
+      "mainArt": "",
+      "mainArtAlt": "",
+      "pageTitle": "Floor Cleaning - North Star Cleaning Service",
+      "pageDescription": "this is the floors page",
+      "pageKeywords": "floors page",
+      "displayName": "Floors",
+      "url": "/services/floors",
+      "vectorArt": false,
+      "images": []
+    },
+    "upholstery": {
+      "name": "upholstery",
+      "type": "service",
+      "slides": [],
+      "mainArt": "",
+      "mainArtAlt": "",
+      "pageTitle": "Upholstery Cleaning - North Star Cleaning Service",
+      "pageDescription": "this is the upholstery page",
+      "pageKeywords": "upholstery page",
+      "displayName": "Upholstery",
+      "url": "/services/upholstery",
+      "vectorArt": false,
+      "images": []
+    },
+    "tile-grout": {
+      "name": "tile-grout",
+      "type": "service",
+      "slides": [],
+      "mainArt": "",
+      "mainArtAlt": "",
+      "pageTitle": "Tile & Grout - North Star Cleaning Service",
+      "pageDescription": "this is the tile & grout page",
+      "pageKeywords": "tile & grout page",
+      "displayName": "Tile & Grout",
+      "url": "/services/tile-grout",
+      "vectorArt": false,
+      "images": []
+    },
+    "water-damage": {
+      "name": "water-damage",
+      "type": "service",
+      "slides": [],
+      "mainArt": "",
+      "mainArtAlt": "",
+      "pageTitle": "Water Damage - North Star Cleaning Service",
+      "pageDescription": "this is the water damage page",
+      "pageKeywords": "water damage page",
+      "displayName": "Water Damage",
+      "url": "/services/water-damage",
+      "vectorArt": false,
+      "images": []
+    },
+    "faq": {
+      "name": "faq",
+      "type": "service",
+      "slides": [],
+      "mainArt": "",
+      "mainArtAlt": "",
+      "pageTitle": "FAQ - North Star Cleaning Service",
+      "pageDescription": "this is the FAQ page",
+      "pageKeywords": "FAQ page",
+      "displayName": "FAQ",
+      "url": "/services/faq",
+      "vectorArt": false,
+      "images": []
+    }
+  }

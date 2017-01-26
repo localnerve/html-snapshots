@@ -1,0 +1,71 @@
+.footer-outer {
+  @include column($totalColumns, center);
+}
+.footer-inner {
+  @extend .panel;  
+  min-height: 100px;
+  @include clearfix();
+
+  //@include background($primary-3);
+  //@include background(#948c4c);
+  @include background($kuler-shade-2);
+  color: $primary-5;
+}
+$footerImgWidth: 308px;
+$footerImgHeight: 200px;
+.footer-image-js {
+  width: $footerImgWidth;
+  height: $footerImgHeight;
+}
+.footer-image {
+  @include background(transparent);
+  margin: 10px auto;
+  text-align: center;
+  color: $site-black;
+}
+.footer-content {
+  text-align: left;
+  padding-bottom: 0px !important;
+}
+.footer-block {
+  margin: 0px;
+}
+.footer-item-block {
+  display: block;
+  padding: 10px 0;
+  position: relative;
+  @extend %level-page;
+}
+.footer-item {
+  display: block;
+  line-height: 1.2;
+  @include breakpoint(small) {
+    text-align: center;
+  }
+  @include breakpoint(super-small) {
+    font-size: 12px;
+  } 
+}
+.footer-item.credits {
+  text-align: center;
+}
+
+.small-text {
+  @include breakpoint(extra-small) {
+    display: block;
+  }
+}
+//.footer-item[itemprop="email"] {
+//}
+//.footer-legal { 
+//  margin: 20px 0;
+//}
+//.footer-item {
+  //display: block;
+  //line-height: 1.2;
+  //font-size: 12px;
+//}
+
+.footer-block-panel {
+  @include column(6);
+}

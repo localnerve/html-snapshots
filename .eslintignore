@@ -2,3 +2,4 @@ examples/*
 docs/*
 tmp/*
 coverage/*
+test/mocha/html-snapshots/server
