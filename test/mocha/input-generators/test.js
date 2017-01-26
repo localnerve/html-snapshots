@@ -143,7 +143,7 @@ describe("input-generator", function () {
     describe(inputGeneratorTest.name, function () {
 
       var globalUrl = inputGeneratorTest.name === "robots" || inputGeneratorTest.name === "textfile";
-      var genName = inputGeneratorTest.name;
+      // var genName = inputGeneratorTest.name;
       var remote = inputGeneratorTest.remote;
       var gen = inputGeneratorTest.input;
       var source = inputGeneratorTest.source;
@@ -1184,6 +1184,7 @@ describe("input-generator", function () {
 
         it("should return false if a snapshot can't be created",
         function (done) {
+          var aborted = false;
           var argOne = "/services/test/arg/one";
           var hash = "/services/hash";
           var pages = {
@@ -1209,26 +1210,23 @@ describe("input-generator", function () {
           gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
-            // add listener hook for robots, sitemap generators
             _abort: function (err) {
-              assert.equal(true, !!err);
+              assert.equal(!!err, true);
+              aborted = true;
               done();
             },
             outputPath: function (p) {
               return pages[p];
             }
           }), function (input) {
-
-            // only textfile and array input generators call this
-            assert.equal(-1, genName.indexOf("sitemap"), genName+" was not expected");
-            assert.equal(-1, genName.indexOf("robots"), genName+" was not expected");
-
-            var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
-            var match = re.exec(input.outputFile);
-            assert.equal(match[1], urlToPath(pages[input.__page]));
-            count++;
-            if (count === (urls-1)) {
-              done();
+            if (!aborted) {
+              var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
+              var match = re.exec(input.outputFile);
+              assert.equal(match[1], urlToPath(pages[input.__page]));
+              count++;
+              if (count === (urls-1)) {
+                done();
+              }
             }
           });
 
