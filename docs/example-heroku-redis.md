@@ -1,6 +1,7 @@
 # A Real html-snapshots Usage Example
 
-> This article explains an implementation using [html-snapshots](https://github.com/localnerve/html-snapshots) in the wild \(with real, working code\). Please note the code referenced in this article was written by LocalNerve and is subject to the terms of this [license](https://github.com/localnerve/wpspa/blob/master/LICENSE.txt). **NOTE:** This is an older article and usage style is html-snapshots version 0.13.2.
+> This article explains an implementation using [html-snapshots](https://github.com/localnerve/html-snapshots) in the wild \(with real, working code\). Please note the code referenced in this article was written by LocalNerve and is subject to the terms of this [license](https://github.com/localnerve/wpspa/blob/master/LICENSE.txt).  
+**NOTE:** This is an older article and usage style is html-snapshots version 0.13.2.
 
 ## Summary
 The [WPSPA](http://github.com/localnerve/wpspa) project uses [html-snapshots](https://github.com/localnerve/html-snapshots) on [Heroku](https://www.heroku.com/) to populate a Redis store from which the snapshotted html is served on \_escaped\_fragment\_ requests. The [html-snapshots](https://github.com/localnerve/html-snapshots) library is run in a Heroku worker process that periodically keeps the snapshots up-to-date with a CMS.

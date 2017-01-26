@@ -7,6 +7,6 @@
     "start": "node ./snapshot.js"
   },
   "dependencies": {
-    "html-snapshots": "github:localnerve/html-snapshots#rc-0.14.0-6"
+    "html-snapshots": ">= 0.14.0"
    }
 }

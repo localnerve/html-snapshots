@@ -24,6 +24,7 @@ htmlSnapshots.run({
   outputDirClean: true,
   selector: ".page-content",
   timeout: 15000,
+  processLimit: 1, // to clarify output
   verbose: verboseOption
 })
 .then(function (completed) {
