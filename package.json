@@ -51,7 +51,7 @@
     "combine-errors": "^3.0.3",
     "lodash": "^4.0.0",
     "mkdirp": "^0.5.1",
-    "phantomjs-prebuilt": "2.1.13",
+    "phantomjs-prebuilt": "2.1.14",
     "request": "^2.67.0",
     "rimraf": "^2.5.0",
     "xml2js": "~0.4.16"
