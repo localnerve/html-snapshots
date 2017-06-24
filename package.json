@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.12",
-    "eslint": "^3.13.0",
+    "eslint": "^4.1.0",
     "express": "^4.13.3",
     "mocha": "^3.0.1",
     "istanbul": "^0.4.2",
