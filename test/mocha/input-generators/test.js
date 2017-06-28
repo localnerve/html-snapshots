@@ -115,7 +115,7 @@ describe("input-generator", function () {
    * Escape a string for usage in a regular expression.
    */
   function regexEscape(s) {
-    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
   }
 
   function pathToRe (component) {
