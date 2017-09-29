@@ -57,7 +57,7 @@
     "xml2js": "~0.4.16"
   },
   "devDependencies": {
-    "coveralls": "^2.11.12",
+    "coveralls": "^3.0.0",
     "eslint": "^4.1.1",
     "express": "^4.13.3",
     "mocha": "^3.0.1",
