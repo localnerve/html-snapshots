@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.14.5",
+  "version": "0.14.6",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -19,12 +19,12 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "mocha test/mocha/**/*.js --recursive --reporter spec",
-    "test:async": "mocha test/mocha/async/test.js --reporter spec",
-    "test:common": "mocha test/mocha/common/*.js --reporter spec",
-    "test:input-generators": "mocha test/mocha/input-generators/*.js --reporter spec",
-    "test:html-snapshots": "mocha test/mocha/html-snapshots/*.js --reporter spec",
-    "coverage": "istanbul cover -- _mocha test/mocha/**/*.js --recursive --reporter spec",
+    "test": "mocha test/mocha/**/*.js --exit --recursive --reporter spec",
+    "test:async": "mocha test/mocha/async/test.js --exit --reporter spec",
+    "test:common": "mocha test/mocha/common/*.js --exit --reporter spec",
+    "test:input-generators": "mocha test/mocha/input-generators/*.js --exit --reporter spec",
+    "test:html-snapshots": "mocha test/mocha/html-snapshots/*.js --exit --reporter spec",
+    "coverage": "istanbul cover -- _mocha test/mocha/**/*.js --exit --recursive --reporter spec",
     "validate": "npm ls"
   },
   "pre-commit": [
@@ -60,7 +60,7 @@
     "coveralls": "^3.0.0",
     "eslint": "^4.1.1",
     "express": "^4.13.3",
-    "mocha": "^3.0.1",
+    "mocha": "^4.0.0",
     "istanbul": "^0.4.2",
     "precommit-hook": "^3.0.0",
     "server-destroy": "^1.0.1",
