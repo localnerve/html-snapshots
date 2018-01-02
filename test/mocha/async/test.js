@@ -1,3 +1,8 @@
+/**
+ * Async module tests.
+ *
+ * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
+ */
 /* global describe, beforeEach, it */
 var assert = require("assert");
 var fs = require("fs");

@@ -1,3 +1,8 @@
+/**
+ * Common module tests.
+ *
+ * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
+ */
 /* global describe, it */
 var assert = require("assert");
 var path = require("path");

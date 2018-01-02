@@ -1,5 +1,7 @@
 /**
  * Library tests focused on the phantomjsOptions option.
+ *
+ * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
  */
 /* global module, require, beforeEach, describe, it */
 // var assert = require("assert");

@@ -1,5 +1,7 @@
 /**
- * Create a local web server for tests
+ * Create a local web server for tests.
+ *
+ * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
  */
 var pathm = require("path");
 var express = require("express");
@@ -15,9 +17,11 @@ module.exports = {
 
   start: function (rootDir, port, cb) {
     var server = express();
+
     server.use(express.static(rootDir, {
       setHeaders: setHeaders
     }));
+
     var httpServer = server.listen(parseInt(port, 10), function (err) {
       if (cb) {
         cb(err, httpServer);

@@ -1,5 +1,7 @@
 /**
  * html-snapshots test utilities and constants.
+ *
+ * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
  */
 /* global require, process, Promise */
 var path = require("path");

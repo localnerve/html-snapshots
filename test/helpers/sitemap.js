@@ -1,5 +1,7 @@
 /*
- * helper to add dynamic url nodes to a test sitemap
+ * Helper to add dynamic url nodes to a test sitemap.
+ *
+ * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
  */
 var smLib = require("sitemap-xml");
 var urlLib = require("url");
