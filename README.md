@@ -65,14 +65,20 @@ Here are some [background and other notes](/docs/notes.md) regarding this projec
 ### Process Model
 html-snapshots takes snapshots in parallel, each page getting its own PhantomJS process. Each PhantomJS process dies after snapshotting one page. You can limit the number of PhantomJS processes that can ever run at once with the `processLimit` option. This effectively sets up a process pool for PhantomJS instances. The default processLimit is 4 PhantomJS instances. When a PhantomJS process dies, and another snapshot needs to be taken, a new PhantomJS process is spawned to take the vacant slot. This continues until a `processLimit` number of processes are running at once.
 
+### Node Support Tags
+  `v0.13.2 ` Node 0.12 (or less)  
+  `v0.14.16` Node 4+  
+  `v0.15.x ` Node 6+  
+
 ### Breaking Changes
+
+#### Introduced in v0.15.x
+##### Dropped support for Node 4.
 
 #### Introduced in v0.14.x
 ##### Run method return value
 The library `run` method no longer returns a boolean value indicating a successful start. Instead, it returns a Promise that resolves to an array of file paths to completed snapshots, or error on failure. The `run` method's second argument, a completion callback, is now **optional** and provided for compatibility only. If you supply one, it will be called, but the Promise will also resolve, so it is not needed.
-
 ##### Dropped support for Node <= 0.12
-Node 4.x is now the lowest version of Node supported. 0.12 (or less) is EOL and unsupported by this library from 0.14 on.
 
 #### Introduced in v0.6.x
 jQuery selectors are no longer supported by default. To restore the previous behavior, set the `useJQuery` option to `true`.
