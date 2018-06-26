@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.14.17",
+  "version": "0.14.16",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
-    "eslint": "^5.0.1",
+    "eslint": "^4.1.1",
     "express": "^4.13.3",
     "mocha": "^5.0.0",
     "istanbul": "^0.4.2",
