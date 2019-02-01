@@ -1,7 +1,7 @@
 /*
  * options.js
  *
- * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
  * 
  * A test helper to decorate html-snapshots options
  *

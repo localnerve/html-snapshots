@@ -1,7 +1,7 @@
 /**
  * Library tests that use sitemap.
  *
- * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
  */
 /* global require, module, it */
 var assert = require("assert");

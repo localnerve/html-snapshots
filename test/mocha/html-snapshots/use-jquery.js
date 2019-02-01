@@ -1,7 +1,7 @@
 /**
  * Library tests focused on the useJQuery option.
  *
- * Copyright (c) 2013 - 2018, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
  */
 /* global module, require, process, clearInterval, setTimeout, it */
 var assert = require("assert");
