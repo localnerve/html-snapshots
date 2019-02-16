@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
  */
-/* global module, require, process, clearInterval, setTimeout, it */
+/* global module, require, it */
 var assert = require("assert");
 var path = require("path");
 var _ = require("lodash");
