@@ -387,7 +387,7 @@ describe("async", function () {
       var q = asyncLib.queue(function (task, callback) {
         task(callback);
       }, 1);
-      q.empty = notifier.qEmpty.bind(notifier);
+      q.empty(notifier.qEmpty.bind(notifier));
 
       // simulate input activity
       files.forEach(function (file) {
