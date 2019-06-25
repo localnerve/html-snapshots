@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
  */
-/* global module, require, it */
+/* global it */
 var assert = require("assert");
 var path = require("path");
 var fs = require("fs");

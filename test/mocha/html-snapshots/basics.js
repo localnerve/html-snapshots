@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
  */
-/* global module, require, it */
+/* global it */
 var assert = require("assert");
 var _ = require("lodash");
 var fs = require("fs");

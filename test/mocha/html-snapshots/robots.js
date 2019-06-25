@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
  */
-/* global module, require, it */
+/* global it */
 var path = require("path");
 var rimraf = require("rimraf").sync;
 var _ = require("lodash");
