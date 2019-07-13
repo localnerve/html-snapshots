@@ -47,7 +47,7 @@
   ],
   "dependencies": {
     "async": "~3.1.0",
-    "async-lock": "1.2.0",
+    "async-lock": "1.2.1",
     "combine-errors": "^3.0.3",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
