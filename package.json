@@ -50,7 +50,7 @@
     "async-lock": "1.2.2",
     "combine-errors": "^3.0.3",
     "lodash": "^4.17.11",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.0",
     "phantomjs-prebuilt": "2.1.16",
     "request": "^2.88.0",
     "rimraf": "^3.0.0",
