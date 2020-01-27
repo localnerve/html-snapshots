@@ -1,6 +1,6 @@
 /*
  * Process limit snapshots example.
- * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
  *
  * Uses robots.txt to drive website snapshot.
  * Limits the number of browser processes to 1 (1 at a time).

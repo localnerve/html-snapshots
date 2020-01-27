@@ -1,7 +1,7 @@
 /**
  * Asserts error is error.
  *
- * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
  */
 var assert = require("assert");
 

@@ -1,7 +1,7 @@
 /**
  * html-snapshots test utilities and constants.
  *
- * Copyright (c) 2013 - 2019, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
  */
 /* global Promise */
 var path = require("path");
