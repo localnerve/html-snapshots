@@ -10,10 +10,13 @@ var utils = require("../utils");
 // where the snapshots go
 var outputDir = require('path').join(__dirname, './tmp');
 
+// If you want to crawl a huge map:
+// 'https://www.usgs.gov/sitemap.xml',
+
 // Do it:
 htmlSnapshots.run({
   input: 'sitemap-index',
-  source: 'https://tech.jet.com/sitemap_index.xml',
+  source: 'http://bestplacestowork.org/sitemap_index.xml', 
   outputDir: outputDir,
   outputDirClean: true,
   selector: 'body',
