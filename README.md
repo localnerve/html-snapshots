@@ -70,8 +70,12 @@ html-snapshots takes snapshots in parallel, each page getting its own PhantomJS 
   `v0.14.16` Node 4+  
   `v0.15.x ` Node 6+  
   `v0.16.x ` Node 8+  
+  `v0.17.x ` Node 10+
 
 ### Breaking Changes
+
+#### Introduced in v0.17.x
+##### Dropped support for Node 8.
 
 #### Introduced in v0.16.x
 ##### Dropped support for Node 6.
