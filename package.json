@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -47,7 +47,7 @@
   ],
   "dependencies": {
     "async": "3.2.0",
-    "async-lock": "1.2.2",
+    "async-lock": "1.2.4",
     "combine-errors": "3.0.3",
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.3",
