@@ -1,6 +1,6 @@
 /*
  * Debug PhantomJS processing of a page on a sample website.
- * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
  *
  * Uses sitemap.xml to snapshot a sample website, but holds one page for debugging.
  *

@@ -1,6 +1,6 @@
 /*
  * Snapshot multiple pages using arrays.
- * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
  *
  * Use an array to snapshot specific urls.
  * Use per-page selectors.

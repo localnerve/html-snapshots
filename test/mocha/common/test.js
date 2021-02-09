@@ -1,7 +1,7 @@
 /**
  * Common module tests.
  *
- * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
  */
 /* global describe, it */
 var assert = require("assert");

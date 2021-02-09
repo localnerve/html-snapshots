@@ -1,7 +1,7 @@
 /**
  * Create a local web server for tests.
  *
- * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
  */
 var pathm = require("path");
 var express = require("express");

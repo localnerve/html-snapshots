@@ -1,6 +1,6 @@
 /*
  * Simple page snapshots example.
- * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
  *
  * Use sitemap index to drive input to snapshot individual pages.
  */

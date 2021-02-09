@@ -2,7 +2,7 @@
  * In-test, custom filter script.
  * Adds a custom tag onto the body.
  *
- * Copyright (c) 2013 - 2020, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
  */
 module.exports = function(content) {
   console.log("IN THE CUSTOMFILTER");
