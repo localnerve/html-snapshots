@@ -4,9 +4,13 @@
   "author": "Alex Grant <alex@localnerve.com>",
   "description": "An example using html-snapshots",
   "scripts": {
-    "start": "node ./snapshot.js"
+    "start": "node ./snapshot.js",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "dependencies": {
-    "html-snapshots": "^0.17.0"
-  }
+    "html-snapshots": "^0.17.0",
+    "snyk": "^1.448.0"
+  },
+  "snyk": true
 }
