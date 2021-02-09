@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "0.17.2",
+  "version": "0.17.3",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -47,7 +47,7 @@
   ],
   "dependencies": {
     "async": "3.2.0",
-    "async-lock": "1.2.4",
+    "async-lock": "1.2.8",
     "combine-errors": "3.0.3",
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.3",
@@ -58,9 +58,9 @@
   },
   "devDependencies": {
     "coveralls": "^3.0.9",
-    "eslint": "^6.8.0",
+    "eslint": "^7.19.0",
     "express": "^4.17.1",
-    "mocha": "^7.0.1",
+    "mocha": "^8.2.1",
     "istanbul": "^0.4.2",
     "precommit-hook": "^3.0.0",
     "server-destroy": "^1.0.1",

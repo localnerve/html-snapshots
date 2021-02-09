@@ -10,4 +10,3 @@ coverage
 .validate.json
 html-snapshots.sublime-project
 html-snapshots.sublime-workspace
-package-lock.json
