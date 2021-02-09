@@ -40,11 +40,9 @@ function basicTests () {
       var file = path.join(dir, "somefile.txt");
       var twice = _.after(2, cleanupError.bind(null, done, 0));
 
-      if (!fs.existsSync(dir)) {
-       fs.mkdirSync(dir);
-      }
+      fs.mkdirSync(dir);
       fs.writeFileSync(file, "some data");
-      assert.equal(true, fs.existsSync(dir));
+      assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       ss.run(optHelp.decorate({
        source: bogusFile,
@@ -54,7 +52,7 @@ function basicTests () {
        .then(unexpectedSuccess.bind(null, done))
        .catch(twice);
 
-      assert.equal(false, (fs.existsSync(dir) || fs.existsSync(file)));
+      assert.throws(fs.accessSync.bind(null, dir));
     });
 
     it("default snapshot script should exist", function (done) {
@@ -63,7 +61,7 @@ function basicTests () {
 
       var result = ss.run(optHelp.decorate(options), twice);
 
-      assert.equal(true, fs.existsSync(options.snapshotScript));
+      assert.doesNotThrow(fs.accessSync.bind(null, options.snapshotScript));
 
       result
        .then(unexpectedSuccess.bind(null, done))

@@ -46,11 +46,16 @@ function checkActualFiles (files) {
       return prev;
     }, files[0]);
     */
+    var exists = false;
     outputRoot = path.dirname(shortFile);
-    if (fs.existsSync(outputRoot)) {
-      dumpTree(outputRoot);
-    } else {
+    try {
+      fs.statSync(outputRoot).isDirectory();
+    }
+    catch (e) {
       console.log("@@@ outputRoot not exist", outputRoot);
+    }
+    if (exists) {
+      dumpTree(outputRoot);
     }
   }
 

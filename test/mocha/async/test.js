@@ -97,7 +97,7 @@ describe("async", function () {
       });
 
       mkdirp.sync(dir);
-      assert.equal(true, fs.existsSync(dir));
+      assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
         notifier.add(file, timeout);
@@ -139,7 +139,7 @@ describe("async", function () {
       });
 
       mkdirp.sync(dir);
-      assert.equal(true, fs.existsSync(dir));
+      assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function(file) {
         notifier.add(file, timeout);
@@ -188,7 +188,7 @@ describe("async", function () {
       });
 
       mkdirp.sync(dir);
-      assert.equal(true, fs.existsSync(dir));
+      assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
         notifier.add(file, timeout);
@@ -229,7 +229,7 @@ describe("async", function () {
       });
 
       mkdirp.sync(dir);
-      assert.equal(true, fs.existsSync(dir));
+      assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
         notifier.add(file, timeout);
@@ -301,7 +301,7 @@ describe("async", function () {
       });
 
       mkdirp.sync(dir);
-      assert.equal(true, fs.existsSync(dir));
+      assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
         notifier.add(file, timeout);
@@ -337,7 +337,7 @@ describe("async", function () {
       });
 
       mkdirp.sync(dir);
-      assert.equal(true, fs.existsSync(dir));
+      assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
         notifier.add(file, timeout);
@@ -381,7 +381,7 @@ describe("async", function () {
       });
 
       mkdirp.sync(dir);
-      assert.equal(true, fs.existsSync(dir));
+      assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       // create a worker queue, attach qEmpty
       var q = asyncLib.queue(function (task, callback) {

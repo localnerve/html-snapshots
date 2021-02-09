@@ -49,7 +49,7 @@ function phantomjsOptionsTests (options) {
         .then(function () {
           var assertionError;
           try {
-            assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
+            assert.equal(true, fs.statSync(cookiesFile).isFile(), "cookie file in phantomjsOptions not found");
           } catch (e) {
             assertionError = e;
           }
@@ -87,7 +87,7 @@ function phantomjsOptionsTests (options) {
         .then(function () {
           var assertionError;
           try {
-            assert.equal(true, fs.existsSync(cookiesFile), "cookie file in phantomjsOptions not found");
+            assert.equal(true, fs.statSync(cookiesFile).isFile(), "cookie file in phantomjsOptions not found");
           } catch (e) {
             assertionError = e;
           }
