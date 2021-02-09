@@ -52,7 +52,7 @@
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.3",
     "phantomjs-prebuilt": "2.1.16",
-    "request": "^2.88.0",
+    "request": "^2.88.2",
     "rimraf": "^3.0.0",
     "xml2js": "~0.4.23"
   },
