@@ -4,7 +4,6 @@
  * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
  */
 /* global it */
-var assert = require("assert");
 var path = require("path");
 var fs = require("fs");
 var rimraf = require("rimraf").sync;
@@ -49,7 +48,7 @@ function phantomjsOptionsTests (options) {
         .then(function () {
           var assertionError;
           try {
-            assert.equal(true, fs.statSync(cookiesFile).isFile(), "cookie file in phantomjsOptions not found");
+            fs.accessSync(cookiesFile);
           } catch (e) {
             assertionError = e;
           }
@@ -87,7 +86,7 @@ function phantomjsOptionsTests (options) {
         .then(function () {
           var assertionError;
           try {
-            assert.equal(true, fs.statSync(cookiesFile).isFile(), "cookie file in phantomjsOptions not found");
+            fs.accessSync(cookiesFile);
           } catch (e) {
             assertionError = e;
           }
