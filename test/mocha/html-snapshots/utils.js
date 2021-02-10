@@ -124,11 +124,11 @@ function cleanup (done, arg) {
   if (process.platform === "win32") {
     setTimeout(done, 1000, arg);
   } else {
-    setImmediate(function () {
+    // setImmediate(function () {
       killSpawnedProcesses(function (err) {
         done(multiError(err, arg));
       });
-    });
+    // });
   }
 }
 
