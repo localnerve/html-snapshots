@@ -27,6 +27,30 @@ function phantomjsOptionsTests (options) {
   var port = options.port;
 
   return function () {
+    it ("should work on first vanilla full invocation, no checks", function (done) {
+      var options = {
+        input: "array",
+        source: [ "http://localhost:"+port+"/pjsopts" ],
+        outputDir: outputDir,
+        outputDirClean: false,
+        selector: ".content-complete",
+        timeout: timeout,
+        phantomjsOptions: "--cookies-file="+cookiesFile
+      };
+
+      rimraf(outputBase);
+
+      ss.run(optHelp.decorate(options))
+        .then(() => {
+          cleanup(done);
+        }).catch(e => {
+          checkActualFiles(e.notCompleted)
+            .then(() => {
+              cleanup(done, e || unexpectedError);
+            });
+        });
+    });
+
     it("should work with one string option", function (done) {
       var options = {
         input: "array",
@@ -45,7 +69,7 @@ function phantomjsOptionsTests (options) {
           console.log('@@@ error = '+err+", completed="+completed.join(','));
         }
       })
-        .then(function () {
+        .then(() => {
           var assertionError;
           try {
             fs.accessSync(cookiesFile);
@@ -54,7 +78,7 @@ function phantomjsOptionsTests (options) {
           }
           cleanup(done, assertionError);
         })
-        .catch(function (e) {
+        .catch(e => {
           checkActualFiles(e.notCompleted)
             .then(function () {
               cleanup(done, e || unexpectedError);
@@ -83,7 +107,7 @@ function phantomjsOptionsTests (options) {
           console.log('@@@ error = '+err+", completed="+completed.join(','));
         }
       })
-        .then(function () {
+        .then(() => {
           var assertionError;
           try {
             fs.accessSync(cookiesFile);
@@ -92,9 +116,9 @@ function phantomjsOptionsTests (options) {
           }
           cleanup(done, assertionError);
         })
-        .catch(function (e) {
+        .catch(e => {
           checkActualFiles(e.notCompleted)
-            .then(function () {
+            .then(() => {
               cleanup(done, e || unexpectedError);
             });
         });
@@ -118,7 +142,7 @@ function phantomjsOptionsTests (options) {
 
       ss.run(optHelp.decorate(options))
         .then(unexpectedSuccess.bind(null, done))
-        .catch(function (err) {
+        .catch(err => {
           var assertionError;
           try {
             resHelp.mustBeError(err);
