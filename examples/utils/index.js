@@ -1,6 +1,6 @@
 /**
  * Utilities for the examples.
- * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 'use strict';
 

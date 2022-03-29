@@ -1,7 +1,7 @@
 /**
  * Library tests that use robots.
  *
- * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global it */
 var path = require("path");

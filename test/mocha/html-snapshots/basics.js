@@ -1,7 +1,7 @@
 /**
  * Basic library tests.
  *
- * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global it */
 var assert = require("assert");

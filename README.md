@@ -1,12 +1,8 @@
 # [html-snapshots](http://github.com/localnerve/html-snapshots)
 
-
 [![npm version](https://badge.fury.io/js/html-snapshots.svg)](http://badge.fury.io/js/html-snapshots)
 ![Verify](https://github.com/localnerve/html-snapshots/workflows/Verify/badge.svg)
 [![Coverage Status](https://img.shields.io/coveralls/localnerve/html-snapshots.svg)](https://coveralls.io/r/localnerve/html-snapshots?branch=master)
-[![Dependency Status](https://david-dm.org/localnerve/html-snapshots.svg)](https://david-dm.org/localnerve/html-snapshots)
-[![devDependency Status](https://david-dm.org/localnerve/html-snapshots/dev-status.svg)](https://david-dm.org/localnerve/html-snapshots#info=devDependencies)
-[![Codacy Badge](https://www.codacy.com/project/badge/03d414fc2e264ef4b40456aae5b52108)](https://www.codacy.com/public/alex/html-snapshots)
 
 > Takes html snapshots of your site's crawlable pages when an element you select is rendered.
 
@@ -70,8 +66,12 @@ html-snapshots takes snapshots in parallel, each page getting its own PhantomJS 
   `v0.15.x ` Node 6+  
   `v0.16.x ` Node 8+  
   `v0.17.x ` Node 10+
+  `v0.18.x ` Node 14+
 
 ### Breaking Changes
+
+#### Introduced in v0.18.x
+##### Dropped support for Node 10 & 12.
 
 #### Introduced in v0.17.x
 ##### Dropped support for Node 8.

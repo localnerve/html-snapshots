@@ -1,6 +1,6 @@
 /*
  * Snapshot an example website.
- * Copyright (c) 2013 - 2021, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  *
  * Use sitemap.xml to snapshot an entire site.
  * Use the verbose option to debug the loading of one of the pages.
