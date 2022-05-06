@@ -65,7 +65,7 @@ html-snapshots takes snapshots in parallel, each page getting its own PhantomJS 
   `v0.14.16` Node 4+  
   `v0.15.x ` Node 6+  
   `v0.16.x ` Node 8+  
-  `v0.17.x ` Node 10+
+  `v0.17.x ` Node 10+  
   `v0.18.x ` Node 14+
 
 ### Breaking Changes
