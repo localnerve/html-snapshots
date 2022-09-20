@@ -3,7 +3,6 @@
  *
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
-/* global Promise */
 var path = require("path");
 var fs = require("fs");
 var _ = require("lodash");
