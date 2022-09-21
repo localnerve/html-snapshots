@@ -8,42 +8,41 @@
  * Remove all script tags from output.
  * Use javascript arrays.
  */
-var path = require("path");
-var util = require("util");
-var assert = require("assert");
-var htmlSnapshots = require("html-snapshots");
+const path = require("path");
+const util = require("util");
+const htmlSnapshots = require("html-snapshots");
 
 // a data structure with snapshot input
-var sites = [
+const sites = [
   {
-    label: "html5rocks",
-    url: "http://html5rocks.com",
-    selector: ".latest-articles"
+    label: "web.dev",
+    url: "https://web.dev",
+    selector: "web-subscribe .wrapper"
   },
   {
     label: "updates.html5rocks",
-    url: "https://developers.google.com/web/updates/",
-    selector: ".devsite-landing-row-item"
+    url: "https://developer.chrome.com/blog/",
+    selector: ".blog-grid"
   }
 ];
 
 htmlSnapshots.run({
   // input source is the array of urls to snapshot
   input: "array",
-  source: sites.map(function(site) { return site.url; }),
+  source: sites.map(site => site.url),
 
   // setup and manage the output
   outputDir: path.join(__dirname, "./tmp"),
   outputDirClean: true,
 
   // per url output paths, { url: outputpath [, url: outputpath] }
-  outputPath: sites.reduce(function(prev, curr) {
+  outputPath: sites.reduce((prev, curr) => {
     prev[curr.url] = curr.label; // use the label to differentiate '/index.html' from both sites
     return prev;
   }, {}),
 
   // per url selectors, { url: selector [, url: selector] }
-  selector: sites.reduce(function(prev, curr) {
+  selector: sites.reduce((prev, curr) => {
     prev[curr.url] = curr.selector;
     return prev;
   }, {}),
@@ -56,13 +55,11 @@ htmlSnapshots.run({
   // handle ssl for updates.html5rocks only
   phantomjsOptions: {
     // key must match url exactly
-    "https://developers.google.com/web/updates/": ["--ssl-protocol=any", "--ignore-ssl-errors=true"]
+    "https://developer.chrome.com/blog/": ["--ssl-protocol=any", "--ignore-ssl-errors=true"]
   }
 })
-.then(function (completed) {
+.then(completed => {
   console.log("completed snapshots:");
   console.log(util.inspect(completed));
 })
-.catch(function (err) {
-  console.error(err);
-});
+.catch(console.error);
