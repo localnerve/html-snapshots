@@ -4,19 +4,19 @@
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global describe, before, after */
-var path = require("path");
-var enableDestroy = require("server-destroy");
+const path = require("path");
+const enableDestroy = require("server-destroy");
 
-var timeout = require("./utils").timeout;
+const timeout = require("./utils").timeout;
 
-var basics = require("./basics");
-var robots = require("./robots");
-var sitemap = require("./sitemap");
-var sitemapIndex = require("./sitemap-index");
-var processLimit = require("./process-limit");
-var useJQuery = require("./use-jquery");
-var snapshotScripts = require("./snapshot-scripts");
-var phantomJSOptions = require("./phantomjs-options");
+const basics = require("./basics");
+const robots = require("./robots");
+const sitemap = require("./sitemap");
+const sitemapIndex = require("./sitemap-index");
+const processLimit = require("./process-limit");
+const useJQuery = require("./use-jquery");
+const snapshotScripts = require("./snapshot-scripts");
+const phantomJSOptions = require("./phantomjs-options");
 
 /**
  * Create a test context with a new server on a port.
@@ -28,10 +28,10 @@ var phantomJSOptions = require("./phantomjs-options");
  * @returns {Function} A test context with server management.
  */
 function serverContext (testSuiteFactory, port) {
-  var server = require("../../server");
+  const server = require("../../server");
 
   return function () {
-    var httpServer;
+    let httpServer;
 
     before(function (done) {
       server.start(path.join(__dirname, "./server"), port,
@@ -52,9 +52,7 @@ function serverContext (testSuiteFactory, port) {
       });
     });
 
-    describe("tests", testSuiteFactory({
-      port: port
-    }));
+    describe("tests", testSuiteFactory({ port }));
   };
 }
 

@@ -4,48 +4,49 @@
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global it */
-var assert = require("assert");
-var path = require("path");
-var optHelp = require("../../helpers/options");
-var ss = require("../../../lib/html-snapshots");
-var utils = require("./utils");
+const assert = require("assert");
+const path = require("path");
+const optHelp = require("../../helpers/options");
+const ss = require("../../../lib/html-snapshots");
+const utils = require("./utils");
 
-// missing destructuring, will write postcard...
-var outputDir = utils.outputDir;
-var timeout = utils.timeout;
-var unexpectedError = utils.unexpectedError;
-var unexpectedSuccess = utils.unexpectedSuccess;
-var cleanup = utils.cleanup;
-var checkActualFiles = utils.checkActualFiles;
+const {
+  outputDir,
+  timeout,
+  unexpectedError,
+  unexpectedSuccess,
+  cleanup,
+  checkActualFiles
+} = utils;
 
 // Sitemap-index constants
-var sitemapIndexFile = "test_sitemap_index.xml";
-var inputFile = path.join(__dirname, "./", sitemapIndexFile);
-var urls = 3; // must match the unqiue # of urls in all the sitemap files referenced in sitemap-index.
+const sitemapIndexFile = "test_sitemap_index.xml";
+const inputFile = path.join(__dirname, "./", sitemapIndexFile);
+const urls = 3; // must match the unqiue # of urls in all the sitemap files referenced in sitemap-index.
 
 function getClass (obj) {
-  var string = Object.prototype.toString.call(obj);
-  var m = /\[object ([^\]]+)/.exec(string);
+  const string = Object.prototype.toString.call(obj);
+  const m = /\[object ([^\]]+)/.exec(string);
   return m && m[1];
 }
 
 function sitemapIndexTests (options) {
-  var port = options.port;
+  const port = options.port;
 
   return function () {
     it("should succeed for typical sitemap-index usage", function (done) {
-      var options = {
-        source: "http://localhost:"+port+"/"+sitemapIndexFile,
+      const options = {
+        source: `http://localhost:${port}/${sitemapIndexFile}`,
         input: "sitemap-index",
         selector: "#dynamic-content",
-        outputDir: outputDir,
         outputDirClean: true,
-        timeout: timeout
+        outputDir,
+        timeout
       };
 
       ss.run(optHelp.decorate(options))
         .then(function (completed) {
-          var assertionError;
+          let assertionError;
           try {
             assert.equal(getClass(completed), "Array");
             assert.equal(completed.length, urls);
@@ -54,30 +55,30 @@ function sitemapIndexTests (options) {
           }
           cleanup(done, assertionError);
         })
-        .catch(function (err) {
+        .catch(err => {
           checkActualFiles(err.notCompleted)
-            .then(function () {
+            .then(() => {
               cleanup(done, err || unexpectedError);
             });
         });
     });
 
     it("should fail fast for bad sitemap url", function (done) {
-      var sitemapIndexFile3 = path.basename(sitemapIndexFile, ".xml") + "-3" +
+      const sitemapIndexFile3 = path.basename(sitemapIndexFile, ".xml") + "-3" +
         path.extname(sitemapIndexFile);
-        var options = {
-          source: "http://localhost:" + port + "/" + sitemapIndexFile3,
+        const options = {
+          source: `http://localhost:${port}/${sitemapIndexFile3}`,
           input: "sitemap-index",
           selector: "#dynamic-content",
-          outputDir: outputDir,
           outputDirClean: true,
-          timeout: timeout
+          outputDir,
+          timeout
         };
 
         ss.run(optHelp.decorate(options))
           .then(unexpectedSuccess)
-          .catch(function (err) {
-            var assertionError;
+          .catch(err => {
+            let assertionError;
             try {
               assert.equal(getClass(err.notCompleted), "Array");
               // fails fast:
@@ -90,25 +91,25 @@ function sitemapIndexTests (options) {
     });
 
     it("should eventually fail for bad page url", function (done) {
-      var eventually = 1000;
-      var sitemapIndexFile2 = path.basename(sitemapIndexFile, ".xml") + "-2" +
+      const eventually = 1000;
+      const sitemapIndexFile2 = path.basename(sitemapIndexFile, ".xml") + "-2" +
         path.extname(sitemapIndexFile);
-      var options = {
-        source: "http://localhost:" + port + "/" + sitemapIndexFile2,
+      const options = {
+        source: `http://localhost:${port}/${sitemapIndexFile2}`,
         input: "sitemap-index",
         selector: "#dynamic-content",
-        outputDir: outputDir,
         outputDirClean: true,
         timeout: {
           "http://localhost:8040/services/bad": eventually,
           __default: timeout
-        }
+        },
+        outputDir
       };
 
       ss.run(optHelp.decorate(options))
         .then(unexpectedSuccess)
-        .catch(function (err) {
-          var assertionError;
+        .catch(err => {
+          let assertionError;
           try {
             assert.equal(getClass(err.completed), "Array");
             assert.equal(err.completed.length, urls - 1);
@@ -125,6 +126,6 @@ function sitemapIndexTests (options) {
 
 module.exports = {
   testSuite: sitemapIndexTests,
-  inputFile: inputFile,
-  urlCount: urls
+  urlCount: urls,
+  inputFile
 };
