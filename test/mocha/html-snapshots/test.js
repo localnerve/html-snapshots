@@ -18,6 +18,8 @@ const useJQuery = require("./use-jquery");
 const snapshotScripts = require("./snapshot-scripts");
 const phantomJSOptions = require("./phantomjs-options");
 
+const localRobotsFile = path.join(__dirname, "./test_robots.txt");
+
 /**
  * Create a test context with a new server on a port.
  * Why? Managing the resources (sockets) closely makes a real difference
@@ -52,7 +54,7 @@ function serverContext (testSuiteFactory, port) {
       });
     });
 
-    describe("tests", testSuiteFactory({ port }));
+    describe("tests", testSuiteFactory({ port, localRobotsFile }));
   };
 }
 

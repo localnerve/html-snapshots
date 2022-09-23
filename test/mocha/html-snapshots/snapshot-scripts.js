@@ -4,30 +4,30 @@
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global beforeEach, describe, it */
-// var assert = require("assert");
-var path = require("path");
-var fs = require("fs");
-var _ = require("lodash");
-var rimraf = require("rimraf").sync;
-var utils = require("./utils");
-var optHelp = require("../../helpers/options");
-var ss = require("../../../lib/html-snapshots");
-var inputFile = require("./robots").inputFile;
 
-// missing destructuring, will write postcard...
-var timeout = utils.timeout;
-var outputDir = utils.outputDir;
-var cleanup = utils.cleanup;
-var bogusFile = utils.bogusFile;
-var cleanupError = utils.cleanupError;
-var unexpectedSuccess = utils.unexpectedSuccess;
-var checkActualFiles = utils.checkActualFiles;
+const path = require("path");
+const fs = require("fs");
+const _ = require("lodash");
+const rimraf = require("rimraf").sync;
+const utils = require("./utils");
+const optHelp = require("../../helpers/options");
+const ss = require("../../../lib/html-snapshots");
+
+const {
+  timeout,
+  outputDir,
+  cleanup,
+  bogusFile,
+  cleanupError,
+  unexpectedSuccess,
+  checkActualFiles
+} = utils;
 
 function snapshotScriptTests (options) {
-  var port = options.port;
+  const { localRobotsFile: inputFile, port } = options;
 
   return function () {
-    var snapshotScriptTests = [
+    const snapshotScriptTests = [
       {
         name: "removeScripts",
         option: {
@@ -35,7 +35,7 @@ function snapshotScriptTests (options) {
         },
         prove: function (completed, done) {
           // console.log("@@@ removeScripts prove @@@");
-          var content, err;
+          let content, err;
           for (var i = 0; i < completed.length; i++) {
             content = fs.readFileSync(completed[i], { encoding: "utf8" });
             if (/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content)) {
@@ -54,8 +54,8 @@ function snapshotScriptTests (options) {
         },
         prove: function (completed, done) {
           // console.log("@@@ customFilter prove @@@");
-          var content, err;
-          for (var i = 0; i < completed.length; i++) {
+          let content, err;
+          for (let i = 0; i < completed.length; i++) {
             // console.log("@@@ readFile "+completed[i]);
             content = fs.readFileSync(completed[i], { encoding: "utf8" });
             // this is dependent on myFilter.js adding someattrZZQy anywhere
@@ -70,7 +70,8 @@ function snapshotScriptTests (options) {
     ];
 
     describe("should succeed for scripts", function () {
-      var testNumber = 0, snapshotScriptTest, scriptNames = [
+      let testNumber = 0, snapshotScriptTest;
+      const scriptNames = [
         snapshotScriptTests[testNumber].name,
         snapshotScriptTests[testNumber + 1].name
         //, testNumber + 2, etc
@@ -81,52 +82,52 @@ function snapshotScriptTests (options) {
       });
 
       function snapshotScriptTestDefinition (done) {
-        var options = {
+        const options = {
           source: inputFile,
           hostname: "localhost",
-          port: port,
           selector: "#dynamic-content",
-          outputDir: outputDir,
           outputDirClean: true,
           timeout: timeout,
-          snapshotScript: snapshotScriptTest.option
+          snapshotScript: snapshotScriptTest.option,
+          outputDir,
+          port
         };
 
         rimraf(outputDir);
 
         ss.run(optHelp.decorate(options))
-          .then(function (completed) {
-            snapshotScriptTest.prove(completed, function (e) {
+          .then(completed => {
+            snapshotScriptTest.prove(completed, e => {
               cleanup(done, e);
             });
           })
-          .catch(function (err) {
+          .catch(err => {
             checkActualFiles(err.notCompleted)
-              .then(function () {
+              .then(() => {
                 cleanup(done, err);
               });
           });
       }
 
-      scriptNames.forEach(function (scriptName) {
-        it("snapshot script "+scriptName, function (done) {
+      scriptNames.forEach(scriptName => {
+        it(`snapshot script ${scriptName}`, function (done) {
           setTimeout(snapshotScriptTestDefinition, 3000, done);
         });
       });
     });
 
     it("should fail if a bogus script string is supplied", function (done) {
-      var options = {
+      const options = {
         source: inputFile,
         hostname: "localhost",
-        port: port,
         selector: "#dynamic-content",
-        outputDir: outputDir,
         outputDirClean: true,
         snapshotScript: bogusFile,
-        timeout: 2000
+        timeout: 2000,
+        outputDir,
+        port
       };
-      var twice = _.after(2, cleanupError.bind(null, done, 0));
+      const twice = _.after(2, cleanupError.bind(null, done, 0));
 
       ss.run(optHelp.decorate(options), twice)
         .then(unexpectedSuccess.bind(null, done))
@@ -134,19 +135,19 @@ function snapshotScriptTests (options) {
     });
 
     it("should fail if a bogus script object is supplied", function(done) {
-      var options = {
+      const options = {
         source: inputFile,
         hostname: "localhost",
-        port: port,
         selector: "#dynamic-content",
-        outputDir: outputDir,
         outputDirClean: true,
         snapshotScript: {
           script: bogusFile
         },
-        timeout: 2000
+        timeout: 2000,
+        outputDir,
+        port
       };
-      var twice = _.after(2, cleanupError.bind(null, done, 0));
+      const twice = _.after(2, cleanupError.bind(null, done, 0));
 
       ss.run(optHelp.decorate(options), twice)
         .then(unexpectedSuccess.bind(null, done))
@@ -154,19 +155,19 @@ function snapshotScriptTests (options) {
     });
 
     it("should fail if a customFilter is defined but no module", function(done) {
-      var options = {
+      const options = {
         source: inputFile,
         hostname: "localhost",
-        port: port,
         selector: "#dynamic-content",
-        outputDir: outputDir,
         outputDirClean: true,
         snapshotScript: {
           script: "customFilter"
         },
-        timeout: 2000
+        timeout: 2000,
+        outputDir,
+        port
       };
-      var twice = _.after(2, cleanupError.bind(null, done, 0));
+      const twice = _.after(2, cleanupError.bind(null, done, 0));
 
       ss.run(optHelp.decorate(options), twice)
         .then(unexpectedSuccess.bind(null, done))
@@ -174,20 +175,20 @@ function snapshotScriptTests (options) {
     });
 
     it("should fail if a customFilter is defined and bogus module", function(done) {
-      var options = {
+      const options = {
         source: inputFile,
         hostname: "localhost",
-        port: port,
         selector: "#dynamic-content",
-        outputDir: outputDir,
         outputDirClean: true,
         snapshotScript: {
           script: "customFilter",
           module: bogusFile
         },
-        timeout: 2000
+        timeout: 2000,
+        outputDir,
+        port
       };
-      var twice = _.after(2, cleanupError.bind(null, done, 0));
+      const twice = _.after(2, cleanupError.bind(null, done, 0));
 
       ss.run(optHelp.decorate(options), twice)
         .then(unexpectedSuccess.bind(null, done))

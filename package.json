@@ -4,7 +4,7 @@
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
-    "url": "http://localnerve.com"
+    "url": "https://www.localnerve.com"
   },
   "homepage": "https://github.com/localnerve/html-snapshots",
   "description": "A selector-based html snapshot tool using PhantomJS that sources sitemap.xml, robots.txt, or arbitrary input",
@@ -24,6 +24,7 @@
     "test:common": "mocha test/mocha/common/*.js --exit --reporter spec",
     "test:input-generators": "mocha test/mocha/input-generators/*.js --exit --reporter spec",
     "test:html-snapshots": "mocha test/mocha/html-snapshots/*.js --exit --reporter spec",
+    "test:html-snapshots:debug": "mocha --inspect-brk test/mocha/html-snapshots/*.js --exit --reporter spec",
     "test:cover": "c8 -- npm test",
     "validate": "npm ls"
   },

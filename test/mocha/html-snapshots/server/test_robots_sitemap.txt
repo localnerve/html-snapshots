@@ -3,8 +3,6 @@ User-agent: *
 Allow: /
 Allow: /contact
 Allow: /services/carpets
-Allow: /services/test?arg=one
-Allow: /services/#hash
 
 Disallow: /api/
 Disallow: /vendor/
@@ -13,3 +11,5 @@ Disallow: /images/
 
 User-agent: ia_archiver
 Disallow: /
+
+Sitemap: http://localhost:8038/test_robots_sitemap.xml

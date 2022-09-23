@@ -56,10 +56,15 @@ describe("input-generator", function () {
       name: "robots",
       input: factory.create("robots"),
       source: path.join(__dirname, "test_robots.txt"),
-      remote: "http://localhost:"+port+"/test_robots.txt",
+      remote: [
+        `http://localhost:${port}/test_robots.txt`,
+        `http://localhost:${port}/test_robots_sitemap.txt`,
+        `http://localhost:${port}/test_robots_sitemap_multi.txt`
+      ],
       bad: [
         path.join(__dirname, "test_robots_bad.txt"),
-        "http://localhost:"+port+"/test_robots_bad.txt"
+        `http://localhost:${port}/test_robots_bad.txt`,
+        `http://localhost:${port}/test_robots_sitemap_bad.txt`
       ],
       urls: 5
     },
@@ -84,17 +89,17 @@ describe("input-generator", function () {
       name: "sitemap",
       input: factory.create("sitemap"),
       source: path.join(__dirname, "test_sitemap.xml"),
-      remote: "http://localhost:"+port+"/test_sitemap.xml",
+      remote: [`http://localhost:${port}/test_sitemap.xml`],
       urls: 5
     },
     {
       name: "sitemap-gzip",
       input: factory.create("sitemap"),
       source: path.join(__dirname, "test_sitemap.xml.gz"),
-      remote: "http://localhost:"+port+"/test_sitemap.xml.gz",
+      remote: [`http://localhost:${port}/test_sitemap.xml.gz`],
       bad: [
         path.join(__dirname, "test_sitemap_bad.xml.gz"),
-        "http://localhost:"+port+"/test_sitemap_bad.xml.gz"
+        `http://localhost:${port}/test_sitemap_bad.xml.gz`
       ],
       urls: 5
     },
@@ -102,7 +107,7 @@ describe("input-generator", function () {
       name: "sitemap-index",
       input: factory.create("sitemap-index"),
       source: path.join(__dirname, "test_sitemap_index.xml"),
-      remote: "http://localhost:"+port+"/test_sitemap_index.xml",
+      remote: [`http://localhost:${port}/test_sitemap_index.xml`],
       // this is the total number of pages referenced by sitemaps in test_sitemap_index.
       urls: 17
     },
@@ -110,7 +115,7 @@ describe("input-generator", function () {
       name: "sitemap-index-gzip",
       input: factory.create("sitemap-index"),
       source: path.join(__dirname, "test_sitemap_index.xml.gz"),
-      remote: "http://localhost:"+port+"/test_sitemap_index.xml.gz",
+      remote: [`http://localhost:${port}/test_sitemap_index.xml.gz`],
       // this is the total number of pages referenced by sitemaps in test_sitemap_index.
       urls: 17
     }
@@ -928,7 +933,7 @@ describe("input-generator", function () {
             hostname: hostname
           }),
           function (input) {
-            const re = new RegExp("http://("+hostname+")/");
+            const re = new RegExp(`http://(${hostname})/`);
             const match = re.exec(input.url);
             if (globalUrl) {
               assert.equal(match[1], hostname);
@@ -960,7 +965,7 @@ describe("input-generator", function () {
             protocol: proto
           }),
           function (input) {
-            const re = new RegExp("^("+proto+")://");
+            const re = new RegExp(`^(${proto})://`);
             const match = re.exec(input.url);
             if (globalUrl) {
               assert.equal(match[1], proto);
@@ -993,7 +998,7 @@ describe("input-generator", function () {
             port: port
           }),
           function (input) {
-            const re = new RegExp("^http://localhost\\:("+port+")/");
+            const re = new RegExp(`^http://localhost\\:(${port})/`);
             const match = re.exec(input.url);
             if (globalUrl) {
               assert.equal(match[1], port);
@@ -1026,12 +1031,12 @@ describe("input-generator", function () {
             auth: auth
           }),
           function (input) {
-            const re = new RegExp("^http://("+auth+")@localhost/");
+            const re = new RegExp(`^http://(${auth})@localhost/`);
             const match = re.exec(input.url);
             if (globalUrl) {
               assert.equal(match[1], auth);
             } else {
-              assert.equal(match ===null, true);
+              assert.equal(match === null, true);
             }
             count++;
             if (count === urls) {
@@ -1049,40 +1054,45 @@ describe("input-generator", function () {
         });
 
         if (remote) {
-          it("should process remote source urls", function (done) {
-            let count = 0;
+          remote.forEach(remoteUrl => {
+            it(`should process remote source url ${remoteUrl}`, function (done) {
+              this.timeout(5000);
+              let count = 0;
 
-            const result = gen.run(options.decorate({
-              source: remote,
-              outputDir: thisOutputDir,
-              _abort: function (err) {
-                assert.fail(false, !!err, remote + " should not have aborted: " + err.toString(), ",");
-              }
-            }), function (input) {
-              assert(true, common.isUrl(input.url));
-              count++;
-              if (count === urls) {
-                done();
-              }
-            });
-
-            result
-              .then(function () {
-                assert.ok(true);
-              })
-              .catch(function (err) {
-                assert.fail(`Run should not fail: ${err.toString()}`);
+              const result = gen.run(options.decorate({
+                source: remoteUrl,
+                outputDir: thisOutputDir,
+                _abort: function (err) {
+                  assert.fail(`${remoteUrl} should not have aborted: ${err.toString()}`);
+                }
+              }), function (input) {
+                assert(true, common.isUrl(input.url));
+                count++;
+                if (count === urls) {
+                  done();
+                }
               });
+
+              result
+                .then(function () {
+                  assert.ok(true);
+                })
+                .catch(function (err) {
+                  assert.fail(`Run should not fail: ${err.toString()}`);
+                });
+            });
           });
         }
 
         if (bad) {
-          bad.forEach(function (badSource) {
-            it("should handle bad source "+badSource, function (done) {
+          bad.forEach(badSource => {
+            it(`should handle bad source ${badSource}`, function (done) {
+              this.timeout(10000);
               gen.run(options.decorate({
                 source: badSource,
                 outputDir: thisOutputDir,
                 _abort: function (err) {
+                  // console.log(`@@@ ${badSource} should have aborted with error`);
                   assert.equal(true, !!err, `${badSource} should have aborted with error`);
                   done();
                 }
