@@ -4,14 +4,14 @@
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global describe, it, before */
-var assert = require("assert");
-var path = require("path");
-var base = require("../../../lib/input-generators/_base");
-var factory = require("../../../lib/input-generators");
-var common = require("../../../lib/common");
-var server = require("../../server");
-var options = require("../../helpers/options");
-var port = 8033;
+const assert = require("assert");
+const path = require("path");
+const base = require("../../../lib/input-generators/_base");
+const factory = require("../../../lib/input-generators");
+const common = require("../../../lib/common");
+const server = require("../../server");
+const options = require("../../helpers/options");
+const port = 8033;
 
 describe("input-generator", function () {
 
@@ -49,17 +49,22 @@ describe("input-generator", function () {
     });
   });
 
-  var thisOutputDir = path.join(__dirname, "snapshots");
+  const thisOutputDir = path.join(__dirname, "snapshots");
 
-  var inputGenerators = [
+  const inputGenerators = [
     {
       name: "robots",
       input: factory.create("robots"),
       source: path.join(__dirname, "test_robots.txt"),
-      remote: "http://localhost:"+port+"/test_robots.txt",
+      remote: [
+        `http://localhost:${port}/test_robots.txt`,
+        `http://localhost:${port}/test_robots_sitemap.txt`,
+        `http://localhost:${port}/test_robots_sitemap_multi.txt`
+      ],
       bad: [
         path.join(__dirname, "test_robots_bad.txt"),
-        "http://localhost:"+port+"/test_robots_bad.txt"
+        `http://localhost:${port}/test_robots_bad.txt`,
+        `http://localhost:${port}/test_robots_sitemap_bad.txt`
       ],
       urls: 5
     },
@@ -84,17 +89,17 @@ describe("input-generator", function () {
       name: "sitemap",
       input: factory.create("sitemap"),
       source: path.join(__dirname, "test_sitemap.xml"),
-      remote: "http://localhost:"+port+"/test_sitemap.xml",
+      remote: [`http://localhost:${port}/test_sitemap.xml`],
       urls: 5
     },
     {
       name: "sitemap-gzip",
       input: factory.create("sitemap"),
       source: path.join(__dirname, "test_sitemap.xml.gz"),
-      remote: "http://localhost:"+port+"/test_sitemap.xml.gz",
+      remote: [`http://localhost:${port}/test_sitemap.xml.gz`],
       bad: [
         path.join(__dirname, "test_sitemap_bad.xml.gz"),
-        "http://localhost:"+port+"/test_sitemap_bad.xml.gz"
+        `http://localhost:${port}/test_sitemap_bad.xml.gz`
       ],
       urls: 5
     },
@@ -102,7 +107,7 @@ describe("input-generator", function () {
       name: "sitemap-index",
       input: factory.create("sitemap-index"),
       source: path.join(__dirname, "test_sitemap_index.xml"),
-      remote: "http://localhost:"+port+"/test_sitemap_index.xml",
+      remote: [`http://localhost:${port}/test_sitemap_index.xml`],
       // this is the total number of pages referenced by sitemaps in test_sitemap_index.
       urls: 17
     },
@@ -110,7 +115,7 @@ describe("input-generator", function () {
       name: "sitemap-index-gzip",
       input: factory.create("sitemap-index"),
       source: path.join(__dirname, "test_sitemap_index.xml.gz"),
-      remote: "http://localhost:"+port+"/test_sitemap_index.xml.gz",
+      remote: [`http://localhost:${port}/test_sitemap_index.xml.gz`],
       // this is the total number of pages referenced by sitemaps in test_sitemap_index.
       urls: 17
     }
@@ -128,7 +133,7 @@ describe("input-generator", function () {
   }
 
   function urlToPath (url) {
-    var result = url;
+    let result = url;
     if (process.platform === "win32") {
       result = url.replace(/\//g, "\\");
     }
@@ -136,7 +141,7 @@ describe("input-generator", function () {
   }
 
   function urlToPathRe (url) {
-    var result = url;
+    let result = url;
     if (process.platform === "win32") {
       result = url.replace(/\//g, "\\\\");
     }
@@ -147,13 +152,12 @@ describe("input-generator", function () {
 
     describe(inputGeneratorTest.name, function () {
 
-      var globalUrl = inputGeneratorTest.name === "robots" || inputGeneratorTest.name === "textfile";
-      // var genName = inputGeneratorTest.name;
-      var remote = inputGeneratorTest.remote;
-      var gen = inputGeneratorTest.input;
-      var source = inputGeneratorTest.source;
-      var bad = inputGeneratorTest.bad;
-      var urls = inputGeneratorTest.urls;
+      const globalUrl = inputGeneratorTest.name === "robots" || inputGeneratorTest.name === "textfile";
+      const remote = inputGeneratorTest.remote;
+      const gen = inputGeneratorTest.input;
+      const source = inputGeneratorTest.source;
+      const bad = inputGeneratorTest.bad;
+      const urls = inputGeneratorTest.urls;
 
       describe("general behavior", function () {
 
@@ -167,7 +171,7 @@ describe("input-generator", function () {
 
         // requires inputFile not found
         it("should produce no input for defaults and a bogus file", function (done) {
-          var doneCalled = false;
+          let doneCalled = false;
 
           gen.run(options.decorate({
             source: "./bogus/file.txt",
@@ -178,7 +182,7 @@ describe("input-generator", function () {
               done();
             }
           }), function () {
-            assert.fail("input callback", "called", "unexpected input processed", "should not have been");
+            assert.fail("input callback should not have been called, unexpected input processed");
           });
 
           setTimeout(function () {
@@ -190,9 +194,9 @@ describe("input-generator", function () {
 
         // requires source to have 'urls' valid entries
         it("should produce input with all defaults and a valid source", function (done) {
-          var count = 0;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir
           }), function () {
@@ -207,25 +211,25 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         // this test has to match the base generator defaults
         it("base defaults should exist in input when requested", function (done) {
-          var defaults = base.defaults({});
+          const defaults = base.defaults({});
           defaults.outputDir = thisOutputDir;
 
-          var count = 0;
-          var result = gen.run(options.decorate({
+          let count = 0;
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir
           }), function (input) {
-            var re1 = new RegExp("^("+defaults.protocol+")://("+defaults.hostname+")/");
-            var re2 = new RegExp("^("+pathToRe(defaults.outputDir)+")"+pathToRe(path.sep));
+            const re1 = new RegExp("^("+defaults.protocol+")://("+defaults.hostname+")/");
+            const re2 = new RegExp("^("+pathToRe(defaults.outputDir)+")"+pathToRe(path.sep));
 
-            var m1 = re1.exec(input.url);
-            var m2 = re2.exec(input.outputFile);
+            const m1 = re1.exec(input.url);
+            const m2 = re2.exec(input.outputFile);
 
             if (globalUrl) {
               assert.equal(m1[1], defaults.protocol);
@@ -250,7 +254,7 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
@@ -259,10 +263,10 @@ describe("input-generator", function () {
       describe("timeout option", function () {
 
         it("should accept scalar and apply globally", function (done) {
-          var count = 0;
-          var theTimeout = 500;
+          let count = 0;
+          const theTimeout = 500;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             timeout: theTimeout
@@ -280,37 +284,37 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         // requires source to contain specific urls
         it("should accept function and apply per url", function (done) {
-          var globalTimeouts = {
+          const globalTimeouts = {
             "/": 1,
             "/contact": 2,
             "/services/carpets": 3
           };
-          var localTimeouts = {
+          const localTimeouts = {
             "http://northstar.local": 1,
             "http://northstar.local/contact": 2,
             "http://northstar.local/services/carpets": 3
           };
-          var timeouts = globalUrl ? globalTimeouts : localTimeouts;
+          const timeouts = globalUrl ? globalTimeouts : localTimeouts;
 
-          var timeoutFn = function (url) {
+          const timeoutFn = function (url) {
             return timeouts[url];
           };
 
-          var count = 0;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             timeout: timeoutFn
           }),
           function (input) {
-            var testTimeout =
+            const testTimeout =
                 timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;
 
             assert.equal(input.timeout, testTimeout,
@@ -327,33 +331,33 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept object and apply per url", function (done) {
-          var globalTimeouts = {
+          const globalTimeouts = {
             "/": 1,
             "/contact": 2,
             "/services/carpets": 3,
             "__default": 4
           };
-          var localTimeouts = {
+          const localTimeouts = {
             "http://northstar.local": 470,
             "http://northstar.local/contact": 480,
             "http://northstar.local/services/carpets": 490,
             "__default": 500
           };
-          var timeouts = globalUrl ? globalTimeouts : localTimeouts;
-          var count = 0;
+          const timeouts = globalUrl ? globalTimeouts : localTimeouts;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             timeout: timeouts
           }),
           function (input) {
-            var testTimeout =
+            const testTimeout =
                 timeouts[input.__page] ? timeouts[input.__page] : timeouts.__default;
 
             assert.equal(input.timeout, testTimeout,
@@ -370,32 +374,32 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept object and apply per url, with missing __default",
         function (done) {
-          var globalTimeouts = {
+          const globalTimeouts = {
             "/": 1,
             "/contact": 2,
             "/services/carpets": 3
           };
-          var localTimeouts = {
+          const localTimeouts = {
             "http://northstar.local": 1,
             "http://northstar.local/contact": 2,
             "http://northstar.local/services/carpets": 3
           };
-          var timeouts = globalUrl ? globalTimeouts : localTimeouts;
-          var count = 0;
+          const timeouts = globalUrl ? globalTimeouts : localTimeouts;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             timeout: timeouts
           }),
           function (input) {
-            var testTimeout =
+            const testTimeout =
                 timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;
 
             assert.equal(input.timeout, testTimeout,
@@ -412,7 +416,7 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             })
         });
 
@@ -421,10 +425,10 @@ describe("input-generator", function () {
       describe("selector option", function () {
 
         it("should accept scalar and apply globally", function (done) {
-          var selector = "foo";
-          var count = 0;
+          const selector = "foo";
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             selector: selector
@@ -442,35 +446,35 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         // requires source to contain specific urls
         it("should accept function and apply per url", function (done) {
-          var globalSelectors = {
+          const globalSelectors = {
             "/": "1",
             "/contact": "2",
             "/services/carpets": "3"
           };
-          var localSelectors = {
+          const localSelectors = {
             "http://northstar.local/": "1",
             "http://northstar.local/contact": "2",
             "http://northstar.local/services/carpets": "3"
           };
-          var selectors = globalUrl ? globalSelectors : localSelectors;
-          var selectorFn = function (url) {
+          const selectors = globalUrl ? globalSelectors : localSelectors;
+          const selectorFn = function (url) {
             return selectors[url];
           };
-          var count = 0;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             selector: selectorFn
           }),
           function (input) {
-            var testSelector =
+            const testSelector =
                 selectors[input.__page] ? selectors[input.__page] : base.defaults({}).selector;
 
             assert.equal(input.selector, testSelector,
@@ -487,33 +491,33 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept object and apply per url", function (done) {
-          var globalSelectors = {
+          const globalSelectors = {
             "/": "1",
             "/contact": "2",
             "/services/carpets": "3",
             "__default": "50"
           };
-          var localSelectors = {
+          const localSelectors = {
             "http://northstar.local/": "1",
             "http://northstar.local/contact": "2",
             "http://northstar.local/services/carpets": "3",
             "__default": "50"
           };
-          var selectors = globalUrl ? globalSelectors : localSelectors;
-          var count = 0;
+          const selectors = globalUrl ? globalSelectors : localSelectors;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             selector: selectors
           }),
           function (input) {
-            var testSelector =
+            const testSelector =
               selectors[input.__page] ? selectors[input.__page] : selectors.__default;
 
             assert.equal(input.selector, testSelector,
@@ -530,7 +534,7 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
@@ -540,10 +544,10 @@ describe("input-generator", function () {
 
         it("should accept a scalar and apply globally",
         function (done) {
-          var useJQuery = true;
-          var count = 0;
+          const useJQuery = true;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             useJQuery: useJQuery
@@ -560,32 +564,32 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept an object and apply per url", function (done) {
-          var globalOptions = {
+          const globalOptions = {
             "/": false,
             "/contact": true,
             "/services/carpets": false,
             "__default": true
           };
-          var localOptions = {
+          const localOptions = {
             "http://northstar.local/": false,
             "http://northstar.local/contact": true,
             "http://northstar.local/services/carpets": false,
             "__default": true
           };
-          var opts = globalUrl ? globalOptions : localOptions;
-          var count = 0;
+          const opts = globalUrl ? globalOptions : localOptions;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             useJQuery: opts
           }), function (input) {
-            var testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+            const testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
 
             assert.equal(input.useJQuery, testOption,
               input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
@@ -601,33 +605,33 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept a function and apply per url", function (done) {
-          var globalOptions = {
+          const globalOptions = {
             "/": false,
             "/contact": true,
             "/services/carpets": false
           };
-          var localOptions = {
+          const localOptions = {
             "http://northstar.local/": false,
             "http://northstar.local/contact": true,
             "http://northstar.local/services/carpets": false
           };
-          var count = 0;
-          var opts = globalUrl ? globalOptions : localOptions;
-          var useJQFn = function (url) {
+          let count = 0;
+          const opts = globalUrl ? globalOptions : localOptions;
+          const useJQFn = function (url) {
             return opts[url];
           };
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             useJQuery: useJQFn
           }), function (input) {
-            var testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).useJQuery;
+            const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).useJQuery;
 
             assert.equal(input.useJQuery, testOption,
               input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
@@ -643,7 +647,7 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
@@ -653,10 +657,10 @@ describe("input-generator", function () {
 
         it("should accept a scalar and apply globally",
         function (done) {
-          var verbose = true;
-          var count = 0;
+          const verbose = true;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             verbose: verbose
@@ -673,32 +677,32 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept an object and apply per url", function (done) {
-          var globalOptions = {
+          const globalOptions = {
             "/": false,
             "/contact": true,
             "/services/carpets": false,
             "__default": true
           };
-          var localOptions = {
+          const localOptions = {
             "http://northstar.local/": false,
             "http://northstar.local/contact": true,
             "http://northstar.local/services/carpets": false,
             "__default": true
           };
-          var opts = globalUrl ? globalOptions : localOptions;
-          var count = 0;
+          const opts = globalUrl ? globalOptions : localOptions;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             verbose: opts
           }), function (input) {
-            var testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+            const testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
 
             assert.equal(input.verbose, testOption,
               input.__page+":\ninput.verbose: "+input.verbose+" != testVerbose: "+testOption);
@@ -714,33 +718,33 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept a function and apply per url", function (done) {
-          var globalOptions = {
+          const globalOptions = {
             "/": false,
             "/contact": true,
             "/services/carpets": false
           };
-          var localOptions = {
+          const localOptions = {
             "http://northstar.local/": false,
             "http://northstar.local/contact": true,
             "http://northstar.local/services/carpets": false
           };
-          var count = 0;
-          var opts = globalUrl ? globalOptions : localOptions;
-          var useVerboseFn = function (url) {
+          let count = 0;
+          const opts = globalUrl ? globalOptions : localOptions;
+          const useVerboseFn = function (url) {
             return opts[url];
           };
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             verbose: useVerboseFn
           }), function (input) {
-            var testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).verbose;
+            const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).verbose;
 
             assert.equal(input.verbose, testOption,
               input.__page+":\ninput.verbose: "+input.verbose+" != testUseVerbose: "+testOption);
@@ -756,7 +760,7 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
@@ -765,10 +769,10 @@ describe("input-generator", function () {
       describe("phantomjsOptions option", function () {
 
         it("should accept a single string and apply globally", function (done) {
-          var phantomjsOption = "--version";
-          var count = 0;
+          const phantomjsOption = "--version";
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             phantomjsOptions: phantomjsOption
@@ -788,15 +792,15 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept a single array and apply globally", function (done) {
-          var phantomjsOption = ["--version", "--help"];
-          var count = 0;
+          const phantomjsOption = ["--version", "--help"];
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             phantomjsOptions: phantomjsOption
@@ -820,36 +824,36 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept an object and apply per url", function (done) {
-          var phantomjsOption1 = "--version",
+          const phantomjsOption1 = "--version",
               phantomjsOption2 = ["--help"],
               phantomjsOption3 = ["--another-option=somevalue", "--some-other-option=someother"];
 
-          var globalOptions = {
+          const globalOptions = {
             "/": phantomjsOption1,
             "/contact": phantomjsOption2,
             "/services/carpets": phantomjsOption3,
             "__default": ""
           };
-          var localOptions = {
+          const localOptions = {
             "http://northstar.local/": phantomjsOption1,
             "http://northstar.local/contact": phantomjsOption2,
             "http://northstar.local/services/carpets": phantomjsOption3,
             "__default": ""
           };
-          var opts = globalUrl ? globalOptions : localOptions;
-          var count = 0;
+          const opts = globalUrl ? globalOptions : localOptions;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             phantomjsOptions: opts
           }), function (input) {
-            var testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+            const testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
 
             assert.deepEqual(input.phantomjsOptions, testOption,
               input.__page+":\ninput.phantomjsOptions: "+input.phantomjsOptions+" != testPhantomJSOption: "+testOption);
@@ -865,37 +869,37 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should accept a function and apply per url", function (done) {
-          var phantomjsOption1 = "--version",
+          const phantomjsOption1 = "--version",
               phantomjsOption2 = ["--help"],
               phantomjsOption3 = ["--another-option=somevalue", "--some-other-option=someother"];
 
-          var globalOptions = {
+          const globalOptions = {
             "/": phantomjsOption1,
             "/contact": phantomjsOption2,
             "/services/carpets": phantomjsOption3
           };
-          var localOptions = {
+          const localOptions = {
             "http://northstar.local/": phantomjsOption1,
             "http://northstar.local/contact": phantomjsOption2,
             "http://northstar.local/services/carpets": phantomjsOption3
           };
-          var opts = globalUrl ? globalOptions : localOptions;
-          var count = 0;
-          var phantomjsFn = function (url) {
+          const opts = globalUrl ? globalOptions : localOptions;
+          let count = 0;
+          const phantomjsFn = function (url) {
             return opts[url];
           };
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             phantomjsOptions: phantomjsFn
           }), function (input) {
-            var testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).phantomjsOptions;
+            const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).phantomjsOptions;
 
             assert.deepEqual(input.phantomjsOptions, testOption,
               input.__page+":\ninput.phantomjsOptions: "+input.phantomjsOptions+" != testPhantomJSOption: "+testOption);
@@ -911,7 +915,7 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
@@ -920,17 +924,17 @@ describe("input-generator", function () {
       describe("url behavior", function () {
 
         it("should replace the default hostname in results", function (done) {
-          var hostname = "foo";
-          var count = 0;
+          const hostname = "foo";
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             hostname: hostname
           }),
           function (input) {
-            var re = new RegExp("http://("+hostname+")/");
-            var match = re.exec(input.url);
+            const re = new RegExp(`http://(${hostname})/`);
+            const match = re.exec(input.url);
             if (globalUrl) {
               assert.equal(match[1], hostname);
             } else {
@@ -947,22 +951,22 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should replace the default protocol in results", function (done) {
-          var proto = "file";
-          var count = 0;
+          const proto = "file";
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             protocol: proto
           }),
           function (input) {
-            var re = new RegExp("^("+proto+")://");
-            var match = re.exec(input.url);
+            const re = new RegExp(`^(${proto})://`);
+            const match = re.exec(input.url);
             if (globalUrl) {
               assert.equal(match[1], proto);
             } else {
@@ -979,23 +983,23 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should contain a port in the url if one is specified",
         function (done) {
-          var port = 8080;
-          var count = 0;
+          const port = 8080;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             port: port
           }),
           function (input) {
-            var re = new RegExp("^http://localhost\\:("+port+")/");
-            var match = re.exec(input.url);
+            const re = new RegExp(`^http://localhost\\:(${port})/`);
+            const match = re.exec(input.url);
             if (globalUrl) {
               assert.equal(match[1], port);
             } else {
@@ -1012,27 +1016,27 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should contain an auth in the url if one is specified",
         function (done) {
-          var auth = "user:pass";
-          var count = 0;
+          const auth = "user:pass";
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             auth: auth
           }),
           function (input) {
-            var re = new RegExp("^http://("+auth+")@localhost/");
-            var match = re.exec(input.url);
+            const re = new RegExp(`^http://(${auth})@localhost/`);
+            const match = re.exec(input.url);
             if (globalUrl) {
               assert.equal(match[1], auth);
             } else {
-              assert.equal(match ===null, true);
+              assert.equal(match === null, true);
             }
             count++;
             if (count === urls) {
@@ -1045,51 +1049,56 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         if (remote) {
-          it("should process remote source urls", function (done) {
-            var count = 0;
+          remote.forEach(remoteUrl => {
+            it(`should process remote source url ${remoteUrl}`, function (done) {
+              this.timeout(5000);
+              let count = 0;
 
-            var result = gen.run(options.decorate({
-              source: remote,
-              outputDir: thisOutputDir,
-              _abort: function (err) {
-                assert.fail(false, !!err, remote + " should not have aborted: " + err.toString(), ",");
-              }
-            }), function (input) {
-              assert(true, common.isUrl(input.url));
-              count++;
-              if (count === urls) {
-                done();
-              }
-            });
-
-            result
-              .then(function () {
-                assert.ok(true);
-              })
-              .catch(function (err) {
-                assert.fail("run", "fail", err.toString(), "should not");
+              const result = gen.run(options.decorate({
+                source: remoteUrl,
+                outputDir: thisOutputDir,
+                _abort: function (err) {
+                  assert.fail(`${remoteUrl} should not have aborted: ${err.toString()}`);
+                }
+              }), function (input) {
+                assert(true, common.isUrl(input.url));
+                count++;
+                if (count === urls) {
+                  done();
+                }
               });
+
+              result
+                .then(function () {
+                  assert.ok(true);
+                })
+                .catch(function (err) {
+                  assert.fail(`Run should not fail: ${err.toString()}`);
+                });
+            });
           });
         }
 
         if (bad) {
-          bad.forEach(function (badSource) {
-            it("should handle bad source "+badSource, function (done) {
+          bad.forEach(badSource => {
+            it(`should handle bad source ${badSource}`, function (done) {
+              this.timeout(10000);
               gen.run(options.decorate({
                 source: badSource,
                 outputDir: thisOutputDir,
                 _abort: function (err) {
-                  assert.equal(true, !!err, badSource + " should have aborted with error");
+                  // console.log(`@@@ ${badSource} should have aborted with error`);
+                  assert.equal(true, !!err, `${badSource} should have aborted with error`);
                   done();
                 }
               }), function () {
                 //console.log("@@@ bad input:\n"+require("util").inspect(input));
-                assert.fail(false, true, " input handler was called unexpectedly for badSource "+badSource, ",");
+                assert.fail(`Input handler was called unexpectedly for badSource: ${badSource}`);
                 done(true);
               });
             });
@@ -1100,10 +1109,10 @@ describe("input-generator", function () {
       describe("checkInterval option", function () {
 
         it("should replace the default checkInterval globally", function (done) {
-          var checkInterval = 1;
-          var count = 0;
+          const checkInterval = 1;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             checkInterval: checkInterval
@@ -1120,7 +1129,7 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
@@ -1130,15 +1139,15 @@ describe("input-generator", function () {
 
         it("should contain the snapshot directory in output outfile spec",
         function (done) {
-          var snapshotDir = "foo";
-          var count = 0;
+          const snapshotDir = "foo";
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: path.join(thisOutputDir, snapshotDir)
           }), function (input) {
-            var re = new RegExp("\\"+path.sep+"("+snapshotDir+")"+"\\"+path.sep);
-            var match = re.exec(input.outputFile);
+            const re = new RegExp("\\"+path.sep+"("+snapshotDir+")"+"\\"+path.sep);
+            const match = re.exec(input.outputFile);
             assert.equal(match[1], snapshotDir);
             count++;
             if (count === urls) {
@@ -1151,38 +1160,35 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         // requires inputFile to contain specific urls
         it("should contain the page structure in the output file spec",
         function (done) {
-          var snapshotDir = "foo";
-          var pages = {
+          const snapshotDir = "foo";
+          const pages = !globalUrl ? {
+            "http://northstar.local/": "/",
+            "http://northstar.local/contact": "/contact",
+            "http://northstar.local/services/carpets": "/services/carpets",
+            "http://northstar.local/services/test?arg=one": "/services/test",
+            "https://northstar.local/services/#hash": "/services"
+          } : {
             "/": "/",
             "/contact": "/contact",
             "/services/carpets": "/services/carpets",
             "/services/test?arg=one": "/services/test",
             "/services/#hash": "/services"
           };
-          if (!globalUrl) {
-            pages = {
-              "http://northstar.local/": "/",
-              "http://northstar.local/contact": "/contact",
-              "http://northstar.local/services/carpets": "/services/carpets",
-              "http://northstar.local/services/test?arg=one": "/services/test",
-              "https://northstar.local/services/#hash": "/services"
-            };
-          }
-          var count = 0;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: path.join(thisOutputDir, snapshotDir)
           }), function (input) {
-            var re = new RegExp("("+snapshotDir+")("+urlToPathRe(pages[input.__page])+")");
-            var match = re.exec(input.outputFile);
+            const re = new RegExp("("+snapshotDir+")("+urlToPathRe(pages[input.__page])+")");
+            const match = re.exec(input.outputFile);
 
             assert.equal(true, match[1] === snapshotDir && match[2] === urlToPath(pages[input.__page]));
 
@@ -1197,7 +1203,7 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
@@ -1206,35 +1212,32 @@ describe("input-generator", function () {
       describe("outputPath option", function () {
         it("should lookup an outputPath (per page from a function) if one is specified",
         function (done) {
-          var argOne = "/services/test/arg/one";
-          var hash = "/services/hash";
-          var pages = {
+          const argOne = "/services/test/arg/one";
+          const hash = "/services/hash";
+          const pages = !globalUrl ? {
+            "http://northstar.local/": "/",
+            "http://northstar.local/contact": "/contact",
+            "http://northstar.local/services/carpets": "/services/carpets",
+            "http://northstar.local/services/test?arg=one": argOne,
+            "https://northstar.local/services/#hash": hash
+          } : {
             "/": "/",
             "/contact": "/contact",
             "/services/carpets": "/services/carpets",
             "/services/test?arg=one": argOne,
             "/services/#hash": hash
           };
-          if (!globalUrl) {
-            pages = {
-              "http://northstar.local/": "/",
-              "http://northstar.local/contact": "/contact",
-              "http://northstar.local/services/carpets": "/services/carpets",
-              "http://northstar.local/services/test?arg=one": argOne,
-              "https://northstar.local/services/#hash": hash
-            };
-          }
-          var count = 0;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputPath: function (p) {
               return pages[p];
             },
             outputDir: thisOutputDir
           }), function (input) {
-            var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
-            var match = re.exec(input.outputFile);
+            const re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
+            const match = re.exec(input.outputFile);
             assert.equal(match[1], urlToPath(pages[input.__page]));
             count++;
             if (count === urls) {
@@ -1247,44 +1250,40 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should lookup an outputPath (from a hash) and find it in the outputFile spec",
         function (done) {
-          var argOne = "/services/test/arg/one";
-          var hash = "/services/hash";
-          var outputPath = { "/services/test?arg=one": argOne, "/services/#hash": hash };
-          var pages = {
+          const argOne = "/services/test/arg/one";
+          const hash = "/services/hash";
+          const outputPath = !globalUrl ? {
+            "http://northstar.local/services/test?arg=one": argOne,
+            "https://northstar.local/services/#hash": hash
+          } : { "/services/test?arg=one": argOne, "/services/#hash": hash };
+          const pages = !globalUrl ? {
+            "http://northstar.local/": "/",
+            "http://northstar.local/contact": "/contact",
+            "http://northstar.local/services/carpets": "/services/carpets",
+            "http://northstar.local/services/test?arg=one": argOne,
+            "https://northstar.local/services/#hash": hash
+          } : {
             "/": "/",
             "/contact": "/contact",
             "/services/carpets": "/services/carpets",
             "/services/test?arg=one": argOne,
             "/services/#hash": hash
           };
-          if (!globalUrl) {
-            outputPath = {
-              "http://northstar.local/services/test?arg=one": argOne,
-              "https://northstar.local/services/#hash": hash
-            };
-            pages = {
-              "http://northstar.local/": "/",
-              "http://northstar.local/contact": "/contact",
-              "http://northstar.local/services/carpets": "/services/carpets",
-              "http://northstar.local/services/test?arg=one": argOne,
-              "https://northstar.local/services/#hash": hash
-            };
-          }
-          var count = 0;
+          let count = 0;
 
-          var result = gen.run(options.decorate({
+          const result = gen.run(options.decorate({
             source: source,
             outputDir: thisOutputDir,
             outputPath: outputPath
           }), function (input) {
-            var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
-            var match = re.exec(input.outputFile);
+            const re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
+            const match = re.exec(input.outputFile);
             assert.equal(match[1], urlToPath(pages[input.__page]));
             count++;
             if (count === urls) {
@@ -1297,16 +1296,24 @@ describe("input-generator", function () {
               assert.ok(true);
             })
             .catch(function (err) {
-              assert.fail("run", "fail", err.toString(), "should not");
+              assert.fail(`Run should not fail: ${err.toString()}`);
             });
         });
 
         it("should return false if a snapshot can't be created",
         function (done) {
-          var aborted = false;
-          var argOne = "/services/test/arg/one";
-          var hash = "/services/hash";
-          var pages = {
+          let aborted = false;
+          let count = 0;
+          const argOne = "/services/test/arg/one";
+          const hash = "/services/hash";
+          const pages = !globalUrl ? {
+              // this causes the problem
+              //"http://northstar.local/": "/",
+              "http://northstar.local/contact": "/contact",
+              "http://northstar.local/services/carpets": "/services/carpets",
+              "http://northstar.local/services/test?arg=one": argOne,
+              "https://northstar.local/services/#hash": hash
+          } : {
             // this causes the problem
             //"/": "/",
             "/contact": "/contact",
@@ -1314,17 +1321,6 @@ describe("input-generator", function () {
             "/services/test?arg=one": argOne,
             "/services/#hash": hash
           };
-          if (!globalUrl) {
-            pages = {
-              // this causes the problem
-              //"http://northstar.local/": "/",
-              "http://northstar.local/contact": "/contact",
-              "http://northstar.local/services/carpets": "/services/carpets",
-              "http://northstar.local/services/test?arg=one": argOne,
-              "https://northstar.local/services/#hash": hash
-            };
-          }
-          var count = 0;
 
           gen.run(options.decorate({
             source: source,
@@ -1339,8 +1335,8 @@ describe("input-generator", function () {
             }
           }), function (input) {
             if (!aborted) {
-              var re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
-              var match = re.exec(input.outputFile);
+              const re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
+              const match = re.exec(input.outputFile);
               assert.equal(match[1], urlToPath(pages[input.__page]));
               count++;
               if (count === (urls-1)) {

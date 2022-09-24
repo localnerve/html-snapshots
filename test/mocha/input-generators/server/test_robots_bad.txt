@@ -7,7 +7,5 @@ Disallow: /vendor/
 Disallow: /fonts/
 Disallow: /images/
 
-Sitemap: http://northstarcleaningme.com/sitemap.xml
-
 User-agent: ia_archiver
 Disallow: /

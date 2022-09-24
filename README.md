@@ -35,9 +35,9 @@
 + [License](#license)
 
 ## Overview
-html-snapshots is a flexible html snapshot library that uses PhantomJS to take html snapshots of your webpages served from your site. A snapshot is only taken when a specified selector is detected visible in the output html. This tool is useful when your site is largely ajax content, or an SPA, and you want your dynamic content indexed by search engines.
+html-snapshots is a flexible html snapshot library that uses a headless browser to take html snapshots of your webpages served from your site. A snapshot is only taken when a specified selector is detected visible in the output html. This tool is useful when your site is largely ajax content, or an SPA, and you want your dynamic content indexed by search engines.
 
-html-snapshots gets urls to process from either a robots.txt or sitemap.xml. Alternatively, you can supply an array with completely arbitrary urls, or a line delimited textfile with arbitrary host-relative paths.
+html-snapshots gets urls to process from either a robots.txt, sitemap.xml, or sitemap-index.xml. Alternatively, you can supply an array with completely arbitrary urls, or a line delimited textfile with arbitrary host-relative paths.
 
 ## Getting Started
 
@@ -58,7 +58,7 @@ Here are some [background and other notes](/docs/notes.md) regarding this projec
   + [Caveats](/docs/notes.md#caveats)
 
 ### Process Model
-html-snapshots takes snapshots in parallel, each page getting its own PhantomJS process. Each PhantomJS process dies after snapshotting one page. You can limit the number of PhantomJS processes that can ever run at once with the `processLimit` option. This effectively sets up a process pool for PhantomJS instances. The default processLimit is 4 PhantomJS instances. When a PhantomJS process dies, and another snapshot needs to be taken, a new PhantomJS process is spawned to take the vacant slot. This continues until a `processLimit` number of processes are running at once.
+html-snapshots takes snapshots in parallel, each page getting its own browser process. Each browser process dies after snapshotting one page. You can limit the number of browser processes that can ever run at once with the `processLimit` option. This effectively sets up a process pool for browser instances. The default processLimit is 4 browser instances. When a browser process dies, and another snapshot needs to be taken, a new browser process is spawned to take the vacant slot. This continues until a `processLimit` number of processes are running at once.
 
 ### Node Support Tags
   `v0.13.2 ` Node 0.12 (or less)  
@@ -69,6 +69,10 @@ html-snapshots takes snapshots in parallel, each page getting its own PhantomJS 
   `v0.18.x ` Node 14+
 
 ### Breaking Changes
+
+#### Introduced in v0.19.x
+##### Robots Input
+Robots.txt files are now searched for `Sitemap` directive(s) **first** for sitemap/sitemapIndex files. If those directives are found, those directives are used to drive the crawl of the site alone. If no Sitemap directives are found, htmlSnapshots reverts back to using `Allow` directives. If no `Sitemap` directive is found, this is a non-breaking change.
 
 #### Introduced in v0.18.x
 ##### Dropped support for Node 10 & 12.
@@ -98,13 +102,13 @@ The api is just one `run` method that returns a Promise.
 A method that takes [options](#options) and an optional callback. Returns a Promise.  
 **Syntax:**
 ```javascript
-var htmlSnapshots = require('html-snapshots');
+const htmlSnapshots = require('html-snapshots');
 
-htmlSnapshots.run (options[, callback])
-.then(function (completed) {
+htmlSnapshots.run(options[, callback])
+.then(completed => {
   // `completed` is an array of paths to the completed snapshots.
 })
-.catch(function (errorObject) {
+.catch(errorObject => {
   // `errorObject` is an instance of Error
   // `errorObject.completed` is an array of paths to the snapshots that did successfully complete.
   // `errorObject.notCompleted` is an array of paths to files that DID NOT successfully complete.
@@ -128,18 +132,18 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
 
 ### Simple example
 ```javascript
-var htmlSnapshots = require('html-snapshots');
+const htmlSnapshots = require('html-snapshots');
 htmlSnapshots.run({
-  source: "/path/to/robots.txt",
-  hostname: "exampledomain.com",
-  outputDir: "./snapshots",
+  source: '/path/to/robots.txt',
+  hostname: 'exampledomain.com',
+  outputDir: './snapshots',
   outputDirClean: true,
-  selector: "#dynamic-content"
+  selector: '#dynamic-content'
 })
-.then(function (completed) {
+.then(completed => {
   // completed is an array of full file paths to the completed snapshots.
 })
-.catch(function (error) {
+.catch(error => {
   // error is an Error instance.
   // error.completed is an array of snapshot file paths that were completed.
   // error.notCompleted is an array of file paths that did NOT complete.
@@ -149,25 +153,25 @@ This reads the urls from your robots.txt and produces snapshots in the ./snapsho
 
 ### Example - Per page selectors and timeouts
 ```javascript
-var htmlSnapshots = require('html-snapshots');
+const htmlSnapshots = require('html-snapshots');
 htmlSnapshots.run({
-  input: "sitemap",
-  source: "/path/to/sitemap.xml",
-  outputDir: "./snapshots",
+  input: 'sitemap',
+  source: '/path/to/sitemap.xml',
+  outputDir: './snapshots',
   outputDirClean: true,
   selector: {
-    "http://mysite.com": "#home-content",
-    "__default": "#dynamic-content"
+    'http://mysite.com': '#home-content',
+    '__default': '#dynamic-content'
   },
   timeout: {
-    "http://mysite.com/superslowpage": 20000,
-    "__default": 10000
+    'http://mysite.com/superslowpage': 20000,
+    '__default': 10000
   }
 })
-.then(function (completed) {
+.then(completed => {
   // completed is an array of full file paths to the completed snapshots.
 })
-.catch(function (error) {
+.catch(error => {
   // error is an Error instance.
   // error.completed is an array of snapshot file paths that were completed.
   // error.notCompleted is an array of file paths that did NOT complete.
@@ -177,22 +181,22 @@ This reads the urls from your sitemap.xml and produces snapshots in the ./snapsh
 
 ### Example - Per page special output paths
 ```javascript
-var htmlSnapshots = require('html-snapshots');
+const htmlSnapshots = require('html-snapshots');
 htmlSnapshots.run({
-  input: "sitemap",
-  source: "/path/to/sitemap.xml",
-  outputDir: "./snapshots",
+  input: 'sitemap',
+  source: '/path/to/sitemap.xml',
+  outputDir: './snapshots',
   outputDirClean: true,
   outputPath: {
-    "http://mysite.com/services/?page=1": "services/page/1",
-    "http://mysite.com/services/?page=2": "services/page/2"
+    'http://mysite.com/services/?page=1': 'services/page/1',
+    'http://mysite.com/services/?page=2': 'services/page/2'
   },
-  selector: "#dynamic-content"
+  selector: '#dynamic-content'
 })
-.then(function (completed) {
+.then(completed => {
   // completed is an array of full file paths to the completed snapshots.
 })
-.catch(function (error) {
+.catch(error => {
   // error is an Error instance.
   // error.completed is an array of snapshot file paths that were completed.
   // error.notCompleted is an array of file paths that did NOT complete.
@@ -202,25 +206,25 @@ This example implies there are a couple of pages with query strings in sitemap.x
 
 ### Example - Per page selectors and jQuery
 ```javascript
-var htmlSnapshots = require('html-snapshots');
+const htmlSnapshots = require('html-snapshots');
 htmlSnapshots.run({
-  source: "/path/to/robots.txt",
-  hostname: "mysite.com",
-  outputDir: "./snapshots",
+  source: '/path/to/robots.txt',
+  hostname: 'mysite.com',
+  outputDir: './snapshots',
   outputDirClean: true,
   selector: {
-    "__default": "#dynamic-content",
-    "/jqpage": "A-Selector-Not-Supported-By-querySelector"
+    '__default': '#dynamic-content',
+    '/jqpage': 'A-Selector-Not-Supported-By-querySelector'
   },
   useJQuery: {
-    "/jqpage": true,
-    "__default": false
+    '/jqpage': true,
+    '__default': false
   }
 })
-.then(function (completed) {
+.then(completed => {
   // completed is an array of full file paths to the completed snapshots.
 })
-.catch(function (error) {
+.catch(error => {
   // error is an Error instance.
   // error.completed is an array of snapshot file paths that were completed.
   // error.notCompleted is an array of file paths that did NOT complete.
@@ -230,18 +234,18 @@ This reads the urls from your robots.txt and produces snapshots in the ./snapsho
 
 ### Example - Array
 ```javascript
-var htmlSnapshots = require('html-snapshots');
+const htmlSnapshots = require('html-snapshots');
 htmlSnapshots.run({
-  input: "array",
-  source: ["http://mysite.com", "http://mysite.com/contact", "http://mysite.com:82/special"],
-  outputDir: "./snapshots",
+  input: 'array',
+  source: ['http://mysite.com', 'http://mysite.com/contact', 'http://mysite.com:82/special'],
+  outputDir: './snapshots',
   outputDirClean: true,  
-  selector: "#dynamic-content"
+  selector: '#dynamic-content'
 })
-.then(function (completed) {
+.then(completed => {
   // completed is an array of full file paths to the completed snapshots.
 })
-.catch(function (error) {
+.catch(error => {
   // error is an Error instance.
   // error.completed is an array of snapshot file paths that were completed.
   // error.notCompleted is an array of file paths that did NOT complete.
@@ -251,29 +255,29 @@ Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/speci
 
 ### Example - Remote robots.txt, remove script tags from html snapshots
 ```javascript
-var assert = require("assert");
-var fs = require("fs");
-var htmlSnapshots = require("html-snapshots");
+const assert = require('assert');
+const fs = require('fs');
+const htmlSnapshots = require('html-snapshots');
 
 htmlSnapshots.run({
-  source: "http://localhost/robots.txt",
-  hostname: "localhost",
-  outputDir: "./snapshots",
+  source: 'http://localhost/robots.txt',
+  hostname: 'localhost',
+  outputDir: './snapshots',
   outputDirClean: true,  
-  selector: "#dynamic-content",
+  selector: '#dynamic-content',
   snapshotScript: {
-    script: "removeScripts"
+    script: 'removeScripts'
   }
 })
-.then(function (completed) {
-  completed.forEach(function (snapshotFile) {
-    var content = fs.readFileSync(snapshotFile, { encoding: "utf8"});
+.then(completed => {
+  completed.forEach(snapshotFile => {
+    const content = fs.readFileSync(snapshotFile, { encoding: 'utf8'});
     assert.equal(false, /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content));
   });
   // It didn't throw b/c there are no script tags in the html snapshots
   console.log('stripped all script tags as expected');
 })
-.catch(function (error) {
+.catch(error => {
   // error is an Error instance.
   // error.completed is an array of snapshot file paths that were completed.
   // error.notCompleted is an array of file paths that did NOT complete.
@@ -295,14 +299,14 @@ Removes all script tags from the output of the html snapshot. Custom filters are
         + `"sitemap"` Supply urls from a local or remote sitemap.xml file. Gzipped sitemaps are supported.
         + `"sitemap-index"` Supply urls from a local or remote sitemap-index.xml file. Gzipped sitemap indexes are supported.
         + `"array"`, supply arbitrary urls from a javascript array.
-        + `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt files with wildcards are NOT supported - Use "sitemap" instead.
+        + `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt is first scanned for `Sitemap` directives. If found, those are used to drive the crawl. Otherwise, `Allow` directives are used in conjunction with [origin options](#origin-options).
         + `"textfile"` Supply urls from a local line-oriented text file in the style of robots.txt
 
   + `source`
     + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./sitemap-index.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
     + Specifies the input source. This must be a valid array or the location of a robots, text, or sitemap file for the corresponding input generator. robots.txt, sitemap.xml(.gz), sitemap-index.xml(.gz) can be local or remote. However, for the array input generator, this must be an array of urls.
 
-##### Sitemap/Sitemap-Index Only Input Options
+##### Robots.txt-With-Sitemap-Directives/Sitemap/Sitemap-Index Only Input Options
 
   + `sitemapPolicy`
     + default: `false`
@@ -322,7 +326,8 @@ Removes all script tags from the output of the html snapshot. Custom filters are
 
     The [examples](/examples) directory contains [sitemap-index](/examples/sitemap-index) and [sitemap](/examples/custom) usage examples.
 
-##### Robots and Textfile Only Input Options
+##### Origin Options
+> Origin options are only useful for Robots.txt files that use `Allow` directives and Textfile input types.
 
   + `hostname`
     + default: `"localhost"`
@@ -422,14 +427,14 @@ Removes all script tags from the output of the html snapshot. Custom filters are
         // option snippet showing snapshotScript object with "customFilter":
         {
           snapshotScript: {
-            script: "customFilter",
-            module: "/path/to/myFilter.js"
+            script: 'customFilter',
+            module: '/path/to/myFilter.js'
           }
         }
 
         // in myFilter.js:
         module.exports = function(content) {
-          return content.replace(/someregex/g, "somereplacement"); // remove or replace anything
+          return content.replace(/someregex/g, 'somereplacement'); // remove or replace anything
         }
         ```
         A more complete example using custom options is available [here](/examples/custom).

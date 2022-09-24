@@ -9,7 +9,7 @@
  * If a global phantomjs is defined, decorates html-snapshots options to specify that global
  * In some test environments (travis), local phantomjs will not install if a global is found.
  */
-var assert = require("assert");
+const assert = require("assert");
 
 // @0.12.0, on Travis-ci phantomjs2 WILL install local WITH the older global.
 // So reverting back to decorateLocal only.
@@ -19,7 +19,9 @@ var assert = require("assert");
 function fillAbort (options) {
   if (!options._abort) {
     options._abort = function (err) {
-      assert.fail("test", "failed", err.toString(), "");
+      const msg = `[options._abort] called: ${err.toString()}`;
+      console.log(`@@@ ${msg}`);
+      assert.fail(msg);
     }
   }
 }

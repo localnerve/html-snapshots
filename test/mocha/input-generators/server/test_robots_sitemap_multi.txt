@@ -11,5 +11,8 @@ Disallow: /vendor/
 Disallow: /fonts/
 Disallow: /images/
 
+Sitemap: http://localhost:8033/test_sitemap.xml
+Sitemap: http://localhost:8033/test_sitemap_index.xml
+
 User-agent: ia_archiver
 Disallow: /

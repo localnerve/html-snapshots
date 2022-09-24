@@ -2,9 +2,7 @@
  * Utilities for the examples.
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
-'use strict';
-
-var spawn = require('child_process').spawn;
+const spawn = require('child_process').spawn;
 
 function cleanupAndExit (failure) {
   var pkill;
@@ -23,5 +21,5 @@ function cleanupAndExit (failure) {
 }
 
 module.exports = {
-  cleanupAndExit: cleanupAndExit
+  cleanupAndExit
 };

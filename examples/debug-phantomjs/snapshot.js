@@ -8,20 +8,18 @@
  * Demonstrates phantomjsOptions usage on a per-page basis.
  *
  */
-var path = require("path");
-var util = require("util");
-var assert = require("assert");
-var htmlSnapshots = require("html-snapshots");
+const path = require("path");
+const util = require("util");
+const assert = require("assert");
+const htmlSnapshots = require("html-snapshots");
 
 // Assert if NOT an error
 function mustBeError(err) {
   assert.throws(
-    function() {
+    () => {
       assert.ifError(err);
     },
-    function(err) {
-      return !!err;
-    }
+    err => !!err
   );
 }
 
@@ -29,21 +27,21 @@ function mustBeError(err) {
 //  but this also demonstrates the use of phantomjsOptions in the per-page case.
 htmlSnapshots.run({
   input: "sitemap",
-  source: "http://enigmatic-refuge-9006.herokuapp.com/sitemap.xml",
+  source: "https://www.sitemaps.org/sitemap.xml",
   outputDir: path.join(__dirname, "./tmp"),
   outputDirClean: true,
-  selector: ".page-content",
-  timeout: 15000,
+  selector: "#mainContent",
+  timeout: 10000,
   phantomjsOptions: {
     // The key must exactly match the loc as defined in the sitemap.xml
-    "http://enigmatic-refuge-9006.herokuapp.com:80/hello-world": "--remote-debugger-port=9000"
+    "https://www.sitemaps.org/protocol.html": "--remote-debugger-port=9000"
   }
-}, function (err, completed) {
+}, (err, completed) => {
 
   console.log("completed snapshots:");
   console.log(util.inspect(completed));
 
-  // We expect the hello-world page will timeout because we've held it in the debugger
+  // We expect the protocol.html page will timeout because we've held it in the debugger
   //   It will succeed if you use --remote-debugger-autorun=true
   //   However, the PhantomJS process instances won't exit so that you can (re)debug
   mustBeError(err);

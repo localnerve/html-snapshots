@@ -5,32 +5,29 @@
  * Use sitemap.xml to snapshot an entire site.
  * Use the verbose option to debug the loading of one of the pages.
  */
-var htmlSnapshots = require("html-snapshots");
+const htmlSnapshots = require("html-snapshots");
 
-var origin = "http://enigmatic-refuge-9006.herokuapp.com:80";
-
-var pageToDebug = origin + "/sample-page";
+const origin = "https://www.sitemaps.org";
+const pageToDebug = `${origin}/en_GB/`;
 
 // Make the verbose option as an object keyed with the page to debug.
-var verboseOption = {
-  __default: false
+const verboseOption = {
+  __default: false,
+  [pageToDebug]: true
 };
-verboseOption[pageToDebug] = true;
 
 htmlSnapshots.run({
   input: "sitemap",
-  source: origin + "/sitemap.xml",
+  source: `${origin}/sitemap.xml`,
   outputDir: require("path").join(__dirname, "./tmp"),
   outputDirClean: true,
-  selector: ".page-content",
-  timeout: 15000,
+  selector: "#mainContent",
+  timeout: 10000,
   processLimit: 1, // to clarify output
   verbose: verboseOption
 })
-.then(function (completed) {
+.then(completed => {
   console.log("completed snapshots:");
   console.log(require("util").inspect(completed));
 })
-.catch(function (err) {
-  console.error(err);
-});
+.catch(console.error);
