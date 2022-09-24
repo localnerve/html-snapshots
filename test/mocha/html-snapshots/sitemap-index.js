@@ -66,28 +66,28 @@ function sitemapIndexTests (options) {
     it("should fail fast for bad sitemap url", function (done) {
       const sitemapIndexFile3 = path.basename(sitemapIndexFile, ".xml") + "-3" +
         path.extname(sitemapIndexFile);
-        const options = {
-          source: `http://localhost:${port}/${sitemapIndexFile3}`,
-          input: "sitemap-index",
-          selector: "#dynamic-content",
-          outputDirClean: true,
-          outputDir,
-          timeout
-        };
+      const options = {
+        source: `http://localhost:${port}/${sitemapIndexFile3}`,
+        input: "sitemap-index",
+        selector: "#dynamic-content",
+        outputDirClean: true,
+        outputDir,
+        timeout
+      };
 
-        ss.run(optHelp.decorate(options))
-          .then(unexpectedSuccess)
-          .catch(err => {
-            let assertionError;
-            try {
-              assert.equal(getClass(err.notCompleted), "Array");
-              // fails fast:
-              assert.equal(err.notCompleted.length, 0);
-            } catch (e) {
-              assertionError = e;
-            }
-            cleanup(done, assertionError);
-          });
+      ss.run(optHelp.decorate(options))
+        .then(unexpectedSuccess)
+        .catch(err => {
+          let assertionError;
+          try {
+            assert.equal(getClass(err.notCompleted), "Array");
+            // fails fast:
+            assert.equal(err.notCompleted.length, 0);
+          } catch (e) {
+            assertionError = e;
+          }
+          cleanup(done, assertionError);
+        });
     });
 
     it("should eventually fail for bad page url", function (done) {
