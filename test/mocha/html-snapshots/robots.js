@@ -97,7 +97,7 @@ function robotsTests (options) {
             });
         });
 
-        it(`should fail with bad phantomjs process to spawn, ${browser}, ${inputFile}`,
+        it(`should fail with bad phantomjs process to spawn, succeed otherwise, ${browser}, ${inputFile}`,
           function (done) {
           const options = createOptions({
             source: inputFile,
@@ -106,18 +106,32 @@ function robotsTests (options) {
             timeout: 1000
           });
 
-          const twice = _.after(2, cleanupError.bind(null, done, 0));
+          if (browser === "phantomjs") {
+            const twice = _.after(2, cleanupError.bind(null, done, 0));
 
-          ss.run(options, twice)
-            .then(unexpectedSuccess.bind(null, done))
-            .catch(twice);
+            ss.run(options, twice)
+              .then(unexpectedSuccess.bind(null, done))
+              .catch(twice);
+          } else {
+            options.timeout = utils.timeout;
+            const twice = _.after(2, cleanupSuccess.bind(null, done));
+
+            ss.run(optHelp.decorate(options), twice)
+            .then(testSuccess.bind(null, twice))
+            .catch(e => {
+              checkActualFiles(e.notCompleted)
+                .then(() => {
+                  cleanup(done, e);
+                });
+            });
+          }
         });
 
         it(`should fail, bad remote robots, ${browser}, ${inputFile}`, function (done) {
           const options = createOptions({
             input: "robots",
             source: `http://localhost:${port}/index.html`,
-            timeout: 6000,
+            timeout: 5000,
             browser
           });
 
@@ -132,7 +146,7 @@ function robotsTests (options) {
           const options = createOptions({
             source: inputFile,
             selector: "#dynamic-content-notexist",
-            timeout: 6000,
+            timeout: 5000,
             browser
           });
 
@@ -159,7 +173,7 @@ function robotsTests (options) {
               "__default": "#dynamic-content",
               [exceptionUrl]: "#dynamic-content-notexist"
             },
-            timeout: 6000,
+            timeout: 5000,
             browser
           });
 
