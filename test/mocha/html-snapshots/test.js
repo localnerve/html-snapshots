@@ -54,7 +54,11 @@ function serverContext (testSuiteFactory, port) {
       });
     });
 
-    describe("tests", testSuiteFactory({ port, localRobotsFile }));
+    describe("tests", testSuiteFactory({
+      port,
+      localRobotsFile,
+      browsers: ["phantomjs", "puppeteer"]
+    }));
   };
 }
 

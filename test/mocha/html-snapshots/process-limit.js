@@ -25,7 +25,11 @@ const {
 const urls = robotsTests.urlCount;
 
 function processLimitTests (options) {
-  const { port, localRobotsFile: inputFile } = options;
+  const {
+    port,
+    localRobotsFile: inputFile,
+    browsers
+  } = options;
   const pollInterval = 50;
   let phantomCount = 0;
   let timer;
@@ -47,98 +51,102 @@ function processLimitTests (options) {
   }
 
   return function () {
-    it("should limit as expected", function (done) {
-      const processLimit = urls - 1;
-      const complete = completeTest.bind(null, done, processLimit);
+    browsers.forEach(browser => {
+      it(`should limit as expected - ${browser}`, function (done) {
+        const processLimit = urls - 1;
+        const complete = completeTest.bind(null, done, processLimit);
 
-      if (process.platform === "win32") {
-        assert.ok(true, "Skipping posix compliant tests for processLimit");
-        done();
-      } else {
-        rimraf(outputDir);
+        if (process.platform === "win32") {
+          assert.ok(true, "Skipping posix compliant tests for processLimit");
+          done();
+        } else {
+          rimraf(outputDir);
 
-        killSpawnedProcesses(function (err) {
-          const options = {
-            source: inputFile,
-            hostname: "localhost",
-            selector: "#dynamic-content",
-            outputDirClean: true,
-            outputDir,
-            timeout,
-            processLimit,
-            port
-          };
+          killSpawnedProcesses(function (err) {
+            const options = {
+              source: inputFile,
+              hostname: "localhost",
+              selector: "#dynamic-content",
+              outputDirClean: true,
+              outputDir,
+              timeout,
+              processLimit,
+              port,
+              browser
+            };
 
-          if (err) {
-            return done(err);
-          }
+            if (err) {
+              return done(err);
+            }
 
-          ss.run(optHelp.decorate(options))
-            .then(() => {
-              complete();
-            })
-            .catch(e => {
-              complete(e || unexpectedError, e.notCompleted);
-            });
+            ss.run(optHelp.decorate(options))
+              .then(() => {
+                complete();
+              })
+              .catch(e => {
+                complete(e || unexpectedError, e.notCompleted);
+              });
 
-          timer = setInterval(() => {
-            countSpawnedProcesses(function (count) {
-              // console.log("@@@ DEBUG @@@ phantom count: "+count);
-              if (count > processLimit) {
-                phantomCount = count;
-                clearInterval(timer);
-              }
-            });
-          }, pollInterval);
-        });
-      }
-    });
+            timer = setInterval(() => {
+              countSpawnedProcesses(function (count) {
+                // console.log("@@@ DEBUG @@@ phantom count: "+count);
+                if (count > processLimit) {
+                  phantomCount = count;
+                  clearInterval(timer);
+                }
+              });
+            }, pollInterval);
+          });
+        }
+      });
 
-    it("should limit to just one process", function (done) {
-      const processLimit = 1;
-      const complete = completeTest.bind(null, done, processLimit);
+      it(`should limit to just one process - ${browser}`, function (done) {
+        const processLimit = 1;
+        const complete = completeTest.bind(null, done, processLimit);
 
-      if (process.platform === "win32") {
-        assert.ok(true, "Skipping posix compliant tests for processLimit");
-        done();
-      } else {
-        rimraf(outputDir);
+        if (process.platform === "win32") {
+          assert.ok(true, "Skipping posix compliant tests for processLimit");
+          done();
+        } else {
+          rimraf(outputDir);
 
-        killSpawnedProcesses(function (err) {
-          const options = {
-            source: inputFile,
-            hostname: "localhost",
-            selector: "#dynamic-content",
-            outputDirClean: true,
-            outputDir,
-            timeout,
-            processLimit,
-            port
-          };
+          killSpawnedProcesses(function (err) {
+            const options = {
+              source: inputFile,
+              hostname: "localhost",
+              selector: "#dynamic-content",
+              outputDirClean: true,
+              outputDir,
+              timeout,
+              processLimit,
+              port,
+              browser
+            };
 
-          if (err) {
-            return done(err);
-          }
+            if (err) {
+              return done(err);
+            }
 
-          ss.run(optHelp.decorate(options))
-            .then(() => {
-              complete();
-            })
-            .catch(e => {
-              complete(e || unexpectedError, e.notCompleted);
-            });
+            ss.run(optHelp.decorate(options))
+              .then(() => {
+                complete();
+              })
+              .catch(e => {
+                complete(e || unexpectedError, e.notCompleted);
+              });
 
-          timer = setInterval(function () {
-            countSpawnedProcesses(function (count) {
-              // console.log("@@@ DEBUG @@@ phantom count: "+count);
-              if (count > processLimit) {
-                phantomCount = count;
-                clearInterval(timer);
-              }
-            });
-          }, pollInterval);
-        });
-      }
+            timer = setInterval(function () {
+              countSpawnedProcesses(function (count) {
+                // console.log("@@@ DEBUG @@@ phantom count: "+count);
+                if (count > processLimit) {
+                  phantomCount = count;
+                  clearInterval(timer);
+                }
+              });
+            }, pollInterval);
+          });
+        }
+      });
     });
   };
 }

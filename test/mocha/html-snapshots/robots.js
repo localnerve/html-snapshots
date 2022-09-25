@@ -29,7 +29,11 @@ const urls = 3; // must match url # in robots files test fixtures.
  * The robots test suite.
  */
 function robotsTests (options) {
-  const { port, localRobotsFile } = options;
+  const {
+    port,
+    localRobotsFile,
+    browsers
+   } = options;
 
   // Robots.txt fixtures
   const inputFiles = [
@@ -39,133 +43,132 @@ function robotsTests (options) {
   ];
 
   return function () {
-    inputFiles.forEach(inputFile => {
-      it(`should succeed, no output dir pre-exists, ${inputFile}`, function (done) {
-        const options = {
-          source: inputFile,
-          hostname: "localhost",
-          selector: "#dynamic-content",
-          outputDirClean: true,
-          outputDir,
-          timeout,
-          port
-        };
-        const twice = _.after(2, cleanupSuccess.bind(null, done));
-
-        rimraf(outputDir);
-
-        ss.run(optHelp.decorate(options), twice)
-          .then(testSuccess.bind(null, twice))
-          .catch(e => {
-            checkActualFiles(e.notCompleted)
-              .then(() => {
-                cleanup(done, e);
-              });
+    function createOptions (newOptions) {
+      const options = {
+        hostname: "localhost",
+        selector: "#dynamic-content",
+        outputDirClean: true,
+        outputDir,
+        timeout,
+        port
+      };
+      return {
+        ...options,
+        ...newOptions
+      };
+    }
+    browsers.forEach(browser => {
+      inputFiles.forEach(inputFile => {
+        it(`should succeed, no output dir pre-exists, ${browser}, ${inputFile}`, function (done) {
+          const options = createOptions({
+            source: inputFile,
+            browser
           });
-      });
 
-      it(`should succeed, output dir does pre-exist, ${inputFile}`, function (done) {
-        const options = {
-          source: inputFile,
-          hostname: "localhost",
-          selector: "#dynamic-content",
-          outputDirClean: true,
-          outputDir,
-          timeout,
-          port
-        };
-        const twice = _.after(2, cleanupSuccess.bind(null, done));
+          const twice = _.after(2, cleanupSuccess.bind(null, done));
 
-        ss.run(optHelp.decorate(options), twice)
-          .then(testSuccess.bind(null, twice))
-          .catch(e => {
-            checkActualFiles(e.notCompleted)
-              .then(() => {
-                cleanup(done, e);
-              });
+          rimraf(outputDir);
+
+          ss.run(optHelp.decorate(options), twice)
+            .then(testSuccess.bind(null, twice))
+            .catch(e => {
+              checkActualFiles(e.notCompleted)
+                .then(() => {
+                  cleanup(done, e);
+                });
+            });
+        });
+
+        it(`should succeed, output dir does pre-exist, ${browser}, ${inputFile}`, function (done) {
+          const options = createOptions({
+            source: inputFile,
+            browser
           });
-      });
 
-      it(`should fail with bad phantomjs process to spawn, ${inputFile}`,
-        function (done) {
-        const options = {
-          source: inputFile,
-          hostname: "localhost",
-          selector: "#dynamic-content",
-          outputDirClean: true,
-          phantomjs: bogusFile,
-          timeout: 1000,
-          outputDir,
-          port
-        };
-        const twice = _.after(2, cleanupError.bind(null, done, 0));
+          const twice = _.after(2, cleanupSuccess.bind(null, done));
 
-        ss.run(options, twice)
-          .then(unexpectedSuccess.bind(null, done))
-          .catch(twice);
-      });
+          ss.run(optHelp.decorate(options), twice)
+            .then(testSuccess.bind(null, twice))
+            .catch(e => {
+              checkActualFiles(e.notCompleted)
+                .then(() => {
+                  cleanup(done, e);
+                });
+            });
+        });
 
-      it(`should fail, bad remote robots, ${inputFile}`, function (done) {
-        const options = {
-          input: "robots",
-          source: `http://localhost:${port}/index.html`,
-          selector: "#dynamic-content",
-          outputDirClean: true,
-          timeout: 6000,
-          outputDir,
-          port
-        };
-        const twice = _.after(2, cleanupError.bind(null, done, 0));
+        it(`should fail with bad phantomjs process to spawn, ${browser}, ${inputFile}`,
+          function (done) {
+          const options = createOptions({
+            source: inputFile,
+            browser,
+            phantomjs: bogusFile,
+            timeout: 1000
+          });
 
-        ss.run(optHelp.decorate(options), twice)
-          .then(unexpectedSuccess.bind(null, done))
-          .catch(twice);
-      });
+          const twice = _.after(2, cleanupError.bind(null, done, 0));
 
-      it(`should fail, non-existent selector, ${inputFile}`, function (done) {
-        const options = {
-          source: inputFile,
-          hostname: "localhost",
-          selector: "#dynamic-content-notexist",
-          outputDirClean: true,
-          timeout: 6000,
-          outputDir,
-          port
-        };
-        const twice = _.after(2, cleanupError.bind(null, done, 0));
+          ss.run(options, twice)
+            .then(unexpectedSuccess.bind(null, done))
+            .catch(twice);
+        });
 
-        ss.run(optHelp.decorate(options), twice)
-          .then(unexpectedSuccess.bind(null, done))
-          .catch(twice);
-      });
+        it(`should fail, bad remote robots, ${browser}, ${inputFile}`, function (done) {
+          const options = createOptions({
+            input: "robots",
+            source: `http://localhost:${port}/index.html`,
+            timeout: 6000,
+            browser
+          });
 
-      it(`should fail one snapshot, one non-existent selector, ${inputFile}`, function (done) {
-        let exceptionUrl = "/";
-        if (common.isUrl(inputFile)) {
-          // assume the origin of the inputFile is the same as the contents of the remote urls within it.
-          const url = new URL(inputFile);
-          const isSitemap = url.pathname.includes('sitemap');
-          if (isSitemap) {
-            exceptionUrl = `${url.origin}${exceptionUrl}`;
+          const twice = _.after(2, cleanupError.bind(null, done, 0));
+
+          ss.run(optHelp.decorate(options), twice)
+            .then(unexpectedSuccess.bind(null, done))
+            .catch(twice);
+        });
+
+        it(`should fail, non-existent selector, ${browser}, ${inputFile}`, function (done) {
+          const options = createOptions({
+            source: inputFile,
+            selector: "#dynamic-content-notexist",
+            timeout: 6000,
+            browser
+          });
+
+          const twice = _.after(2, cleanupError.bind(null, done, 0));
+
+          ss.run(optHelp.decorate(options), twice)
+            .then(unexpectedSuccess.bind(null, done))
+            .catch(twice);
+        });
+
+        it(`should fail one snapshot, one non-existent selector, ${browser}, ${inputFile}`, function (done) {
+          let exceptionUrl = "/";
+          if (common.isUrl(inputFile)) {
+            // assume the origin of the inputFile is the same as the contents of the remote urls within it.
+            const url = new URL(inputFile);
+            const isSitemap = url.pathname.includes('sitemap');
+            if (isSitemap) {
+              exceptionUrl = `${url.origin}${exceptionUrl}`;
+            }
           }
-        }
-        const options = {
-          source: inputFile,
-          hostname: "localhost",
-          selector: {
-            "__default": "#dynamic-content",
-            [exceptionUrl]: "#dynamic-content-notexist"
-          },
-          outputDirClean: true,
-          timeout: 6000,
-          outputDir,
-          port
-        };
-        const twice = _.after(2, cleanupError.bind(null, done, urls - 1));
+          const options = createOptions({
+            source: inputFile,
+            selector: {
+              "__default": "#dynamic-content",
+              [exceptionUrl]: "#dynamic-content-notexist"
+            },
+            timeout: 6000,
+            browser
+          });
 
-        ss.run(optHelp.decorate(options), twice)
-          .then(unexpectedSuccess.bind(null, done))
-          .catch(twice);
+          const twice = _.after(2, cleanupError.bind(null, done, urls - 1));
+
+          ss.run(optHelp.decorate(options), twice)
+            .then(unexpectedSuccess.bind(null, done))
+            .catch(twice);
+        });
       });
     });
   };

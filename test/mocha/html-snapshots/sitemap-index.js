@@ -31,95 +31,104 @@ function getClass (obj) {
 }
 
 function sitemapIndexTests (options) {
-  const port = options.port;
+  const {
+    port,
+    browsers
+  } = options;
+
+  function createOptions (newOptions) {
+    const options = {
+      source: `http://localhost:${port}/${sitemapIndexFile}`,
+      input: "sitemap-index",
+      selector: "#dynamic-content",
+      outputDirClean: true,
+      outputDir,
+      timeout
+    };
+
+    return {
+      ...options,
+      ...newOptions
+    };
+  }
 
   return function () {
-    it("should succeed for typical sitemap-index usage", function (done) {
-      const options = {
-        source: `http://localhost:${port}/${sitemapIndexFile}`,
-        input: "sitemap-index",
-        selector: "#dynamic-content",
-        outputDirClean: true,
-        outputDir,
-        timeout
-      };
-
-      ss.run(optHelp.decorate(options))
-        .then(function (completed) {
-          let assertionError;
-          try {
-            assert.equal(getClass(completed), "Array");
-            assert.equal(completed.length, urls);
-          } catch (e) {
-            assertionError = e;
-          }
-          cleanup(done, assertionError);
-        })
-        .catch(err => {
-          checkActualFiles(err.notCompleted)
-            .then(() => {
-              cleanup(done, err || unexpectedError);
-            });
+    browsers.forEach(browser => {
+      it(`should succeed for typical sitemap-index usage - ${browser}`, function (done) {
+        const options = createOptions({
+          browser
         });
-    });
 
-    it("should fail fast for bad sitemap url", function (done) {
-      const sitemapIndexFile3 = path.basename(sitemapIndexFile, ".xml") + "-3" +
-        path.extname(sitemapIndexFile);
-      const options = {
-        source: `http://localhost:${port}/${sitemapIndexFile3}`,
-        input: "sitemap-index",
-        selector: "#dynamic-content",
-        outputDirClean: true,
-        outputDir,
-        timeout
-      };
+        ss.run(optHelp.decorate(options))
+          .then(function (completed) {
+            let assertionError;
+            try {
+              assert.equal(getClass(completed), "Array");
+              assert.equal(completed.length, urls);
+            } catch (e) {
+              assertionError = e;
+            }
+            cleanup(done, assertionError);
+          })
+          .catch(err => {
+            checkActualFiles(err.notCompleted)
+              .then(() => {
+                cleanup(done, err || unexpectedError);
+              });
+          });
+      });
 
-      ss.run(optHelp.decorate(options))
-        .then(unexpectedSuccess)
-        .catch(err => {
-          let assertionError;
-          try {
-            assert.equal(getClass(err.notCompleted), "Array");
-            // fails fast:
-            assert.equal(err.notCompleted.length, 0);
-          } catch (e) {
-            assertionError = e;
-          }
-          cleanup(done, assertionError);
+      it(`should fail fast for bad sitemap url - ${browser}`, function (done) {
+        const sitemapIndexFile3 = path.basename(sitemapIndexFile, ".xml") + "-3" +
+          path.extname(sitemapIndexFile);
+        const options = createOptions({
+          source: `http://localhost:${port}/${sitemapIndexFile3}`,
+          browser
         });
-    });
 
-    it("should eventually fail for bad page url", function (done) {
-      const eventually = 1000;
-      const sitemapIndexFile2 = path.basename(sitemapIndexFile, ".xml") + "-2" +
-        path.extname(sitemapIndexFile);
-      const options = {
-        source: `http://localhost:${port}/${sitemapIndexFile2}`,
-        input: "sitemap-index",
-        selector: "#dynamic-content",
-        outputDirClean: true,
-        timeout: {
-          "http://localhost:8040/services/bad": eventually,
-          __default: timeout
-        },
-        outputDir
-      };
+        ss.run(optHelp.decorate(options))
+          .then(unexpectedSuccess)
+          .catch(err => {
+            let assertionError;
+            try {
+              assert.equal(getClass(err.notCompleted), "Array");
+              // fails fast:
+              assert.equal(err.notCompleted.length, 0);
+            } catch (e) {
+              assertionError = e;
+            }
+            cleanup(done, assertionError);
+          });
+      });
 
-      ss.run(optHelp.decorate(options))
-        .then(unexpectedSuccess)
-        .catch(err => {
-          let assertionError;
-          try {
-            assert.equal(getClass(err.completed), "Array");
-            assert.equal(err.completed.length, urls - 1);
-            assert.equal(getClass(err.notCompleted), "Array");
-            assert.equal(err.notCompleted.length, 1);
-          } catch (e) {
-            assertionError = e;
-          }
-          cleanup(done, assertionError);
+      it(`should eventually fail for bad page url - ${browser}`, function (done) {
+        const eventually = 1000;
+        const sitemapIndexFile2 = path.basename(sitemapIndexFile, ".xml") + "-2" +
+          path.extname(sitemapIndexFile);
+        const options = createOptions({
+          source: `http://localhost:${port}/${sitemapIndexFile2}`,
+          timeout: {
+            "http://localhost:8040/services/bad": eventually,
+            __default: timeout
+          },
+          browser
         });
+
+        ss.run(optHelp.decorate(options))
+          .then(unexpectedSuccess)
+          .catch(err => {
+            let assertionError;
+            try {
+              assert.equal(getClass(err.completed), "Array");
+              assert.equal(err.completed.length, urls - 1);
+              assert.equal(getClass(err.notCompleted), "Array");
+              assert.equal(err.notCompleted.length, 1);
+            } catch (e) {
+              assertionError = e;
+            }
+            cleanup(done, assertionError);
+          });
+      });
     });
   };
 }
