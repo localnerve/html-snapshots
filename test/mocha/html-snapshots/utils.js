@@ -1,28 +1,28 @@
 /**
- * html-snapshots test utilities and constants.
+ * html-snapshots test debug utilities and constants.
  *
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
-var path = require("path");
-var fs = require("fs");
-var _ = require("lodash");
-var spawn = require("child_process").spawn;
-var assert = require("assert");
-var combineErrors = require("combine-errors");
-var resHelp = require("../../helpers/result");
-var pathExists = require("../../../lib/async/exists");
+const path = require("path");
+const fs = require("fs");
+const _ = require("lodash");
+const spawn = require("child_process").spawn;
+const assert = require("assert");
+const combineErrors = require("combine-errors");
+const resHelp = require("../../helpers/result");
+const pathExists = require("../../../lib/async/exists");
 
 // Constants
-var unexpectedError = new Error("unexpected error flow");
-var outputDir = path.join(__dirname, "./tmp/snapshots");
-var spawnedProcessPattern = "^phantomjs$";
-var bogusFile = "./bogus/file.txt";
-var timeout = 40000;
+const unexpectedError = new Error("unexpected error flow");
+const outputDir = path.join(__dirname, "./tmp/snapshots");
+const spawnedProcessPattern = "^phantomjs$";
+const bogusFile = "./bogus/file.txt";
+const timeout = 20000;
 
 function dumpTree (p) {
-  fs.readdirSync(p).forEach(function (file) {
-    var curPath = path.join(p, path.sep, file);
-    var stats = fs.statSync(curPath);
+  fs.readdirSync(p).forEach(file => {
+    const curPath = path.join(p, path.sep, file);
+    const stats = fs.statSync(curPath);
 
     if (stats.isDirectory()) {
       dumpTree(curPath);
@@ -33,7 +33,7 @@ function dumpTree (p) {
 }
 
 function checkActualFiles (files) {
-  var shortFile, outputRoot;
+  let shortFile, outputRoot;
 
   if (files.length > 0) {
     shortFile = outputDir;
@@ -45,7 +45,7 @@ function checkActualFiles (files) {
       return prev;
     }, files[0]);
     */
-    var exists = false;
+    let exists = false; // toggle to dumpTree
     outputRoot = path.dirname(shortFile);
     try {
       fs.statSync(outputRoot).isDirectory();
@@ -58,9 +58,9 @@ function checkActualFiles (files) {
     }
   }
 
-  return Promise.all(files.map(function (file) {
+  return Promise.all(files.map(file => {
     return pathExists(file)
-      .then(function (result) {
+      .then(result => {
         if (result) {
           console.log("@@@ actually exists:" + file);
         }
@@ -92,10 +92,10 @@ function countSpawnedProcesses (cb) {
   if (process.platform === "darwin") {
     wc = spawn("wc", ["-l"]);
     pgrep = spawn("pgrep", [spawnedProcessPattern]);
-    pgrep.stdout.on("data", function (data) {
+    pgrep.stdout.on("data", data => {
       wc.stdin.write(data);
     });
-    pgrep.stdout.on("end", function () {
+    pgrep.stdout.on("end", () => {
       wc.stdin.end();
     });
     wc.stdout.on("data", cb);
@@ -105,16 +105,16 @@ function countSpawnedProcesses (cb) {
   }
 }
 
-// Clear any lingering phantomjs processes in play
+// Clear any lingering browser processes in play
 function killSpawnedProcesses (cb) {
   var pkill = spawn("pkill", [spawnedProcessPattern]);
   var guardedCb = _.once(cb);
 
-  pkill.on("exit", function () {
+  pkill.on("exit", () => {
     setTimeout(guardedCb, 2000);
   });
-  pkill.on("error", function () {
-    guardedCb(new Error("failed to kill phantomjs processes"));
+  pkill.on("error", () => {
+    guardedCb(new Error("failed to kill browser processes"));
   });
 }
 
@@ -123,8 +123,8 @@ function cleanup (done, arg) {
   if (process.platform === "win32") {
     setTimeout(done, 1000, arg);
   } else {
-    setImmediate(function () {
-      killSpawnedProcesses(function (err) {
+    setImmediate(() => {
+      killSpawnedProcesses(err => {
         done(multiError(err, arg));
       });
     });
