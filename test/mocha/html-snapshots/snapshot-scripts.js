@@ -99,8 +99,6 @@ function snapshotScriptTests (options) {
       });
 
       function snapshotScriptTestDefinition (done) {
-        console.log('@@@ snapshotScriptTest', snapshotScriptTest);
-
         const options = {
           source: inputFile,
           hostname: "localhost",
