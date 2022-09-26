@@ -11,20 +11,8 @@
 + [Getting Started](#getting-started)
 + [Grunt Task](https://github.com/localnerve/grunt-html-snapshots)
 + [More Information](#more-information)
-  + [Breaking Changes](#breaking-changes)
 + [API Reference](#api)
 + [Example Usage](#example-usage)
-  + [Per-page Selectors](#example---per-page-selectors-and-timeouts)
-  + [Per-page Output Paths](#example---per-page-special-output-paths)
-  + [Per-page jQuery](#example---per-page-selectors-and-jquery)
-  + [Array Input](#example---array)
-  + [Array Input DRY](/examples/html5rocks)
-  + [Sitemap Index](/examples/sitemap-index)
-  + [Process Limit](/examples/process-limit)
-  + [Script Removal](#example---remote-robotstxt-remove-script-tags-from-html-snapshots)
-  + [Custom Filters](/examples/custom)
-  + [Debug PhantomJS w/Verbose Output](/examples/verbose)
-  + [Debug PhantomJS w/Attach](/examples/debug-phantomjs)
 + [Option Reference](#options)
   + [Input Options](#input-control-options)
   + [Output Options](#output-control-options)
@@ -56,44 +44,10 @@ Here are some [background and other notes](/docs/notes.md) regarding this projec
   + [Why Does This Library Exist?](/docs/notes.md#why-does-this-exist)
   + [How To Use Without Knowing About Page Content](/docs/notes.md#what-if-i-dont-know-about-the-rendered-page-content)
   + [Caveats](/docs/notes.md#caveats)
+  + [Support History](HISTORY.md)
 
 ### Process Model
 html-snapshots takes snapshots in parallel, each page getting its own browser process. Each browser process dies after snapshotting one page. You can limit the number of browser processes that can ever run at once with the `processLimit` option. This effectively sets up a process pool for browser instances. The default processLimit is 4 browser instances. When a browser process dies, and another snapshot needs to be taken, a new browser process is spawned to take the vacant slot. This continues until a `processLimit` number of processes are running at once.
-
-### Node Support Tags
-  `v0.13.2 ` Node 0.12 (or less)  
-  `v0.14.16` Node 4+  
-  `v0.15.x ` Node 6+  
-  `v0.16.x ` Node 8+  
-  `v0.17.x ` Node 10+  
-  `v0.18.x ` Node 14+
-
-### Breaking Changes
-
-#### Introduced in v0.19.x
-##### Robots Input
-Robots.txt files are now searched for `Sitemap` directive(s) **first** for sitemap/sitemapIndex files. If those directives are found, those directives are used to drive the crawl of the site alone. If no Sitemap directives are found, htmlSnapshots reverts back to using `Allow` directives. If no `Sitemap` directive is found, this is a non-breaking change.
-
-#### Introduced in v0.18.x
-##### Dropped support for Node 10 & 12.
-
-#### Introduced in v0.17.x
-##### Dropped support for Node 8.
-
-#### Introduced in v0.16.x
-##### Dropped support for Node 6.
-
-#### Introduced in v0.15.x
-##### Dropped support for Node 4.
-
-#### Introduced in v0.14.x
-##### Run method return value
-The library `run` method no longer returns a boolean value indicating a successful start. Instead, it returns a Promise that resolves to an array of file paths to completed snapshots, or error on failure. The `run` method's second argument, a completion callback, is now **optional** and provided for compatibility only. If you supply one, it will be called, but the Promise will also resolve, so it is not needed.
-##### Dropped support for Node <= 0.12
-
-#### Introduced in v0.6.x
-jQuery selectors are no longer supported by default. To restore the previous behavior, set the `useJQuery` option to `true`.
-The upside is jQuery is no longer required to be loaded by the page being snapshotted. However, if you use jQuery selectors, or selectors not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector), the page being snapshotted must load jQuery.
 
 ## API
 The api is just one `run` method that returns a Promise.
@@ -124,173 +78,37 @@ callback (errorObject, arrayOfPathsToCompletedSnapshots)
 *For the callback, in the error case, the errorObject does not have the new extra properties `completed` and `notCompleted`. However, `arrayOfPathsToCompletedSnapshots` is supplied, and contains the paths to the snapshots that successfully completed.*
 
 ## Example Usage
-Simple examples to demonstrate the usage of [options](#options).  
+This example reads the pages from a mix of sitemap or sitemap-index files found in the robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site. Once this selector is visible in a page, the html snapshot is taken and saved to ./snapshots.
 
-A growing showcase of runnable examples can be found [here](/examples).
+### Quick Example
+```javascript
+const htmlSnapshots = require('html-snapshots');
+htmlSnapshots.run({
+  source: 'https://host.domain/robots.txt',
+  selector: '#dynamic-content',
+  outputDir: './snapshots',
+  outputDirClean: true
+})
+.then(completed => {
+  // completed is an array of full file paths to the completed snapshots.
+})
+.catch(error => {
+  // error is an Error instance.
+  // error.completed is an array of snapshot file paths that did complete.
+  // error.notCompleted is an array of file paths that did NOT complete.
+});
+```
+
+More examples can be found in [this document](/examples/README.md). Also, A showcase of runnable examples can be found [here](/examples).
 
 An older (version 0.13.2), more in depth usage example is located in this [article](/docs/example-heroku-redis.md) that includes explanation and code of a real usage featuring dynamic app routes, ExpressJS, Heroku, and more.
-
-### Simple example
-```javascript
-const htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
-  source: '/path/to/robots.txt',
-  hostname: 'exampledomain.com',
-  outputDir: './snapshots',
-  outputDirClean: true,
-  selector: '#dynamic-content'
-})
-.then(completed => {
-  // completed is an array of full file paths to the completed snapshots.
-})
-.catch(error => {
-  // error is an Error instance.
-  // error.completed is an array of snapshot file paths that were completed.
-  // error.notCompleted is an array of file paths that did NOT complete.
-});
-```
-This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site. Once this selector is visible in a page, the html snapshot is taken.
-
-### Example - Per page selectors and timeouts
-```javascript
-const htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
-  input: 'sitemap',
-  source: '/path/to/sitemap.xml',
-  outputDir: './snapshots',
-  outputDirClean: true,
-  selector: {
-    'http://mysite.com': '#home-content',
-    '__default': '#dynamic-content'
-  },
-  timeout: {
-    'http://mysite.com/superslowpage': 20000,
-    '__default': 10000
-  }
-})
-.then(completed => {
-  // completed is an array of full file paths to the completed snapshots.
-})
-.catch(error => {
-  // error is an Error instance.
-  // error.completed is an array of snapshot file paths that were completed.
-  // error.notCompleted is an array of file paths that did NOT complete.
-});
-```
-This reads the urls from your sitemap.xml and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except the home page, where "#home-content" appears \(the appearance of a selector in the output triggers the snapshot\). Finally, a default timeout of 10000 ms is set on all pages except http://mysite.com/superslowpage, where it waits 20000 ms.
-
-### Example - Per page special output paths
-```javascript
-const htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
-  input: 'sitemap',
-  source: '/path/to/sitemap.xml',
-  outputDir: './snapshots',
-  outputDirClean: true,
-  outputPath: {
-    'http://mysite.com/services/?page=1': 'services/page/1',
-    'http://mysite.com/services/?page=2': 'services/page/2'
-  },
-  selector: '#dynamic-content'
-})
-.then(completed => {
-  // completed is an array of full file paths to the completed snapshots.
-})
-.catch(error => {
-  // error is an Error instance.
-  // error.completed is an array of snapshot file paths that were completed.
-  // error.notCompleted is an array of file paths that did NOT complete.
-});
-```
-This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have a rewrite rule that reflects this same mapping when `_escaped_fragment_` shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
-
-### Example - Per page selectors and jQuery
-```javascript
-const htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
-  source: '/path/to/robots.txt',
-  hostname: 'mysite.com',
-  outputDir: './snapshots',
-  outputDirClean: true,
-  selector: {
-    '__default': '#dynamic-content',
-    '/jqpage': 'A-Selector-Not-Supported-By-querySelector'
-  },
-  useJQuery: {
-    '/jqpage': true,
-    '__default': false
-  }
-})
-.then(completed => {
-  // completed is an array of full file paths to the completed snapshots.
-})
-.catch(error => {
-  // error is an Error instance.
-  // error.completed is an array of snapshot file paths that were completed.
-  // error.notCompleted is an array of file paths that did NOT complete.
-});
-```
-This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except in "/jqpage", where a selector not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector) is used. Further, "/jqpage" loads jQuery itself \(required\). All the other pages don't need to use special selectors, so the default is set to `false`. Notice that since a robots.txt input is used, full URLs are **not** used to match selectors. Instead, paths \(and QueryStrings and any Hashes\) are used, just as specified in the robots.txt file itself.
-
-### Example - Array
-```javascript
-const htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
-  input: 'array',
-  source: ['http://mysite.com', 'http://mysite.com/contact', 'http://mysite.com:82/special'],
-  outputDir: './snapshots',
-  outputDirClean: true,  
-  selector: '#dynamic-content'
-})
-.then(completed => {
-  // completed is an array of full file paths to the completed snapshots.
-})
-.catch(error => {
-  // error is an Error instance.
-  // error.completed is an array of snapshot file paths that were completed.
-  // error.notCompleted is an array of file paths that did NOT complete.
-});
-```
-Generates snapshots for "/", "/contact", and "/special" from mysite.com. "/special" uses port 82. All use http protocol. Array input can be powerful, check out a [simple example](/examples/simple-promise), or a more [complex example](/examples/html5rocks).
-
-### Example - Remote robots.txt, remove script tags from html snapshots
-```javascript
-const assert = require('assert');
-const fs = require('fs');
-const htmlSnapshots = require('html-snapshots');
-
-htmlSnapshots.run({
-  source: 'http://localhost/robots.txt',
-  hostname: 'localhost',
-  outputDir: './snapshots',
-  outputDirClean: true,  
-  selector: '#dynamic-content',
-  snapshotScript: {
-    script: 'removeScripts'
-  }
-})
-.then(completed => {
-  completed.forEach(snapshotFile => {
-    const content = fs.readFileSync(snapshotFile, { encoding: 'utf8'});
-    assert.equal(false, /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content));
-  });
-  // It didn't throw b/c there are no script tags in the html snapshots
-  console.log('stripped all script tags as expected');
-})
-.catch(error => {
-  // error is an Error instance.
-  // error.completed is an array of snapshot file paths that were completed.
-  // error.notCompleted is an array of file paths that did NOT complete.
-});
-```
-Removes all script tags from the output of the html snapshot. Custom filters are also supported, see the customFilter Example in the explanation of the `snapshotScript` option. Also, check out the concrete [example](/examples/custom).
 
 ## Options
 > Every option has a default value except `outputDir`.
 
 ### Input Control Options
 
-  + `input`
+  * **input** {String}
     + default: `"robots"`
     + Specifies the input generator to be used to produce the urls.
 
@@ -302,15 +120,16 @@ Removes all script tags from the output of the html snapshot. Custom filters are
         + `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt is first scanned for `Sitemap` directives. If found, those are used to drive the crawl. Otherwise, `Allow` directives are used in conjunction with [origin options](#origin-options).
         + `"textfile"` Supply urls from a local line-oriented text file in the style of robots.txt
 
-  + `source`
+  * **source** {String}
     + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./sitemap-index.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
     + Specifies the input source. This must be a valid array or the location of a robots, text, or sitemap file for the corresponding input generator. robots.txt, sitemap.xml(.gz), sitemap-index.xml(.gz) can be local or remote. However, for the array input generator, this must be an array of urls.
 
-##### Robots.txt-With-Sitemap-Directives/Sitemap/Sitemap-Index Only Input Options
+##### Sitemap Only Input Options
+> Options that apply to robots.txt with Sitemap directives, sitemaps, and sitemap-index input
 
-  + `sitemapPolicy`
+  * **sitemapPolicy** {Boolean}
     + default: `false`
-    + For use only with the sitemap and sitemap-index input generators. When true, lastmod and/or changefreq sitemap url child elements can be used to determine if a snapshot needs to be taken. Here are the possibilities for usage:  
+    + For use only with the robots, sitemap, and sitemap-index input generators. When true, lastmod and/or changefreq sitemap url child elements can be used to determine if a snapshot needs to be taken. Here are the possibilities for usage:  
       + Both lastmod and changefreq tags are specified alongside loc tags in the sitemap. In this case, both of these tags are used to determine if the url is out-of-date and needs a snapshot.
       + Only a lastmod tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the file modification time is compared against the lastmod value to see if the url is out-of-date and needs a snapshot.
       + Only a changefreq tag is specified alongside loc tags in the sitemap. In this case, if an output file from a previous run is found for the url loc, then the last file modification time is used as a timespan \(from now\) and compared against the given changefreq to see if the url is out-of-date and needs a snapshot.
@@ -319,7 +138,7 @@ Removes all script tags from the output of the html snapshot. Custom filters are
 
     Not all url elements in a sitemap have to have lastmod and/or changefreq \(those tags are optional, unlike loc\), but the urls you want to be able to skip \(if they are current\) must make use of those tags. You can intermix usage of these tags, as long as the requirements are met for making an age determination. If a determination on age cannot be made for any reason, the url is processed normally. For more info on sitemap tags and acceptable values, read the [wikipedia](http://en.wikipedia.org/wiki/Sitemaps) page.
 
-  + `sitemapOutputDir`
+  * **sitemapOutputDir** {String}
     + default: `_sitemaps_`
     + For use only with the sitemap-index input generator, this option directs the storage of sitemaps locally. It is a string that defines the name of the subdirectory under the `outputDir` where sitemaps are stored.
     Locally stored sitemaps are used for age determinations with incoming lastmod tags. If this option is falsy, it will prevent sitemap storage and thereby disable sitemapPolicy for sitemaps referenced in a sitemap-index.
@@ -329,33 +148,33 @@ Removes all script tags from the output of the html snapshot. Custom filters are
 ##### Origin Options
 > Origin options are only useful for Robots.txt files that use `Allow` directives and Textfile input types.
 
-  + `hostname`
+  * **hostname** {String}
     + default: `"localhost"`
     + Specifies the hostname to use for paths found in a robots.txt or textfile. Applies to all pages. This option is ignored if you are using the sitemap or array input generators.
 
-  + `port`
+  * **port** {Number}
     + default: 80
     + Specifies the port to use for all paths found in a robots.txt or textfile. This option is ignored if you are using the sitemap or array input generators.
 
-  + `auth`
+  * **auth** {String}
     + default: none
     + Specifies the old-school authentication portion of the url. Applies to all path found in a robots.txt or textfile.
 
-  + `protocol`
+  * **protocol** {String}
     + default: `"http"`
     + Specifies the protocol to use for all paths found in a robots.txt or textfile. This option is ignored if you are using the sitemap or array input generators.
 
 ### Output Control Options
 
-  + `outputDir`
+  * **outputDir** {String}
     + default: none
     + **Required** \(you must specify a value\). Specifies the root output directory to put all the snapshot files in. Paths to the snapshot files in the output directory are defined by the paths in the urls themselves. The snapshot files are always named "index.html".
 
-  + `outputDirClean`
+  * **outputDirClean** {Boolean}
     + default: `false`
     + Specifies if html-snapshots should clean the output directory before it creates the snapshots. If you are using sitemapPolicy and only specifying one of lastmod or changefreq in your sitemap \(thereby relying on file modification times on output files from a previous run\) this value must be false.
 
-  + `outputPath`
+  * **outputPath** {Object|Function}
     + default: none
     + Specifies per url overrides to the generated snapshot output path. The default output path for a snapshot file, while rooted at outputDir, is simply an echo of the input path - plus any arguments. Depending on your urls, your `_escaped_fragment_` rewrite rule (see below), or the characters allowed in directory names in your environment, it might be necessary to use this option to change the output paths.
 
@@ -371,9 +190,9 @@ Removes all script tags from the output of the html snapshot. Custom filters are
 
 ### Snapshot Control Options
 
-  + `selector`
+  * **selector** {String|Object|Function}
     + default: `"body"`
-    + Specifies the selector to find in the output before taking the snapshot. The appearence of this selector in the output triggers a snapshot to be taken.
+    + The selector to wait for in the output that triggers a snapshot to be taken.
 
         The value can be one of these *javascript types*:
 
@@ -385,36 +204,37 @@ Removes all script tags from the output of the html snapshot. Custom filters are
 
     NOTE: By default, selectors must conform to [this spec](http://www.w3.org/TR/selectors-api/#grammar), as they are used by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). If you need selectors not supported by this, you must specify the `useJQuery` option, and load jQuery in your page.
 
-  + `useJQuery`
-    + default: `false`
-    + Specifies to use jQuery selectors to detect when to snapshot a page. Please note that you cannot use these selectors if the page to be snapshotted does not load jQuery itself. To return to the behavior prior to v0.6.x, set this to `true`.
+  * **snapshotScript** {String|Object}
+    + default: This library's default snapshot script. Which one is used is determined by the [`browser`](#process-control-options) option.
+    + Specifies the browser script to run to actually produce the snapshot. The script supplied in this option is run per url (or path) by html-snapshots in a separate browser process. Applies to all pages.
 
         The value can be one of these *javascript types*:
 
-        `"boolean"` If the value is a boolean, it is used for every page. Note that if it is any scalar type such as "string" or "number", it will be interpreted as a boolean using javascript rules. Coerced string values "true", "yes", and "1" are specifically true, all others are false.
+        `"string"` If the value is a string, it must an absolute path to a custom script you supply.  
+         
+        + `browser: "phantomjs"`:  
+        html-snapshots will spawn a separate phantomjs process to run your snapshot script and give it the following [arguments](http://phantomjs.org/api/system/property/args.html):  
+          + `system.args[0]` The path to your PhantomJS script.
+          + `system.args[1]` The output file path.
+          + `system.args[2]` The url to snapshot.
+          + `system.args[3]` The selector to watch for to signal page completion.
+          + `system.args[4]` The overall timeout \(milliseconds\).
+          + `system.args[5]` The interval \(milliseconds\) to watch for the selector.
+          + `system.args[6]` A flag indicating jQuery selectors should be supported.
+          + `system.args[7]` A flag indicating verbose output is desired.
+          + `system.args[8]` A custom module to load.  
 
-        `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify the use of jQuery for individual pages. The reserved key "__default" allows you to specify a default jQuery usage so you don't have to specify usage for every individual page.
-
-        `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a boolean.
-
-    NOTE: You do not *have to* use this option if your page uses jQuery. You only need this if your selector is not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). However, if you do use this option, the page being snapshotted must load jQuery itself.
-
-  + `snapshotScript`
-    + default: This library's [default](/lib/phantom/default.js) snapshot script. This script runs in PhantomJS and takes the snapshot when the supplied selector becomes visible.
-    + Specifies the PhantomJS script to run to actually produce the snapshot. The script supplied in this option is run per url (or path) by html-snapshots in a separate PhantomJS process. Applies to all pages.
-
-        The value can be one of these *javascript types*:
-
-        `"string"` If the value is a string, it must an absolute path to a custom PhantomJS script you supply. html-snapshots will spawn a separate PhantomJS instance to run your snapshot script and give it the following [arguments](http://phantomjs.org/api/system/property/args.html):  
-        + `system.args[0]` The path to your PhantomJS script.
-        + `system.args[1]` The output path.
-        + `system.args[2]` The url to snapshot.
-        + `system.args[3]` The selector to watch for to signal page completion.
-        + `system.args[4]` The overall timeout \(milliseconds\).
-        + `system.args[5]` The interval \(milliseconds\) to watch for the selector.
-        + `system.args[6]` A flag indicating jQuery selectors should be supported.
-        + `system.args[7]` A flag indicating verbose output is desired.
-        + `system.args[8]` A custom module to load.  
+        + `browser: "puppeteer"`:  
+        html-snapshots will spawn your script as a separate process and give it the following arguments:  
+          + `process.argv[0]` The path to NodeJS.
+          + `process.argv[1]` The path to your snapshot script.
+          + `process.argv[2]` The output file path.
+          + `process.argv[3]` The url to snapshot.
+          + `process.argv[4]` The selector to wait for to signal page completion.
+          + `process.argv[5]` The overall timeout \(milliseconds\).
+          + `process.argv[6]` The path to a custom NodeJS module that returns a filter function.
+          + `process.argv[7]` A debug flag to kick the browser into headed, devtools mode.
+          + `process.argv[8]` A slowMo time \(milliseconds\) to slow the browser down.
 
         `"object"` If an object is supplied, it has the following properties:  
         + `script` This must be one of the following values:  
@@ -437,9 +257,30 @@ Removes all script tags from the output of the html snapshot. Custom filters are
           return content.replace(/someregex/g, 'somereplacement'); // remove or replace anything
         }
         ```
-        A more complete example using custom options is available [here](/examples/custom).
+        A more complete example using custom options is available [here](/examples/custom).  
 
-  + `verbose`
+  * **debug** {Object}
+    > This options is only supported with the puppeteer browser script.  
+    + default: `{ flag: false, slowMo: 500 }`  
+    + Setting the `debug.flag` to true starts chrome in headed mode with devtools open. `debug.slowMo` is a time in milliseconds to reduce browser processing speed (larger numbers slows down chrome more).  
+
+  * **useJQuery** {Boolean|Object|Function}
+    > This option is only supported with the phantomjs browser script.  
+    + default: `false`  
+    + Specifies to use jQuery selectors to detect when to snapshot a page. Please note that you cannot use these selectors if the page to be snapshotted does not load jQuery itself. To return to the behavior prior to v0.6.x, set this to `true`.  
+
+        The value can be one of these *javascript types*:
+
+        `"boolean"` If the value is a boolean, it is used for every page. Note that if it is any scalar type such as "string" or "number", it will be interpreted as a boolean using javascript rules. Coerced string values "true", "yes", and "1" are specifically true, all others are false.
+
+        `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify the use of jQuery for individual pages. The reserved key "__default" allows you to specify a default jQuery usage so you don't have to specify usage for every individual page.
+
+        `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a boolean.
+
+    NOTE: You do not *have to* use this option if your page uses jQuery. You only need this if your selector is not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). However, if you do use this option, the page being snapshotted must load jQuery itself.
+
+  * **verbose** {Boolean|Object|Function}
+    > This option is only used with the phantomjs browser script
     + default: `false`
     + Specifies to turn on extended console output in the PhantomJS process for debugging purposes. Can be applied to all pages, or just specific page(s). It is recommended to do this one page at a time, as the output can be large, and interleaved with parallel processes. See following explanation of types for how to debug just one page, and also [this example](/examples/verbose).
 
@@ -453,7 +294,11 @@ Removes all script tags from the output of the html snapshot. Custom filters are
 
 ### Process Control Options
 
-  + `timeout`
+  * **browser** {String}
+    + default: `"puppeteer"`
+    + Specifies which browser process to use in the crawl. Can be one of "phantomjs" or "puppeteer".  
+
+  * **timeout** {Number|Object|Function}
     + default: 10000 \(milliseconds\)
     + Specifies the time to wait for the selector to become visible.
 
@@ -465,19 +310,21 @@ Removes all script tags from the output of the html snapshot. Custom filters are
 
         `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a number.
 
-  + `processLimit`
+  * **processLimit** {Number}
     + default: 4
     + Limits the number of child PhantomJS processes that can ever be actively running in parallel. A value of 1 effectively forces the snapshots to be taken in series (only one at a time). Useful if you need to limit the number of processes spawned by this library. Experiment with what works best. One guideline suggests about [4 per CPU](http://stackoverflow.com/questions/9961254/how-to-manage-a-pool-of-phantomjs-instances).
 
-  + `checkInterval`
+  * **pollInterval** {Number}
+    + default: 500 \(milliseconds\)
+    + Specifies the rate at which html-snapshots checks to see if a browser script has completed. Applies to all pages.
+
+  * **checkInterval** {Number}
+    > This option is only used with the phantomjs browser script
     + default: 250 (milliseconds)
     + Specifies the rate at which the PhantomJS script checks to see if the selector is visible yet. Applies to all pages.
 
-  + `pollInterval`
-    + default: 500 (milliseconds)
-    + Specifies the rate at which html-snapshots checks to see if a PhantomJS script has completed. Applies to all pages.
-
-  + `phantomjsOptions`
+  * **phantomjsOptions** {String|Array|Object|Function}
+    > This option is only used with the phantomjs browser script
     + default: ""
     + Specifies options to give to PhantomJS. Can specify per page or for all pages. Since PhantomJS instances run per page, it is possible to specify different PhantomJS options per page. Useful for debugging PhantomJS scripts on a specific page.
     For PhantomJS options syntax, checkout the [current options](http://phantomjs.org/api/command-line.html).
@@ -510,7 +357,8 @@ Removes all script tags from the output of the html snapshot. Custom filters are
         ```
         An example demonstrating how to **debug** a PhantomJS script is available [here](/examples/debug-phantomjs). It also demonstrates per-page option usage.
 
-  + `phantomjs`
+  * **phantomjs** {String}
+    > This option is only used with the phantomjs browser script
     + default: A package local reference to PhantomJS.
     + Specifies the PhantomJS executable to run. Applies to all pages. Override this if you want to supply a path to a different version of PhantomJS. To reference PhantomJS globally in your environment, just use the value, "phantomjs". Remember, it must be found in your environment path to execute.
   See [PhantomJS](http://phantomjs.org/) for more information.
