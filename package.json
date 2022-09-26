@@ -22,6 +22,8 @@
     "test": "mocha test/mocha/**/*.js --exit --recursive --reporter spec",
     "test:async": "mocha test/mocha/async/test.js --exit --reporter spec",
     "test:common": "mocha test/mocha/common/*.js --exit --reporter spec",
+    "test:browsers": "mocha test/mocha/browsers/test.js --exit --reporter spec",
+    "test:browsers:cover": "c8 -- npm run test:browsers",
     "test:input-generators": "mocha test/mocha/input-generators/*.js --exit --reporter spec",
     "test:input-generators:debug": "mocha --inspect-brk test/mocha/input-generators/*.js --exit --reporter spec",
     "test:html-snapshots": "mocha test/mocha/html-snapshots/*.js --exit --reporter spec",
