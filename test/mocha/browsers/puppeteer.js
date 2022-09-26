@@ -3,12 +3,15 @@
  * 
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
-/* global it */
+/* global before, it */
 const assert = require("assert");
 const path = require("path");
 const rimraf = require("rimraf").sync;
 const spawn = require("child_process").spawn;
+const server = require("../../server");
+
 const outputDir = path.join(__dirname, "tmp");
+const port = 9340;
 
 function puppeteerTests () {
   const snapshotScript = path.resolve(__dirname, '../../../lib/puppeteer/index.js');
@@ -35,6 +38,10 @@ function puppeteerTests () {
   }
 
   return function () {
+    before(function() {
+      server.start(path.join(__dirname, "./server"), port);
+    });
+    
     it("should succeed with minimal args", function (done) {
       this.timeout(5000);
 
@@ -42,7 +49,7 @@ function puppeteerTests () {
 
       spawnPuppeteer([
         outputFile,
-        "https://google.com",
+        `http://localhost:${port}/`,
         "body"
       ], done);
     });
@@ -76,14 +83,14 @@ function puppeteerTests () {
     });
 
     it("should launch debugging", function (done) {
-      const timeout = 6000;
+      const timeout = 5000;
       this.timeout(timeout);
 
       rimraf(outputDir);
 
       spawnPuppeteer([
         outputFile,
-        "https://google.com",
+        `http://localhost:${port}/`,
         "body",
         timeout - 1000,
         "false",
