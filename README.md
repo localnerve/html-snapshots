@@ -120,9 +120,9 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
         + `"robots"` Supply urls from a local or remote robots.txt file. Robots.txt is first scanned for `Sitemap` directives. If found, those are used to drive the crawl. Otherwise, `Allow` directives are used in conjunction with [origin options](#origin-options).
         + `"textfile"` Supply urls from a local line-oriented text file in the style of robots.txt
 
-  * **source** {String}
+  * **source** {String|Array}
     + default: `"./robots.txt"`, `"./sitemap.xml"`, `"./sitemap-index.xml"`, `"./line.txt"`, or `[]`, depending on the input generator.
-    + Specifies the input source. This must be a valid array or the location of a robots, text, or sitemap file for the corresponding input generator. robots.txt, sitemap.xml(.gz), sitemap-index.xml(.gz) can be local or remote. However, for the array input generator, this must be an array of urls.
+    + Specifies the input source. This must be a valid array or the location (local or remote) of a robots, text, or sitemap file for the corresponding input generator. For the array input generator, it must be an array of urls.
 
 ##### Sitemap Only Input Options
 > Options that apply to robots.txt with Sitemap directives, sitemaps, and sitemap-index input
