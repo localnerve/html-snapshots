@@ -7,7 +7,7 @@
 const path = require("path");
 const enableDestroy = require("server-destroy");
 
-const timeout = require("./utils").timeout;
+const { timeout } = require("./utils");
 
 const basics = require("./basics");
 const robots = require("./robots");
@@ -17,6 +17,7 @@ const processLimit = require("./process-limit");
 const useJQuery = require("./use-jquery");
 const snapshotScripts = require("./snapshot-scripts");
 const phantomJSOptions = require("./phantomjs-options");
+const puppeteer = require("./puppeteer");
 
 const localRobotsFile = path.join(__dirname, "./test_robots.txt");
 
@@ -54,7 +55,11 @@ function serverContext (testSuiteFactory, port) {
       });
     });
 
-    describe("tests", testSuiteFactory({ port, localRobotsFile }));
+    describe("tests", testSuiteFactory({
+      port,
+      localRobotsFile,
+      browsers: ["phantomjs", "puppeteer"]
+    }));
   };
 }
 
@@ -66,6 +71,10 @@ describe("html-snapshots", function () {
 
   describe(
     "phantomjsOptions option", serverContext(phantomJSOptions.testSuite, 8035)
+  );
+
+  describe(
+    "puppeteer specific tests", serverContext(puppeteer.testSuite, 8042)
   );
 
   describe(

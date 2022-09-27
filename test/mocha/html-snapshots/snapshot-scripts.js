@@ -24,58 +24,75 @@ const {
 } = utils;
 
 function snapshotScriptTests (options) {
-  const { localRobotsFile: inputFile, port } = options;
+  const {
+    localRobotsFile: inputFile,
+    port,
+    browsers
+  } = options;
 
   return function () {
-    const snapshotScriptTests = [
-      {
-        name: "removeScripts",
-        option: {
-          script: "removeScripts"
-        },
-        prove: function (completed, done) {
-          // console.log("@@@ removeScripts prove @@@");
-          let content, err;
-          for (var i = 0; i < completed.length; i++) {
-            content = fs.readFileSync(completed[i], { encoding: "utf8" });
-            if (/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content)) {
-              err = new Error("removeScripts failed. Script tag found in "+completed[i]);
-              break;
-            }
-          }
-          done(err);
-        }
+    const removeScriptsConfig = {
+      name: "removeScripts",
+      option: {
+        script: "removeScripts"
       },
-      {
-        name: "customFilter",
-        option: {
-          script: "customFilter",
-          module: path.join(__dirname, "myFilter.js")
-        },
-        prove: function (completed, done) {
-          // console.log("@@@ customFilter prove @@@");
-          let content, err;
-          for (let i = 0; i < completed.length; i++) {
-            // console.log("@@@ readFile "+completed[i]);
-            content = fs.readFileSync(completed[i], { encoding: "utf8" });
-            // this is dependent on myFilter.js adding someattrZZQy anywhere
-            if (content.indexOf("someattrZZQy") < 0) {
-              err = new Error("customFilter snapshotScript failed. Special sequence not found in "+completed[i]);
-              break;
-            }
+      browser: "phantomjs",
+      prove: (completed, done) => {
+        // console.log("@@@ removeScripts prove @@@");
+        let content, err;
+        for (var i = 0; i < completed.length; i++) {
+          content = fs.readFileSync(completed[i], { encoding: "utf8" });
+          if (/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(content)) {
+            err = new Error("removeScripts failed. Script tag found in "+completed[i]);
+            break;
           }
-          done(err);
         }
+        done(err);
       }
-    ];
-
+    };
+    const customFilterConfig = {
+      name: "customFilter",
+      option: {
+        script: "customFilter",
+        module: path.join(__dirname, "myFilter.js")
+      },
+      browser: "phantomjs",
+      prove: (completed, done) => {
+        // console.log("@@@ customFilter prove @@@");
+        let content, err;
+        for (let i = 0; i < completed.length; i++) {
+          // console.log("@@@ readFile "+completed[i]);
+          content = fs.readFileSync(completed[i], { encoding: "utf8" });
+          // this is dependent on myFilter.js adding someattrZZQy anywhere
+          if (content.indexOf("someattrZZQy") < 0) {
+            err = new Error("customFilter snapshotScript failed. Special sequence not found in "+completed[i]);
+            break;
+          }
+        }
+        done(err);
+      }
+    };
+    const snapshotScriptTests = [];
+    browsers.forEach(browser => {
+      snapshotScriptTests.push({
+        ...removeScriptsConfig,
+        ...{
+          name: `${removeScriptsConfig.name}-${browser}`,
+          browser
+        }
+      });
+      snapshotScriptTests.push({
+        ...customFilterConfig,
+        ...{
+          name: `${customFilterConfig.name}-${browser}`,
+          browser
+        }
+      });
+    });
+    
     describe("should succeed for scripts", function () {
       let testNumber = 0, snapshotScriptTest;
-      const scriptNames = [
-        snapshotScriptTests[testNumber].name,
-        snapshotScriptTests[testNumber + 1].name
-        //, testNumber + 2, etc
-      ];
+      const scriptNames = snapshotScriptTests.map(test => test.name);
 
       beforeEach(function () {
         snapshotScriptTest = snapshotScriptTests[testNumber++];
@@ -89,6 +106,7 @@ function snapshotScriptTests (options) {
           outputDirClean: true,
           timeout: timeout,
           snapshotScript: snapshotScriptTest.option,
+          browser: snapshotScriptTest.browser,
           outputDir,
           port
         };
@@ -109,90 +127,76 @@ function snapshotScriptTests (options) {
           });
       }
 
-      scriptNames.forEach(scriptName => {
-        it(`snapshot script ${scriptName}`, function (done) {
+      scriptNames.forEach((scriptName, i) => {
+        it(`snapshot script ${scriptName}, ${snapshotScriptTests[i].browser}`, function (done) {
           setTimeout(snapshotScriptTestDefinition, 3000, done);
         });
       });
     });
 
-    it("should fail if a bogus script string is supplied", function (done) {
-      const options = {
-        source: inputFile,
-        hostname: "localhost",
-        selector: "#dynamic-content",
-        outputDirClean: true,
-        snapshotScript: bogusFile,
-        timeout: 2000,
-        outputDir,
-        port
-      };
-      const twice = _.after(2, cleanupError.bind(null, done, 0));
+    describe("should fail for scripts", function () {
+      function createOptions (newOptions) {
+        const defaultOptions = {
+          source: inputFile,
+          hostname: "localhost",
+          selector: "#dynamic-content",
+          outputDirClean: true,
+          snapshotScript: bogusFile,
+          timeout: 2000,
+          outputDir,
+          port
+        };
+        return {
+          ...defaultOptions,
+          ...newOptions
+        };
+      }
 
-      ss.run(optHelp.decorate(options), twice)
-        .then(unexpectedSuccess.bind(null, done))
-        .catch(twice);
-    });
+      const testOptions = [{
+        name: "should fail if a bogus script string is supplied",
+        options: {
+          snapshotScript: bogusFile
+        }
+      }, {
+        name: "should fail if a bogus script object is supplied",
+        options: {
+          snapshotScript: {
+            script: bogusFile
+          }
+        }
+      }, {
+        name: "should fail if a customFilter is defined but no module",
+        options: {
+          snapshotScript: {
+            script: "customFilter"
+          }
+        }
+      }, {
+        name: "should fail if a customFilter is defined and bogus module",
+        options: {
+          browser: "phantomjs",
+          snapshotScript: {
+            script: "customFilter",
+            module: bogusFile
+          }
+        }
+      }];
+      const driverOptions = browsers.map(browser => {
+        return testOptions.map(test => {
+          test.options.browser = browser;
+          return JSON.parse(JSON.stringify(test));
+        });
+      }).flat();
 
-    it("should fail if a bogus script object is supplied", function(done) {
-      const options = {
-        source: inputFile,
-        hostname: "localhost",
-        selector: "#dynamic-content",
-        outputDirClean: true,
-        snapshotScript: {
-          script: bogusFile
-        },
-        timeout: 2000,
-        outputDir,
-        port
-      };
-      const twice = _.after(2, cleanupError.bind(null, done, 0));
-
-      ss.run(optHelp.decorate(options), twice)
-        .then(unexpectedSuccess.bind(null, done))
-        .catch(twice);
-    });
-
-    it("should fail if a customFilter is defined but no module", function(done) {
-      const options = {
-        source: inputFile,
-        hostname: "localhost",
-        selector: "#dynamic-content",
-        outputDirClean: true,
-        snapshotScript: {
-          script: "customFilter"
-        },
-        timeout: 2000,
-        outputDir,
-        port
-      };
-      const twice = _.after(2, cleanupError.bind(null, done, 0));
-
-      ss.run(optHelp.decorate(options), twice)
-        .then(unexpectedSuccess.bind(null, done))
-        .catch(twice);
-    });
-
-    it("should fail if a customFilter is defined and bogus module", function(done) {
-      const options = {
-        source: inputFile,
-        hostname: "localhost",
-        selector: "#dynamic-content",
-        outputDirClean: true,
-        snapshotScript: {
-          script: "customFilter",
-          module: bogusFile
-        },
-        timeout: 2000,
-        outputDir,
-        port
-      };
-      const twice = _.after(2, cleanupError.bind(null, done, 0));
-
-      ss.run(optHelp.decorate(options), twice)
-        .then(unexpectedSuccess.bind(null, done))
-        .catch(twice);
+      driverOptions.forEach(driver => {
+        it(driver.name, function (done) {
+          const options = createOptions(driver.options);
+          const twice = _.after(2, cleanupError.bind(null, done, 0));
+          ss.run(optHelp.decorate(options), twice)
+            .then(unexpectedSuccess.bind(null, done))
+            .catch(twice);
+        });
+      });
     });
   };
 }

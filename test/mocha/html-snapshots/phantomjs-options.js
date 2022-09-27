@@ -4,39 +4,51 @@
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global it */
-var path = require("path");
-var fs = require("fs");
-var rimraf = require("rimraf").sync;
-var utils = require("./utils");
-var optHelp = require("../../helpers/options");
-var resHelp = require("../../helpers/result");
-var ss = require("../../../lib/html-snapshots");
+const path = require("path");
+const fs = require("fs");
+const rimraf = require("rimraf").sync;
+const utils = require("./utils");
+const optHelp = require("../../helpers/options");
+const resHelp = require("../../helpers/result");
+const ss = require("../../../lib/html-snapshots");
 
-// missing destructuring, will write postcard...
-var timeout = utils.timeout;
-var outputDir = utils.outputDir;
-var cleanup = utils.cleanup;
-var unexpectedError = utils.unexpectedError;
-var unexpectedSuccess = utils.unexpectedSuccess;
-var checkActualFiles = utils.checkActualFiles;
+const {
+  timeout,
+  outputDir,
+  cleanup,
+  unexpectedError,
+  unexpectedSuccess,
+  checkActualFiles
+} = utils;
 
-var outputBase = path.resolve(outputDir, "..");
-var cookiesFile = path.join(outputBase, "cookies.txt");
+const outputBase = path.resolve(outputDir, "..");
+const cookiesFile = path.join(outputBase, "cookies.txt");
 
 function phantomjsOptionsTests (options) {
-  var port = options.port;
+  const {
+    port
+  } = options;
+
+  function createOptions (newOptions) {
+    const defaultOptions = {
+      input: "array",
+      source: [ `http://localhost:${port}/pjsopts` ],
+      outputDir,
+      outputDirClean: false,
+      selector: ".content-complete",
+      timeout,
+      browser: "phantomjs",
+      phantomjsOptions: `--cookies-file=${cookiesFile}`
+    }
+    return {
+      ...defaultOptions,
+      ...newOptions
+    };
+  }
 
   return function () {
     it ("should work on first vanilla full invocation, no checks", function (done) {
-      var options = {
-        input: "array",
-        source: [ "http://localhost:"+port+"/pjsopts" ],
-        outputDir: outputDir,
-        outputDirClean: false,
-        selector: ".content-complete",
-        timeout: timeout,
-        phantomjsOptions: "--cookies-file="+cookiesFile
-      };
+      const options = createOptions({});
 
       rimraf(outputBase);
 
@@ -52,25 +64,17 @@ function phantomjsOptionsTests (options) {
     });
 
     it("should work with one string option", function (done) {
-      var options = {
-        input: "array",
-        source: [ "http://localhost:"+port+"/pjsopts" ],
-        outputDir: outputDir,
-        outputDirClean: false,
-        selector: ".content-complete",
-        timeout: timeout,
-        phantomjsOptions: "--cookies-file="+cookiesFile
-      };
+      const options = createOptions({});
 
       rimraf(outputBase);
 
-      ss.run(optHelp.decorate(options), function (err, completed) {
+      ss.run(optHelp.decorate(options), (err, completed) => {
         if (err) {
-          console.log('@@@ error = '+err+", completed="+completed.join(','));
+          console.log(`@@@ error = ${err}, completed=${completed.join(',')}`);
         }
       })
         .then(() => {
-          var assertionError;
+          let assertionError;
           try {
             fs.accessSync(cookiesFile);
           } catch (e) {
@@ -87,28 +91,23 @@ function phantomjsOptionsTests (options) {
     });
 
     it("should work with multiple options, test one", function (done) {
-      var options = {
-        input: "array",
-        source: [ "http://localhost:"+port+"/pjsopts" ],
-        outputDir: outputDir,
-        outputDirClean: false,
+      const options = createOptions({
         selector: "#inline-image",
-        timeout: timeout,
         phantomjsOptions: [
-          "--cookies-file="+cookiesFile,
+          `--cookies-file=${cookiesFile}`,
           "--load-images=true"
         ]
-      };
+      });
 
       rimraf(outputBase);
 
-      ss.run(optHelp.decorate(options), function (err, completed) {
+      ss.run(optHelp.decorate(options), (err, completed) => {
         if (err) {
-          console.log('@@@ error = '+err+", completed="+completed.join(','));
+          console.log(`@@@ error = ${err}, completed=${completed.join(',')}`);
         }
       })
         .then(() => {
-          var assertionError;
+          let assertionError;
           try {
             fs.accessSync(cookiesFile);
           } catch (e) {
@@ -125,25 +124,21 @@ function phantomjsOptionsTests (options) {
     });
 
     it("should work with multiple options, test two", function (done) {
-      var options = {
-        input: "array",
-        source: [ "http://localhost:"+port+"/pjsopts" ],
-        outputDir: outputDir,
-        outputDirClean: false,
+      const options = createOptions({
         selector: "#inline-image",
         timeout: 5000, // this should fail, so don't wait too long.
         phantomjsOptions: [
-          "--cookies-file="+cookiesFile,
+          `--cookies-file=${cookiesFile}`,
           "--load-images=false"
         ]
-      };
+      });
 
       rimraf(outputBase);
 
       ss.run(optHelp.decorate(options))
         .then(unexpectedSuccess.bind(null, done))
         .catch(err => {
-          var assertionError;
+          let assertionError;
           try {
             resHelp.mustBeError(err);
           } catch (e) {
@@ -152,7 +147,6 @@ function phantomjsOptionsTests (options) {
           cleanup(done, assertionError);
         });
     });
-
     // most of these tests use no options, so not testing that again here
   };
 }

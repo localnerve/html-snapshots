@@ -4,52 +4,96 @@
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global it */
-var assert = require("assert");
-var path = require("path");
-var _ = require("lodash");
-var optHelp = require("../../helpers/options");
-var ss = require("../../../lib/html-snapshots");
-var utils = require("./utils");
+const assert = require("assert");
+const path = require("path");
+const _ = require("lodash");
+const optHelp = require("../../helpers/options");
+const ss = require("../../../lib/html-snapshots");
+const utils = require("./utils");
 
 // missing destructuring, will write postcard...
-var outputDir = utils.outputDir;
-var cleanupError = utils.cleanupError;
-var unexpectedSuccess = utils.unexpectedSuccess;
+const {
+  outputDir,
+  cleanup,
+  cleanupError,
+  cleanupSuccess,
+  unexpectedSuccess,
+  testSuccess,
+  checkActualFiles
+} = utils;
 
 // Sitemap constants
-var inputFile = path.join(__dirname, "./test_sitemap.xml");
-var urls = 3; // must match test_sitemap.xml
+const inputFile = path.join(__dirname, "./test_sitemap.xml");
+const urls = 3; // must match public/page_sitemap.xml
 
 function sitemapTests (options) {
-  var port = options.port;
+  const {
+    port,
+    browsers
+  } = options;
 
   return function () {
-    it("should all fail, bad remote sitemap", function (done) {
-      var options = {
+    function createOptions(newOptions) {
+      const defaultOptions = {
         input: "sitemap",
-        source: "http://localhost:"+port+"/index.html",
-        port: port,
+        source: `http://localhost:${port}/index.html`,
         selector: "#dynamic-content",
-        outputDir: outputDir,
         outputDirClean: true,
-        timeout: 6000
+        timeout: 4000,
+        outputDir,
+        port
       };
-      var twice = _.after(2, cleanupError.bind(null, done, 0));
+      return {
+        ...defaultOptions,
+        ...newOptions
+      };
+    }
 
-      ss.run(optHelp.decorate(options), twice)
-        .then(unexpectedSuccess.bind(null, done))
-        .catch(twice);
+    browsers.forEach(browser => {
+      it(`should all fail, bad remote sitemap - ${browser}`, function (done) {
+        const options = createOptions({
+          browser
+        });
+
+        const twice = _.after(2, cleanupError.bind(null, done, 0));
+
+        ss.run(optHelp.decorate(options), twice)
+          .then(unexpectedSuccess.bind(null, done))
+          .catch(twice);
+      });
+
+      it("TODO: write more failure tests", function (done) {
+        assert.ok(true, "TODO");
+        done();
+      });
+
+      it(`should succeed simple case - ${browser}`, function (done) {
+        const options = createOptions({
+          source: `http://localhost:${port}/public/page-sitemap.xml`,
+          browser
+        });
+        
+        const twice = _.after(2, cleanupSuccess.bind(null, done));
+        const success = (err, completed) => {
+          assert.equal(completed.length, urls);
+          testSuccess(twice, completed);
+        };
+
+        ss.run(optHelp.decorate(options), success)
+          .then(success.bind(null, undefined))
+          .catch(e => {
+            checkActualFiles(e.notCompleted)
+              .then(() => {
+                cleanup(done, e);
+              });
+          });
+      });
+
+      it("TODO: write more success tests", function (done) {
+        assert.ok(true, "TODO");
+        done();
+      });
     });
-
-    it("TODO: write failure tests", function (done) {
-      assert.ok(true, "TODO");
-      done();
-    });
-
-    it("TODO: write success tests", function (done) {
-      assert.ok(true, "TODO");
-      done();
-    })
   };
 }
 

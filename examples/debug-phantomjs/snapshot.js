@@ -32,6 +32,7 @@ htmlSnapshots.run({
   outputDirClean: true,
   selector: "#mainContent",
   timeout: 10000,
+  browser: "phantomjs",
   phantomjsOptions: {
     // The key must exactly match the loc as defined in the sitemap.xml
     "https://www.sitemaps.org/protocol.html": "--remote-debugger-port=9000"
