@@ -4,13 +4,15 @@
 + [Per-page Output Paths](#example---per-page-special-output-paths)
 + [Per-page jQuery](#example---per-page-selectors-and-jquery)
 + [Array Input](#example---array)
-+ [Array Input DRY](/examples/html5rocks)
-+ [Sitemap Index](/examples/sitemap-index)
-+ [Process Limit](/examples/process-limit)
++ [More Array Input](./simple-promise/)
++ [Array Input DRY](./html5rocks/)
++ [Sitemap Index](./sitemap-index/)
++ [Process Limit](./process-limit/)
 + [Script Removal](#example---remote-robotstxt-remove-script-tags-from-html-snapshots)
-+ [Custom Filters](/examples/custom)
-+ [Debug PhantomJS w/Verbose Output](/examples/verbose)
-+ [Debug PhantomJS w/Attach](/examples/debug-phantomjs)
++ [Custom Filters](./custom/)
++ [Debug PhantomJS w/Verbose Output](./verbose/)
++ [Debug PhantomJS w/Attach](./debug-phantomjs/)
++ [Debug Puppeteer in devtools](./debug-puppeteer/)
 
 ### Example - Per page selectors and timeouts
 ```javascript

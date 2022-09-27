@@ -23,6 +23,7 @@ htmlSnapshots.run({
   outputDirClean: true,
   selector: "#mainContent",
   timeout: 10000,
+  browser: "phantomjs",
   processLimit: 1, // to clarify output
   verbose: verboseOption
 })

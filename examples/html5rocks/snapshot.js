@@ -50,12 +50,6 @@ htmlSnapshots.run({
   // remove all script tags from the output
   snapshotScript: {
     script: "removeScripts"
-  },
-
-  // handle ssl for updates.html5rocks only
-  phantomjsOptions: {
-    // key must match url exactly
-    "https://developer.chrome.com/blog/": ["--ssl-protocol=any", "--ignore-ssl-errors=true"]
   }
 })
 .then(completed => {

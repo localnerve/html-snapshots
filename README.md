@@ -262,7 +262,7 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
   * **debug** {Object}
     > This options is only supported with the puppeteer browser script.  
     + default: `{ flag: false, slowMo: 500 }`  
-    + Setting the `debug.flag` to true starts chrome in headed mode with devtools open. `debug.slowMo` is a time in milliseconds to reduce browser processing speed (larger numbers slows down chrome more).  
+    + Setting the `debug.flag` to true starts chrome in headed mode with devtools open. `debug.slowMo` is a time in milliseconds to reduce browser processing speed (larger numbers slows down chrome more). Recommended use is with a single problem page input using an Array source.
 
   * **useJQuery** {Boolean|Object|Function}
     > This option is only supported with the phantomjs browser script.  
