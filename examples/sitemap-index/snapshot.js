@@ -31,5 +31,4 @@ htmlSnapshots.run({
   console.error('completed #', err.completed.length);
   console.error('not completed #', err.notCompleted.length)
   console.error(err);
-  utils.cleanupAndExit(true);
 });
