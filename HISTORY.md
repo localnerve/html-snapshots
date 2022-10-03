@@ -32,11 +32,13 @@ jQuery selectors are no longer supported by default. To restore the previous beh
 The upside is jQuery is no longer required to be loaded by the page being snapshotted. However, if you use jQuery selectors, or selectors not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector), the page being snapshotted must load jQuery.
 
 ## Node Support Tags
-  `v0.13.2 ` Node 0.12 (or less)  
-  `v0.14.16` Node 4+  
-  `v0.15.x ` Node 6+  
-  `v0.16.x ` Node 8+  
-  `v0.17.x ` Node 10+  
-  `v0.18.x ` Node 14+
-  `v0.19.x ` Node 14+
-  `v1.0.x  ` Node 14+
+| Tag | Supported Node Version |
+| --- | --- |
+| `v0.13.2 ` | Node 0.12 (or less) |
+| `v0.14.16` | Node 4+ |
+| `v0.15.x ` | Node 6+ |
+| `v0.16.x ` | Node 8+ |
+| `v0.17.x ` | Node 10+ |
+| `v0.18.x ` | Node 14+ |
+| `v0.19.x ` | Node 14+ |
+| `v1.0.x  ` | Node 14+ |
