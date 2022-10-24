@@ -235,6 +235,7 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
           + `process.argv[6]` The path to a custom NodeJS module that returns a filter function.
           + `process.argv[7]` A debug flag to kick the browser into headed, devtools mode.
           + `process.argv[8]` A slowMo time \(milliseconds\) to slow the browser down.
+          + `process.argv[9]` Stringified Puppeteer launch options.
 
         `"object"` If an object is supplied, it has the following properties:  
         + `script` This must be one of the following values:  
@@ -322,6 +323,17 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
     > This option is only used with the phantomjs browser script
     + default: 250 (milliseconds)
     + Specifies the rate at which the PhantomJS script checks to see if the selector is visible yet. Applies to all pages.
+
+  * **puppeteerLaunchOptions** {Object|Function}
+    > This options is only used with the puppeteer browser script
+    + default: {}
+    + Specifies launch options to give to Puppeteer. Can specify per page or for all pages. Puppeteer function options (like targetFilter) are not supported. Launch options will override any puppeteer debug options supplied.
+    
+        The value can be one of these *javascript types*:
+
+        `"object"` If the value is an object, it can contain any puppeteer launch options, and is applied for all pages. The object will be given directly to `puppeteer.launch`.
+
+        "`function`" If the value is a function, it is called for every page and passed a single argument that is the url found in the input. The function must return puppeteer launch options to use for the page it is given. The value returned for a given page must be an object to be given directly to `puppeter.launch`.
 
   * **phantomjsOptions** {String|Array|Object|Function}
     > This option is only used with the phantomjs browser script
