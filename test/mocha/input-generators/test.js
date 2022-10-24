@@ -921,6 +921,96 @@ describe("input-generator", function () {
 
       });
 
+      describe("puppeteerLaunchOptions option", function () {
+        it("should accept a single object and apply globally", function (done) {
+          let count = 0;
+          const puppeteerLaunchOptions = {
+            one: 'one',
+            two: 2,
+            three: ['three', 'four', 'five'],
+            six: {
+              seven: 'seven'
+            }
+          };
+
+          const result = gen.run(options.decorate({
+            source,
+            puppeteerLaunchOptions,
+            outputDir: thisOutputDir
+          }), function (input) {
+            const classString = Object.prototype.toString;
+
+            assert.equal(classString.call(input.puppeteerLaunchOptions), classString.call(puppeteerLaunchOptions),
+              `${input.__page}:\ninput.puppeteerLaunchOptions should be an object:\n${
+                require("util").inspect(input.puppeteerLaunchOptions)
+              }`
+            );
+
+            assert.deepEqual(input.puppeteerLaunchOptions, puppeteerLaunchOptions,
+              `${input.__page}:\ninput.puppeteerLaunchOptions should be equal to the original input`);
+
+            count++;
+            if (count === urls) {
+              done();
+            }
+          });
+
+          result
+            .then(function () {
+              assert.ok(true);
+            })
+            .catch(function (err) {
+              assert.fail(`Run should not fail: ${err.toString()}`);
+            });
+        });
+
+        it("should accept a function and apply per url", function (done) {
+          const plo1 = { one: "one" },
+            plo2 = { two: "two" },
+            plo3 = { three: "three" };
+
+          const globalOptions = {
+            "/": plo1,
+            "/contact": plo2,
+            "/services/carpets": plo3
+          };
+          const localOptions = {
+            "http://northstar.local/": plo1,
+            "http://northstar.local/contact": plo2,
+            "http://northstar.local/services/carpets": plo3
+          };
+          const opts = globalUrl ? globalOptions : localOptions;
+          let count = 0;
+          const ploFn = function (url) {
+            return opts[url];
+          };
+
+          const result = gen.run(options.decorate({
+            source: source,
+            outputDir: thisOutputDir,
+            puppeteerLaunchOptions: ploFn
+          }), function (input) {
+            const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).puppeteerLaunchOptions;
+
+            assert.deepEqual(input.puppeteerLaunchOptions, testOption,
+              `${input.__page}:\ninput.puppeteerLaunchOptions: ${input.puppeteerLaunchOptions} != testPuppeteerLaunchOption: ${testOption}`);
+
+            count++;
+            if (count === urls) {
+              done();
+            }
+          });
+
+          result
+            .then(function () {
+              assert.ok(true);
+            })
+            .catch(function (err) {
+              assert.fail(`Run should not fail: ${err.toString()}`);
+            });
+        });
+      });
+
       describe("url behavior", function () {
 
         it("should replace the default hostname in results", function (done) {

@@ -43,7 +43,7 @@ function puppeteerTests () {
     });
     
     it("should succeed with minimal args", function (done) {
-      this.timeout(5000);
+      this.timeout(4000);
 
       rimraf(outputDir);
 
@@ -51,6 +51,28 @@ function puppeteerTests () {
         outputFile,
         `http://localhost:${port}/`,
         "body"
+      ], done);
+    });
+
+    it("should succeed with stringified puppeteerLaunchOptions", function (done) {
+      this.timeout(4000);
+      rimraf(outputDir);
+
+      // override the debug options to prove stringified launch opts worked.
+      const puppeteerLaunchOptions = {
+        headless: true,
+        devTools: false
+      };
+
+      spawnPuppeteer([
+        outputFile,
+        `http://localhost:${port}/`,
+        "body",
+        4000,
+        "false",
+        "true",
+        10,
+        JSON.stringify(puppeteerLaunchOptions)
       ], done);
     });
 
@@ -98,6 +120,7 @@ function puppeteerTests () {
         10
       ], done);
     });
+
   };
 }
 
