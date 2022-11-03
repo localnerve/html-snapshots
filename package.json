@@ -27,6 +27,8 @@
     "test:input-generators": "mocha test/mocha/input-generators/*.js --exit --reporter spec",
     "test:input-generators:debug": "mocha --inspect-brk test/mocha/input-generators/*.js --exit --reporter spec",
     "test:html-snapshots": "mocha test/mocha/html-snapshots/*.js --exit --reporter spec",
+    "test:html-snapshots:robots": "mocha test/mocha/html-snapshots/*.js --grep \"robots\" --exit --reporter spec",
+    "test:html-snapshots:puppeteer": "mocha test/mocha/html-snapshots/*.js --grep \"puppeteer specific\" --exit --reporter spec",
     "test:html-snapshots:debug": "mocha --inspect-brk test/mocha/html-snapshots/*.js --exit --reporter spec",
     "test:cover": "c8 -- npm test",
     "validate": "npm ls"
