@@ -55,7 +55,7 @@
     "async": "3.2.4",
     "async-lock": "1.4.0",
     "combine-errors": "3.0.3",
-    "got": "12.5.2",
+    "got": "12.5.3",
     "lodash": "4.17.21",
     "mkdirp": "1.0.4",
     "phantomjs-prebuilt": "2.1.16",
