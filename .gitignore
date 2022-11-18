@@ -8,5 +8,6 @@ report
 coverage
 .jshint*
 .validate.json
+*.tgz
 html-snapshots.sublime-project
 html-snapshots.sublime-workspace
