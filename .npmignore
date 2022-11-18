@@ -1,0 +1,10 @@
+.git*
+coverage
+docs
+examples
+test
+tmp
+*.tgz
+.c8*
+.eslint*
+.jshint*
