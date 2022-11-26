@@ -6,8 +6,8 @@
 /* global it */
 const assert = require("assert");
 const path = require("path");
-const _ = require("lodash");
 const optHelp = require("../../helpers/options");
+const { after } = require("../../helpers/func");
 const ss = require("../../../lib/html-snapshots");
 const utils = require("./utils");
 
@@ -55,7 +55,7 @@ function sitemapTests (options) {
           browser
         });
 
-        const twice = _.after(2, cleanupError.bind(null, done, 0));
+        const twice = after(2, cleanupError.bind(null, done, 0));
 
         ss.run(optHelp.decorate(options), twice)
           .then(unexpectedSuccess.bind(null, done))
@@ -73,7 +73,7 @@ function sitemapTests (options) {
           browser
         });
         
-        const twice = _.after(2, cleanupSuccess.bind(null, done));
+        const twice = after(2, cleanupSuccess.bind(null, done));
         const success = (err, completed) => {
           assert.equal(completed.length, urls);
           testSuccess(twice, completed);

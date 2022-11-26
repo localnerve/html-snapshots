@@ -7,10 +7,10 @@
 
 const path = require("path");
 const fs = require("fs");
-const _ = require("lodash");
 const rimraf = require("rimraf").sync;
 const utils = require("./utils");
 const optHelp = require("../../helpers/options");
+const { after } = require("../../helpers/func");
 const ss = require("../../../lib/html-snapshots");
 
 const {
@@ -191,7 +191,7 @@ function snapshotScriptTests (options) {
       driverOptions.forEach(driver => {
         it(driver.name, function (done) {
           const options = createOptions(driver.options);
-          const twice = _.after(2, cleanupError.bind(null, done, 0));
+          const twice = after(2, cleanupError.bind(null, done, 0));
           ss.run(optHelp.decorate(options), twice)
             .then(unexpectedSuccess.bind(null, done))
             .catch(twice);

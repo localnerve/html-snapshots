@@ -5,12 +5,12 @@
  */
 /* global it */
 const assert = require("assert");
-const _ = require("lodash");
 const fs = require("fs");
 const path = require("path");
 const ss = require("../../../lib/html-snapshots");
 const utils = require("./utils");
 const optHelp = require("../../helpers/options");
+const { after } = require("../../helpers/func");
 
 // missing destructuring, will write postcard...
 const {
@@ -26,7 +26,7 @@ function basicTests (options) {
   return function () {
     browsers.forEach(browser => {
       it(`no arguments should fail - ${browser}`, function (done) {
-        const twice = _.after(2, cleanupError.bind(null, done, 0));
+        const twice = after(2, cleanupError.bind(null, done, 0));
 
         ss.run(optHelp.decorate({
           browser
@@ -36,7 +36,7 @@ function basicTests (options) {
       });
 
       it(`invalid source should fail - ${browser}`, function (done) {
-        const twice = _.after(2, cleanupError.bind(null, done, 0));
+        const twice = after(2, cleanupError.bind(null, done, 0));
 
         ss.run(optHelp.decorate({
           source: bogusFile,
@@ -49,7 +49,7 @@ function basicTests (options) {
       it(`should clean the output directory when specified - ${browser}`, function (done) {
         const dir = path.join(__dirname, "./tmpdir");
         const file = path.join(dir, "somefile.txt");
-        const twice = _.after(2, cleanupError.bind(null, done, 0));
+        const twice = after(2, cleanupError.bind(null, done, 0));
 
         fs.mkdirSync(dir);
         fs.writeFileSync(file, "some data");
@@ -69,7 +69,7 @@ function basicTests (options) {
 
       it(`default snapshot script should exist - ${browser}`, function (done) {
         const options = { source: "./bogus/file.txt", browser };
-        const twice = _.after(2, cleanupError.bind(null, done, 0));
+        const twice = after(2, cleanupError.bind(null, done, 0));
 
         const result = ss.run(optHelp.decorate(options), twice);
 

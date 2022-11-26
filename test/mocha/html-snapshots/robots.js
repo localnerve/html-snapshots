@@ -5,9 +5,9 @@
  */
 /* global it */
 const rimraf = require("rimraf").sync;
-const _ = require("lodash");
 const common = require("../../../lib/common");
 const optHelp = require("../../helpers/options");
+const { after } = require("../../helpers/func");
 const ss = require("../../../lib/html-snapshots");
 const utils = require("./utils");
 
@@ -65,7 +65,7 @@ function robotsTests (options) {
             browser
           });
 
-          const twice = _.after(2, cleanupSuccess.bind(null, done));
+          const twice = after(2, cleanupSuccess.bind(null, done));
 
           rimraf(outputDir);
 
@@ -85,7 +85,7 @@ function robotsTests (options) {
             browser
           });
 
-          const twice = _.after(2, cleanupSuccess.bind(null, done));
+          const twice = after(2, cleanupSuccess.bind(null, done));
 
           ss.run(optHelp.decorate(options), twice)
             .then(testSuccess.bind(null, twice))
@@ -107,14 +107,14 @@ function robotsTests (options) {
           });
 
           if (browser === "phantomjs") {
-            const twice = _.after(2, cleanupError.bind(null, done, 0));
+            const twice = after(2, cleanupError.bind(null, done, 0));
 
             ss.run(options, twice)
               .then(unexpectedSuccess.bind(null, done))
               .catch(twice);
           } else {
             options.timeout = utils.timeout;
-            const twice = _.after(2, cleanupSuccess.bind(null, done));
+            const twice = after(2, cleanupSuccess.bind(null, done));
 
             ss.run(optHelp.decorate(options), twice)
             .then(testSuccess.bind(null, twice))
@@ -135,7 +135,7 @@ function robotsTests (options) {
             browser
           });
 
-          const twice = _.after(2, cleanupError.bind(null, done, 0));
+          const twice = after(2, cleanupError.bind(null, done, 0));
 
           ss.run(optHelp.decorate(options), twice)
             .then(unexpectedSuccess.bind(null, done))
@@ -150,7 +150,7 @@ function robotsTests (options) {
             browser
           });
 
-          const twice = _.after(2, cleanupError.bind(null, done, 0));
+          const twice = after(2, cleanupError.bind(null, done, 0));
 
           ss.run(optHelp.decorate(options), twice)
             .then(unexpectedSuccess.bind(null, done))
@@ -177,7 +177,7 @@ function robotsTests (options) {
             browser
           });
 
-          const twice = _.after(2, cleanupError.bind(null, done, urls - 1));
+          const twice = after(2, cleanupError.bind(null, done, urls - 1));
 
           ss.run(optHelp.decorate(options), twice)
             .then(unexpectedSuccess.bind(null, done))
