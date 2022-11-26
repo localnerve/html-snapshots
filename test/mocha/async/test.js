@@ -7,7 +7,6 @@
 var assert = require("assert");
 var fs = require("fs");
 var path = require("path");
-var mkdirp = require("mkdirp");
 var rimraf = require("rimraf").sync;
 var asyncLib = require("async");
 var asyncLocal = require("../../../lib/async");
@@ -96,7 +95,7 @@ describe("async", function () {
         done(err);
       });
 
-      mkdirp.sync(dir);
+      fs.mkdirSync(dir, { recursive: true });
       assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
@@ -138,7 +137,7 @@ describe("async", function () {
         done(err);
       });
 
-      mkdirp.sync(dir);
+      fs.mkdirSync(dir, { recursive: true });
       assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function(file) {
@@ -187,7 +186,7 @@ describe("async", function () {
         done();
       });
 
-      mkdirp.sync(dir);
+      fs.mkdirSync(dir, { recursive: true });
       assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
@@ -228,7 +227,7 @@ describe("async", function () {
         done(assertionError);
       });
 
-      mkdirp.sync(dir);
+      fs.mkdirSync(dir, { recursive: true });
       assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
@@ -300,7 +299,7 @@ describe("async", function () {
         done();
       });
 
-      mkdirp.sync(dir);
+      fs.mkdirSync(dir, { recursive: true });
       assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
@@ -336,7 +335,7 @@ describe("async", function () {
         done();
       });
 
-      mkdirp.sync(dir);
+      fs.mkdirSync(dir, { recursive: true });
       assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       files.forEach(function (file) {
@@ -380,7 +379,7 @@ describe("async", function () {
         done();
       });
 
-      mkdirp.sync(dir);
+      fs.mkdirSync(dir, { recursive: true });
       assert.doesNotThrow(fs.accessSync.bind(null, dir));
 
       // create a worker queue, attach qEmpty

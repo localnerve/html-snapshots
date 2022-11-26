@@ -6,9 +6,9 @@
 /* global it */
 const assert = require("assert");
 const path = require("path");
-const _ = require("lodash");
 const utils = require("./utils");
 const optHelp = require("../../helpers/options");
+const { after } = require("../../helpers/func");
 const ss = require("../../../lib/html-snapshots");
 
 const {
@@ -112,7 +112,7 @@ function useJQueryTests (options) {
         timeout: 4000
       });
 
-      const twice = _.after(2, cleanupError.bind(null, done, 0));
+      const twice = after(2, cleanupError.bind(null, done, 0));
 
       ss.run(optHelp.decorate(options), twice)
         .then(unexpectedSuccess.bind(null, done))
@@ -126,7 +126,7 @@ function useJQueryTests (options) {
         timeout: 4000
       });
 
-      const twice = _.after(2, cleanupError.bind(null, done, 0));
+      const twice = after(2, cleanupError.bind(null, done, 0));
 
       ss.run(optHelp.decorate(options), twice)
         .then(unexpectedSuccess.bind(null, done))

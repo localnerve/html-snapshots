@@ -5,12 +5,12 @@
  */
 const path = require("path");
 const fs = require("fs");
-const _ = require("lodash");
 const spawn = require("child_process").spawn;
 const assert = require("assert");
 const combineErrors = require("combine-errors");
 const resHelp = require("../../helpers/result");
 const pathExists = require("../../../lib/async/exists");
+const common = require("../../../lib/common");
 
 // Constants
 const unexpectedError = new Error("unexpected error flow");
@@ -108,7 +108,7 @@ function countSpawnedProcesses (cb) {
 // Clear any lingering browser processes in play
 function killSpawnedProcesses (cb) {
   var pkill = spawn("pkill", [spawnedProcessPattern]);
-  var guardedCb = _.once(cb);
+  var guardedCb = common.once(cb);
 
   pkill.on("exit", () => {
     setTimeout(guardedCb, 2000);

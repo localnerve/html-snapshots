@@ -48,18 +48,137 @@ describe("common", function () {
 
     it("should detect an http url", function () {
       var result = common.isUrl("http://whatever.com/");
-      assert.equal(true, result);
+      assert.equal(result, true);
     });
 
     it("should not detect a file", function () {
       var result = common.isUrl(path.join(__dirname, __filename));
-      assert.equal(false, result);
+      assert.equal(result, false);
     });
 
     it("should not detect an object", function () {
       var result = common.isUrl({ url: "bogus" });
-      assert.equal(false, result);
+      assert.equal(result, false);
     });
+  });
+
+  describe("isObject", function () {
+
+    it("should detect a simple object", function () {
+      const result = common.isObject({});
+      assert.equal(result, true);
+    });
+
+    it("should fail for null", function () {
+      const result = common.isObject(null);
+      assert.equal(result, false);
+    });
+
+    it("should fail for function object", function () {
+      const result = common.isObject(function () {});
+      assert.equal(result, false);
+    });
+  });
+
+  describe("isFunction", function () {
+
+    it("should detect a simple function", function () {
+      const result = common.isFunction(function(){});
+      assert.equal(result, true);
+    });
+
+    it("should fail for an object", function () {
+      const result = common.isFunction({});
+      assert.equal(result, false);
+    });
+
+    it("should fail for null", function () {
+      const result = common.isFunction(null);
+      assert.equal(result, false);
+    });
+  });
+
+  describe("once", function () {
+
+    it("should only run a function once", function () {
+      let counter = 0;
+      const subject = () => { counter++; };
+      const oncer = common.once(subject);
+      oncer();
+      oncer();
+      oncer();
+      assert.equal(counter, 1);
+    });
+
+    it("should not run a function if not called", function () {
+      let counter = 0;
+      const subject = () => { counter++; };
+      common.once(subject);
+      assert.equal(counter, 0);
+    });
+
+    it("should preserve this if bound", function () {
+      const context = {
+        count: 0,
+        fn () {
+          this.count++;
+        }
+      };
+      const oncer = common.once(context.fn.bind(context));
+      oncer();
+      oncer();
+      oncer();
+      assert.equal(context.count, 1);
+    });
+
+    it("should have tear-off instances of onceWrapper that act independently", function () {
+      const contextOne = {
+        count: 0,
+        fn () {
+          this.count++;
+        }
+      };
+      const contextTwo = {
+        count: 0,
+        fn () {
+          this.count++;
+        }
+      };
+      assert.equal(contextOne.count, 0);
+      const oneOnce = common.once(contextOne.fn.bind(contextOne));
+      const twoOnce = common.once(contextTwo.fn.bind(contextTwo));
+      oneOnce();
+      oneOnce();
+      oneOnce();
+      assert.equal(contextOne.count, 1);
+      assert.equal(contextTwo.count, 0);
+      twoOnce();
+      twoOnce();
+      twoOnce();
+      assert.equal(contextTwo.count, 1);
+    });
+  });
+
+  describe("head", function () {
+
+    it("should get the first element of an array", function () {
+      const target = 'one';
+      const ar = [target, 'two'];
+      const result = common.head(ar);
+      assert.equal(result, target);
+    });
+
+    it("should return undefined if empty array", function () {
+      const ar = [];
+      const result = common.head(ar);
+      assert.equal(result, undefined);
+    });
+
+    it("should return undefined if given undefined", function () {
+      let ar;
+      const result = common.head(ar);
+      assert.equal(result, undefined);
+    })
   });
 
   describe("prependMsgToErr", function () {

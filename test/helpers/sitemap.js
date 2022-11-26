@@ -7,8 +7,6 @@ var smLib = require("sitemap-xml");
 var urlLib = require("url");
 var fs = require("fs");
 var pathLib = require("path");
-var _ = require("lodash");
-var mkdirp = require("mkdirp").sync;
 var base = require("../../lib/input-generators/_base");
 
 var now = new Date();
@@ -39,11 +37,11 @@ var smElement = {
  *   it is always "weekly"
  */
 function lastmodChangeFreq(current, missing) {
-  var nowDate = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate();
-  return _.extend({},
-      (missing & smElement.lastMod) ? {} : { lastmod: current ? nowDate : outofDate },
-      (missing & smElement.changeFreq) ? {} : { changefreq: "weekly" }
-  );
+  var nowDate = `${now.getFullYear()}-${(now.getMonth()+1)}-${now.getDate()}`;
+  return {
+      ...(missing & smElement.lastMod) ? {} : { lastmod: current ? nowDate : outofDate },
+      ...(missing & smElement.changeFreq) ? {} : { changefreq: "weekly" }
+  };
 }
 
 /**
@@ -68,12 +66,11 @@ function buildSitemapWithPolicy(path, urls, current, missing, cb) {
 
   // map given paths to url sitemap nodes
   var urlNodes = urls.map(function(url, index) {
-    return _.extend({
+    return {
         loc: makeLoc(url),
-        priority: "0.5"
-      },
-      lastmodChangeFreq(index < current, missing)
-    );
+        priority: "0.5",
+        ...lastmodChangeFreq(index < current, missing)
+      };
   });
 
   //fs.unlinkSync(path);
@@ -100,10 +97,7 @@ function makeOutputFiles(options, urlset) {
     filePath = base.outputFile(options, urlObj.loc);
     outputDir = pathLib.dirname(filePath);
 
-    if (!fs.existsSync()) {
-      mkdirp(outputDir);
-    }
-
+    fs.mkdirSync(outputDir, { recursive: true });
     fs.writeFileSync(filePath, html, { encoding: "utf8"});
     fs.utimesSync(filePath, urlObj.lastmod, urlObj.lastmod);
   });
