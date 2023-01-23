@@ -7,6 +7,6 @@
     "start": "node ./snapshot.js"
   },
   "dependencies": {
-    "html-snapshots": "^1.6.0"
+    "html-snapshots": "^1.7.0"
   }
 }
