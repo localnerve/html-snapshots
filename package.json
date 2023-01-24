@@ -58,7 +58,7 @@
     "combine-errors": "3.0.3",
     "got": "12.5.3",
     "phantomjs-prebuilt": "2.1.16",
-    "puppeteer": "^19.5.0",
+    "puppeteer": "^19.6.0",
     "rimraf": "3.0.2",
     "xml2js": "0.4.23"
   },
