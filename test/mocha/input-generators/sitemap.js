@@ -6,7 +6,7 @@
 /* global describe, it, before */
 var assert = require("assert");
 var path = require("path");
-var rimraf = require("rimraf").sync;
+var fs = require("fs");
 var factory = require("../../../lib/input-generators");
 var server = require("../../server");
 var options = require("../../helpers/options");
@@ -239,7 +239,7 @@ describe("input-generator", function () {
 
           before(function () {
             // don't let previous run output interfere
-            rimraf(outputDir);
+            fs.rmSync(outputDir, { recursive: true, force: true });
           });
 
           casesPreviousNo.forEach(function (testCase) {

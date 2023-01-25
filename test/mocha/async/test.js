@@ -7,7 +7,6 @@
 var assert = require("assert");
 var fs = require("fs");
 var path = require("path");
-var rimraf = require("rimraf").sync;
 var asyncLib = require("async");
 var asyncLocal = require("../../../lib/async");
 
@@ -70,7 +69,7 @@ describe("async", function () {
           timeout = 100,
           start;
 
-      rimraf(dir);
+      fs.rmSync(dir, { recursive: true, force: true });
 
       // take the worker queue out of the equation
       notifier.qEmpty();
@@ -118,7 +117,7 @@ describe("async", function () {
           timeout = 100,
           start;
 
-      rimraf(dir);
+      fs.rmSync(dir, { recursive: true, force: true });
 
       // take the worker queue out of the equation
       notifier.qEmpty();
@@ -163,7 +162,7 @@ describe("async", function () {
           timeout = 100,
           start;
 
-      rimraf(dir);
+      fs.rmSync(dir, { recursive: true, force: true });
 
       // take the worker queue out of the equation
       notifier.qEmpty();
@@ -210,7 +209,7 @@ describe("async", function () {
           timeout = 100,
           start;
 
-      rimraf(dir);
+      fs.rmSync(dir, { recursive: true, force: true });
 
       // take the worker queue out of the equation
       notifier.qEmpty();
@@ -284,7 +283,7 @@ describe("async", function () {
           timeout = 400,
           abortFailure = new Error("abortFailure");
 
-      rimraf(dir);
+      fs.rmSync(dir, { recursive: true, force: true });
 
       notifier.start(timeout / pollCount, mockInput, function (err, filesDone) {
         // make sure this was a failure
@@ -320,7 +319,7 @@ describe("async", function () {
           timeout = 400,
           abortFailure = new Error("abortFailure");
 
-      rimraf(dir);
+      fs.rmSync(dir, { recursive: true, force: true });
 
       notifier.start(timeout / pollCount, mockInput, function (err, filesDone) {
         // make sure this was a failure
@@ -364,7 +363,7 @@ describe("async", function () {
           timeout = 400,
           abortFailure = new Error("abortFailure");
 
-      rimraf(dir);
+      fs.rmSync(dir, { recursive: true, force: true });
 
       notifier.start(timeout / pollCount, mockInput, function(err, filesDone) {
         // make sure this was a failure
