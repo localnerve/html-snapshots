@@ -7,7 +7,6 @@
 
 const path = require("path");
 const fs = require("fs");
-const rimraf = require("rimraf").sync;
 const utils = require("./utils");
 const optHelp = require("../../helpers/options");
 const { after } = require("../../helpers/func");
@@ -111,7 +110,7 @@ function snapshotScriptTests (options) {
           port
         };
 
-        rimraf(outputDir);
+        fs.rmSync(outputDir, { recursive: true, force: true });
 
         ss.run(optHelp.decorate(options))
           .then(completed => {

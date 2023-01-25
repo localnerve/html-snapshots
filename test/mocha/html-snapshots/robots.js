@@ -4,7 +4,7 @@
  * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
  */
 /* global it */
-const rimraf = require("rimraf").sync;
+const fs = require("fs");
 const common = require("../../../lib/common");
 const optHelp = require("../../helpers/options");
 const { after } = require("../../helpers/func");
@@ -67,7 +67,7 @@ function robotsTests (options) {
 
           const twice = after(2, cleanupSuccess.bind(null, done));
 
-          rimraf(outputDir);
+          fs.rmSync(outputDir, { recursive: true, force: true });
 
           ss.run(optHelp.decorate(options), twice)
             .then(testSuccess.bind(null, twice))

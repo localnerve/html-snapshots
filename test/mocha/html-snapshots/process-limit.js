@@ -5,7 +5,7 @@
  */
 /* global it */
 const assert = require("assert");
-const rimraf = require("rimraf").sync;
+const fs = require("fs");
 const utils = require("./utils");
 const optHelp = require("../../helpers/options");
 const ss = require("../../../lib/html-snapshots");
@@ -60,7 +60,7 @@ function processLimitTests (options) {
           assert.ok(true, "Skipping posix compliant tests for processLimit");
           done();
         } else {
-          rimraf(outputDir);
+          fs.rmSync(outputDir, { recursive: true, force: true });
 
           killSpawnedProcesses(function (err) {
             const options = {
@@ -108,7 +108,7 @@ function processLimitTests (options) {
           assert.ok(true, "Skipping posix compliant tests for processLimit");
           done();
         } else {
-          rimraf(outputDir);
+          fs.rmSync(outputDir, { recursive: true, force: true });
 
           killSpawnedProcesses(function (err) {
             const options = {

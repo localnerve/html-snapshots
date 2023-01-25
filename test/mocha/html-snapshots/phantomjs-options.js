@@ -6,7 +6,6 @@
 /* global it */
 const path = require("path");
 const fs = require("fs");
-const rimraf = require("rimraf").sync;
 const utils = require("./utils");
 const optHelp = require("../../helpers/options");
 const resHelp = require("../../helpers/result");
@@ -50,7 +49,7 @@ function phantomjsOptionsTests (options) {
     it ("should work on first vanilla full invocation, no checks", function (done) {
       const options = createOptions({});
 
-      rimraf(outputBase);
+      fs.rmSync(outputBase, { recursive: true, force: true });
 
       ss.run(optHelp.decorate(options))
         .then(() => {
@@ -66,7 +65,7 @@ function phantomjsOptionsTests (options) {
     it("should work with one string option", function (done) {
       const options = createOptions({});
 
-      rimraf(outputBase);
+      fs.rmSync(outputBase, { recursive: true, force: true });
 
       ss.run(optHelp.decorate(options), (err, completed) => {
         if (err) {
@@ -99,7 +98,7 @@ function phantomjsOptionsTests (options) {
         ]
       });
 
-      rimraf(outputBase);
+      fs.rmSync(outputBase, { recursive: true, force: true });
 
       ss.run(optHelp.decorate(options), (err, completed) => {
         if (err) {
@@ -133,7 +132,7 @@ function phantomjsOptionsTests (options) {
         ]
       });
 
-      rimraf(outputBase);
+      fs.rmSync(outputBase, { recursive: true, force: true });
 
       ss.run(optHelp.decorate(options))
         .then(unexpectedSuccess.bind(null, done))

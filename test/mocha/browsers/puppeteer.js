@@ -6,7 +6,7 @@
 /* global before, it */
 const assert = require("assert");
 const path = require("path");
-const rimraf = require("rimraf").sync;
+const fs = require("fs");
 const spawn = require("child_process").spawn;
 const server = require("../../server");
 
@@ -45,7 +45,7 @@ function puppeteerTests () {
     it("should succeed with minimal args", function (done) {
       this.timeout(4000);
 
-      rimraf(outputDir);
+      fs.rmSync(outputDir, { recursive: true, force: true });
 
       spawnPuppeteer([
         outputFile,
@@ -56,7 +56,7 @@ function puppeteerTests () {
 
     it("should succeed with stringified puppeteerLaunchOptions", function (done) {
       this.timeout(4000);
-      rimraf(outputDir);
+      fs.rmSync(outputDir, { recursive: true, force: true });
 
       // override the debug options to prove stringified launch opts worked.
       const puppeteerLaunchOptions = {
@@ -77,7 +77,7 @@ function puppeteerTests () {
     });
 
     it("should fail if insufficient input args", function (done) {
-      rimraf(outputDir);
+      fs.rmSync(outputDir, { recursive: true, force: true });
       
       spawnPuppeteer([
         outputFile,
@@ -90,7 +90,7 @@ function puppeteerTests () {
     });
 
     it("should fail with bad url", function (done) {
-      rimraf(outputDir);
+      fs.rmSync(outputDir, { recursive: true, force: true });
 
       spawnPuppeteer([
         outputFile,
@@ -108,7 +108,7 @@ function puppeteerTests () {
       const timeout = 5000;
       this.timeout(timeout);
 
-      rimraf(outputDir);
+      fs.rmSync(outputDir, { recursive: true, force: true });
 
       spawnPuppeteer([
         outputFile,
