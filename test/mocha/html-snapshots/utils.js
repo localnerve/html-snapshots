@@ -1,7 +1,7 @@
 /**
  * html-snapshots test debug utilities and constants.
  *
- * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2023, Alex Grant, LocalNerve, contributors
  */
 const path = require("path");
 const fs = require("fs");

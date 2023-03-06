@@ -1,7 +1,7 @@
 /**
  * Tests that target the puppeteer script specifically.
  * 
- * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2023, Alex Grant, LocalNerve, contributors
  */
 /* global before, it */
 const assert = require("assert");
