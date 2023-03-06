@@ -1,7 +1,7 @@
 /**
  * Library tests that use sitemap-index.
  *
- * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2023, Alex Grant, LocalNerve, contributors
  */
 /* global it */
 const assert = require("assert");

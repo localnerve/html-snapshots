@@ -1,7 +1,7 @@
 /**
  * Library tests focused on the phantomjsOptions option.
  *
- * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2023, Alex Grant, LocalNerve, contributors
  */
 /* global it */
 const path = require("path");

@@ -1,7 +1,7 @@
 /**
  * General input generator tests.
  *
- * Copyright (c) 2013 - 2022, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2023, Alex Grant, LocalNerve, contributors
  */
 /* global describe, it, before */
 const assert = require("assert");
