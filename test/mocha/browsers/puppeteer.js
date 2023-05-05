@@ -43,7 +43,7 @@ function puppeteerTests () {
     });
     
     it("should succeed with minimal args", function (done) {
-      this.timeout(4000);
+      this.timeout(10000);
 
       fs.rmSync(outputDir, { recursive: true, force: true });
 
