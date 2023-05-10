@@ -3,6 +3,9 @@ An overview of the [Breaking Changes](#breaking-changes) and [Node Support](#nod
 
 ## Breaking Changes
 
+### Introduced in v2.0.0
+#### Dropped support for Node 14.
+
 ### Introduced in v1.0.0
 Puppeteer process introduced and used as the default browser, `browser` option added to switch back ("puppeteer" vs "phantomjs").
 
