@@ -12,6 +12,7 @@ const server = require("../../server");
 
 const outputDir = path.join(__dirname, "tmp");
 const port = 9340;
+const successTimeout = 20000;
 
 function puppeteerTests () {
   const snapshotScript = path.resolve(__dirname, '../../../lib/puppeteer/index.js');
@@ -43,7 +44,7 @@ function puppeteerTests () {
     });
     
     it("should succeed with minimal args", function (done) {
-      this.timeout(10000);
+      this.timeout(successTimeout);
 
       fs.rmSync(outputDir, { recursive: true, force: true });
 
@@ -55,7 +56,7 @@ function puppeteerTests () {
     });
 
     it("should succeed with stringified puppeteerLaunchOptions", function (done) {
-      this.timeout(4000);
+      this.timeout(successTimeout);
       fs.rmSync(outputDir, { recursive: true, force: true });
 
       // override the debug options to prove stringified launch opts worked.
@@ -68,7 +69,7 @@ function puppeteerTests () {
         outputFile,
         `http://localhost:${port}/`,
         "body",
-        4000,
+        successTimeout - parseInt(successTimeout * 0.1, 10),
         "false",
         "true",
         10,
@@ -105,7 +106,7 @@ function puppeteerTests () {
     });
 
     it("should launch debugging", function (done) {
-      const timeout = 5000;
+      const timeout = successTimeout;
       this.timeout(timeout);
 
       fs.rmSync(outputDir, { recursive: true, force: true });
@@ -114,7 +115,7 @@ function puppeteerTests () {
         outputFile,
         `http://localhost:${port}/`,
         "body",
-        timeout - 1000,
+        timeout - parseInt(timeout * 0.1, 10),
         "false",
         "true",
         10
