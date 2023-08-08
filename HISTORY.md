@@ -45,3 +45,4 @@ The upside is jQuery is no longer required to be loaded by the page being snapsh
 | `v0.18.x ` | Node 14+ |
 | `v0.19.x ` | Node 14+ |
 | `v1.x  `   | Node 14+ |
+| `v2.x  `   | Node 16+ |
