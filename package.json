@@ -58,7 +58,7 @@
     "combine-errors": "3.0.3",
     "got": "13.0.0",
     "phantomjs-prebuilt": "2.1.16",
-    "puppeteer": "^21.1.0",
+    "puppeteer": "^21.1.1",
     "xml2js": "0.6.2"
   },
   "devDependencies": {
