@@ -54,7 +54,7 @@
   ],
   "dependencies": {
     "async": "3.2.5",
-    "async-lock": "1.4.0",
+    "async-lock": "1.4.1",
     "combine-errors": "3.0.3",
     "got": "^13.0.0",
     "phantomjs-prebuilt": "2.1.16",
