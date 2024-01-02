@@ -3,7 +3,7 @@
  * 
  * The debug flag applies to all pages, so best to use it to debug one problem page at a time separately.
  * 
- * Copyright (c) 2013 - 2023, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2024, Alex Grant, LocalNerve, contributors
  */
 const path = require("path");
 const util = require("util");

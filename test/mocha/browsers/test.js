@@ -1,7 +1,7 @@
 /**
  * browser process specific tests
  * 
- * Copyright (c) 2013 - 2023, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2024, Alex Grant, LocalNerve, contributors
  */
 /* global describe */
 const puppeteer = require("./puppeteer");
