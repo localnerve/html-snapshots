@@ -1,7 +1,7 @@
 /**
  * Tests unique to the puppeteer browser.
  * 
- * Copyright (c) 2013 - 2023, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2024, Alex Grant, LocalNerve, contributors
  */
 /* global it */
 const optHelp = require("../../helpers/options");
