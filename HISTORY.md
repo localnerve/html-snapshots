@@ -3,6 +3,9 @@ An overview of the [Breaking Changes](#breaking-changes) and [Node Support](#nod
 
 ## Breaking Changes
 
+### Introduced in v3.0.0
+#### Dropped support for Node 16.
+
 ### Introduced in v2.0.0
 #### Dropped support for Node 14.
 
@@ -46,3 +49,4 @@ The upside is jQuery is no longer required to be loaded by the page being snapsh
 | `v0.19.x ` | Node 14+ |
 | `v1.x  `   | Node 14+ |
 | `v2.x  `   | Node 16+ |
+| `v3.x  `   | Node 18+ |
