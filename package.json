@@ -7,7 +7,7 @@
     "url": "https://www.localnerve.com"
   },
   "homepage": "https://github.com/localnerve/html-snapshots",
-  "description": "A selector-based html snapshot tool using PhantomJS that sources sitemap.xml, robots.txt, or arbitrary input",
+  "description": "A selector-based html snapshot tool using Puppeteer or PhantomJS that sources sitemap.xml, robots.txt, or arbitrary input",
   "contributors": [
     {
       "name": "Alex Grant",
@@ -34,9 +34,6 @@
     "test:cover": "c8 -- npm test",
     "validate": "npm ls"
   },
-  "pre-commit": [
-    "lint"
-  ],
   "main": "./lib/html-snapshots",
   "repository": {
     "type": "git",
@@ -66,7 +63,6 @@
     "express": "^4.18.2",
     "mocha": "^10.3.0",
     "c8": "^9.1.0",
-    "precommit-hook": "^3.0.0",
     "server-destroy": "^1.0.1",
     "sitemap-xml": "^0.1.0"
   },
