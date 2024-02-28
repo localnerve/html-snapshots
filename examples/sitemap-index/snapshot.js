@@ -5,7 +5,6 @@
  * Use sitemap index to drive input to snapshot individual pages.
  */
 const htmlSnapshots = require('html-snapshots');
-const utils = require("../utils");
 
 // where the snapshots go
 const outputDir = require('path').join(__dirname, './tmp');

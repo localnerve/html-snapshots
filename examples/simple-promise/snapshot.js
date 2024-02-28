@@ -12,7 +12,7 @@ const outputDir = require("path").join(__dirname, "./tmp");
 // The urls to snapshot, along with the selector to wait for (for each):
 const pages = {
   "https://google.com": "body",
-  "https://google.com/books": "#oc-search-description"
+  "https://google.com/books": "#gb"
 };
 
 // Do it:
