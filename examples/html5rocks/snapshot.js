@@ -17,12 +17,12 @@ const sites = [
   {
     label: "web.dev",
     url: "https://web.dev",
-    selector: "web-subscribe .wrapper"
+    selector: ".devsite-main-content"
   },
   {
     label: "updates.html5rocks",
     url: "https://developer.chrome.com/blog/",
-    selector: ".blog-grid"
+    selector: ".devsite-main-content"
   }
 ];
 
