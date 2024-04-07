@@ -18,7 +18,7 @@ describe("helpers", function() {
         this.timeout(200);
         try {
           after('', function(){});
-        } catch (e) {
+        } catch {
           done();
         }
       });
@@ -27,7 +27,7 @@ describe("helpers", function() {
         this.timeout(200);
         try {
           after(0, undefined);
-        } catch (e) {
+        } catch {
           done();
         }
       });

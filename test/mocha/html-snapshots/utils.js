@@ -50,7 +50,7 @@ function checkActualFiles (files) {
     try {
       fs.statSync(outputRoot).isDirectory();
     }
-    catch (e) {
+    catch {
       console.log("@@@ outputRoot not exist", outputRoot);
     }
     if (exists) {
