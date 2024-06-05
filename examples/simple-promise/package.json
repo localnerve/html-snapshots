@@ -10,6 +10,6 @@
     "html-snapshots": "^3.10.0"
   },
   "overrides": {
-    "request": "@cypress/request@3.0.1"
+    "request": "npm:@cypress/request@3.0.1"
   }
 }
