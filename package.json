@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "3.12.0",
+  "version": "3.12.1",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -55,15 +55,15 @@
     "combine-errors": "3.0.3",
     "got": "^13.0.0",
     "phantomjs-prebuilt": "2.1.16",
-    "puppeteer": "^22.12.0",
+    "puppeteer": "^22.12.1",
     "xml2js": "0.6.2"
   },
   "devDependencies": {
-    "eslint": "^9.5.0",
-    "@eslint/js": "^9.5.0",
-    "globals": "^15.6.0",
+    "eslint": "^9.6.0",
+    "@eslint/js": "^9.6.0",
+    "globals": "^15.7.0",
     "express": "^4.19.2",
-    "mocha": "^10.4.0",
+    "mocha": "^10.5.2",
     "c8": "^10.1.2",
     "server-destroy": "^1.0.1",
     "sitemap-xml": "^0.1.0"
