@@ -28,7 +28,8 @@ function processLimitTests (options) {
   const {
     port,
     localRobotsFile: inputFile,
-    browsers
+    browsers,
+    puppeteerLaunchOptions
   } = options;
   const pollInterval = 50;
   let phantomCount = 0;
@@ -72,7 +73,8 @@ function processLimitTests (options) {
               timeout,
               processLimit,
               port,
-              browser
+              browser,
+              puppeteerLaunchOptions
             };
 
             if (err) {
@@ -120,7 +122,8 @@ function processLimitTests (options) {
               timeout,
               processLimit,
               port,
-              browser
+              browser,
+              puppeteerLaunchOptions
             };
 
             if (err) {

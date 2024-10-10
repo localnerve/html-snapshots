@@ -32,7 +32,8 @@ function robotsTests (options) {
   const {
     port,
     localRobotsFile,
-    browsers
+    browsers,
+    puppeteerLaunchOptions
    } = options;
 
   // Robots.txt fixtures
@@ -50,7 +51,8 @@ function robotsTests (options) {
         outputDirClean: true,
         outputDir,
         timeout,
-        port
+        port,
+        puppeteerLaunchOptions
       };
       return {
         ...options,

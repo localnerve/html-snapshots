@@ -29,7 +29,8 @@ const urls = 3; // must match public/page_sitemap.xml
 function sitemapTests (options) {
   const {
     port,
-    browsers
+    browsers,
+    puppeteerLaunchOptions
   } = options;
 
   return function () {
@@ -41,7 +42,8 @@ function sitemapTests (options) {
         outputDirClean: true,
         timeout: 4000,
         outputDir,
-        port
+        port,
+        puppeteerLaunchOptions
       };
       return {
         ...defaultOptions,

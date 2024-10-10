@@ -58,7 +58,12 @@ function serverContext (testSuiteFactory, port) {
     describe("tests", testSuiteFactory({
       port,
       localRobotsFile,
-      browsers: ["phantomjs", "puppeteer"]
+      browsers: ["phantomjs", "puppeteer"],
+      puppeteerLaunchOptions: {
+        args: [
+          '--no-sandbox'
+        ]
+      }
     }));
   };
 }

@@ -26,7 +26,8 @@ function snapshotScriptTests (options) {
   const {
     localRobotsFile: inputFile,
     port,
-    browsers
+    browsers,
+    puppeteerLaunchOptions
   } = options;
 
   return function () {
@@ -107,7 +108,8 @@ function snapshotScriptTests (options) {
           snapshotScript: snapshotScriptTest.option,
           browser: snapshotScriptTest.browser,
           outputDir,
-          port
+          port,
+          puppeteerLaunchOptions
         };
 
         fs.rmSync(outputDir, { recursive: true, force: true });
@@ -143,7 +145,8 @@ function snapshotScriptTests (options) {
           snapshotScript: bogusFile,
           timeout: 2000,
           outputDir,
-          port
+          port,
+          puppeteerLaunchOptions
         };
         return {
           ...defaultOptions,
