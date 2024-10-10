@@ -29,6 +29,11 @@ function puppeteerTests (options) {
         debug: {
           flag: true,
           slowMo: 50
+        },
+        puppeteerLaunchOptions: {
+          args: [
+            '--no-sandbox'
+          ]
         }
       };
 

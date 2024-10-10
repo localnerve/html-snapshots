@@ -62,7 +62,10 @@ function puppeteerTests () {
       // override the debug options to prove stringified launch opts worked.
       const puppeteerLaunchOptions = {
         headless: true,
-        devTools: false
+        devTools: false,
+        args: [
+          '--no-sandbox'
+        ]
       };
 
       spawnPuppeteer([
