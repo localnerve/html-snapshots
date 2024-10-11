@@ -33,7 +33,8 @@ function getClass (obj) {
 function sitemapIndexTests (options) {
   const {
     port,
-    browsers
+    browsers,
+    puppeteerLaunchOptions
   } = options;
 
   function createOptions (newOptions) {
@@ -43,7 +44,8 @@ function sitemapIndexTests (options) {
       selector: "#dynamic-content",
       outputDirClean: true,
       outputDir,
-      timeout
+      timeout,
+      puppeteerLaunchOptions
     };
 
     return {

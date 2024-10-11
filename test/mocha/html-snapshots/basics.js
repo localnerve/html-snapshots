@@ -21,7 +21,8 @@ const {
 
 function basicTests (options) {
   const {
-    browsers
+    browsers,
+    puppeteerLaunchOptions
   } = options;
   return function () {
     browsers.forEach(browser => {
@@ -29,7 +30,8 @@ function basicTests (options) {
         const twice = after(2, cleanupError.bind(null, done, 0));
 
         ss.run(optHelp.decorate({
-          browser
+          browser,
+          puppeteerLaunchOptions
         }), twice)
         .then(unexpectedSuccess.bind(null, done))
         .catch(twice);
@@ -40,7 +42,8 @@ function basicTests (options) {
 
         ss.run(optHelp.decorate({
           source: bogusFile,
-          browser
+          browser,
+          puppeteerLaunchOptions
         }), twice)
         .then(unexpectedSuccess.bind(null, done))
         .catch(twice);
@@ -59,7 +62,8 @@ function basicTests (options) {
           source: bogusFile,
           outputDir: dir,
           outputDirClean: true,
-          browser
+          browser,
+          puppeteerLaunchOptions
         }), twice)
         .then(unexpectedSuccess.bind(null, done))
         .catch(twice);
@@ -68,7 +72,7 @@ function basicTests (options) {
       });
 
       it(`default snapshot script should exist - ${browser}`, function (done) {
-        const options = { source: "./bogus/file.txt", browser };
+        const options = { source: "./bogus/file.txt", browser, puppeteerLaunchOptions };
         const twice = after(2, cleanupError.bind(null, done, 0));
 
         const result = ss.run(optHelp.decorate(options), twice);
