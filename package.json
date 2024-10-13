@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "4.6.2",
+  "version": "4.6.3",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -55,7 +55,7 @@
     "combine-errors": "3.0.3",
     "got": "^13.0.0",
     "phantomjs-prebuilt": "2.1.16",
-    "puppeteer": "^23.5.2",
+    "puppeteer": "^23.5.3",
     "xml2js": "0.6.2"
   },
   "devDependencies": {
