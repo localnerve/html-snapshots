@@ -1,7 +1,7 @@
 /**
  * Driver for html-snapshots library tests.
  *
- * Copyright (c) 2013 - 2024, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
 /* global describe, before, after */
 const path = require("path");

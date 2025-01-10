@@ -1,7 +1,7 @@
 /**
  * Sitemap tests.
  *
- * Copyright (c) 2013 - 2024, Alex Grant, LocalNerve, contributors
+ * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
 /* global describe, it, before */
 var assert = require("assert");
