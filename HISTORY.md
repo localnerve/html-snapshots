@@ -3,6 +3,9 @@ An overview of the [Breaking Changes](#breaking-changes) and [Node Support](#nod
 
 ## Breaking Changes
 
+### Introduced in v5.0.0
+#### Dropped support for Node 18
+
 ### Introduced in v4.0.0
 Puppeteer's breaking changes introduced with [Puppeteer 23](https://github.com/puppeteer/puppeteer/releases/tag/puppeteer-v23.0.0)
 
