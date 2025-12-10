@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "4.45.1",
+  "version": "5.0.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -53,7 +53,7 @@
     "async": "3.2.6",
     "async-lock": "1.4.1",
     "combine-errors": "3.0.3",
-    "got": "^13.0.0",
+    "got": "^14.6.5",
     "phantomjs-prebuilt": "2.1.16",
     "puppeteer": "^24.32.1",
     "xml2js": "0.6.2"
@@ -73,6 +73,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=18.18"
+    "node": ">=20"
   }
 }
