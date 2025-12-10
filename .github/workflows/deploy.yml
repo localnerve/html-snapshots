@@ -6,20 +6,22 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-22.04
+
     permissions:
       contents: read
       id-token: write
+
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # 6.0.1
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # 6.1.0
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Test
-        run: npm run lint && xvfb-run -a npm test
+        run: xvfb-run -a npm test
       - name: Publish
         if: ${{ success() }}
-        run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish
