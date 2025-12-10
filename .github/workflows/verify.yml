@@ -6,17 +6,17 @@ on:
 jobs:
   verify:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.11.1
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x, 24.x]
+        node-version: [20.x, 22.x, 24.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # 6.0.1
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # 6.1.0
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
