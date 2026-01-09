@@ -53,7 +53,7 @@
     "async": "3.2.6",
     "async-lock": "1.4.1",
     "combine-errors": "3.0.3",
-    "got": "^14.6.5",
+    "got": "^14.6.6",
     "phantomjs-prebuilt": "2.1.16",
     "puppeteer": "^24.34.0",
     "xml2js": "0.6.2"
