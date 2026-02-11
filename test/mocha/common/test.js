@@ -175,7 +175,7 @@ describe("common", function () {
     });
 
     it("should return undefined if given undefined", function () {
-      let ar;
+      let ar = undefined;
       const result = common.head(ar);
       assert.equal(result, undefined);
     })
