@@ -7,9 +7,9 @@
     "start": "node ./snapshot.js"
   },
   "dependencies": {
-    "html-snapshots": "^4.29.1"
+    "html-snapshots": "^5.7.0"
   },
   "overrides": {
-    "request": "npm:@cypress/request@3.0.9"
+    "request": "npm:@cypress/request@3.0.10"
   }
 }
