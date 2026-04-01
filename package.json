@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "5.7.0",
+  "version": "5.7.1",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -59,7 +59,7 @@
     "xml2js": "0.6.2"
   },
   "devDependencies": {
-    "eslint": "^10.0.3",
+    "eslint": "^10.1.0",
     "@eslint/js": "^10.0.1",
     "globals": "^17.4.0",
     "express": "^5.2.1",
@@ -70,9 +70,10 @@
   },
   "overrides": {
     "request": "npm:@cypress/request@3.0.10",
-    "diff": "^8.0.3",
+    "diff": "^8.0.4",
     "glob": "^13.0.6",
-    "serialize-javascript": "^7.0.4"
+    "serialize-javascript": "^7.0.5",
+    "brace-expansion": "^5.0.5"
   },
   "license": "MIT",
   "engines": {
