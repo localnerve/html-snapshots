@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "5.7.1",
+  "version": "5.7.2",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -59,7 +59,7 @@
     "xml2js": "0.6.2"
   },
   "devDependencies": {
-    "eslint": "^10.1.0",
+    "eslint": "^10.2.0",
     "@eslint/js": "^10.0.1",
     "globals": "^17.4.0",
     "express": "^5.2.1",
