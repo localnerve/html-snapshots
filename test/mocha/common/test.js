@@ -238,35 +238,37 @@ describe("common", function () {
 
   describe("checkResponse", function () {
 
+    function makeHeaders (contentType) {
+      const headers = contentType ? { 'Content-Type': contentType } : {};
+      return new Headers({
+        ...headers
+      });
+    }
     it("should reject a non 200 response", function() {
-      var result = common.checkResponse({ statusCode: 206 }, "doesntmatter");
+      var result = common.checkResponse({ status: 206 }, "doesntmatter");
       assert.notEqual(false, result);
     });
 
     it("should reject for missing content type", function() {
       var result = common.checkResponse({
-        statusCode: 200,
-        headers: {}
+        status: 200,
+        headers: makeHeaders()
       }, "any");
       assert.notEqual(false, result);
     });
 
     it("should reject for bad content type, single", function() {
       var result = common.checkResponse({
-        statusCode: 200,
-        headers: {
-          "content-type": "text/plain"
-        }
+        status: 200,
+        headers: makeHeaders("text/plain")
       }, "text/xml");
       assert.notEqual(false, result);
     });
 
     it("should reject for bad content type, multiple", function() {
       var result = common.checkResponse({
-        statusCode: 200,
-        headers: {
-          "content-type": "text/plain"
-        }
+        status: 200,
+        headers: makeHeaders("text/plain")
       }, ["text/xml", "application/xml"]);
       assert.notEqual(false, result);
     });
@@ -274,10 +276,8 @@ describe("common", function () {
     it("should accept for good content type, single", function() {
       var contentType = "text/plain";
       var result = common.checkResponse({
-        statusCode: 200,
-        headers: {
-          "content-type": contentType
-        }
+        status: 200,
+        headers: makeHeaders(contentType)
       }, contentType);
       assert.equal(false, result);
     });
@@ -285,10 +285,8 @@ describe("common", function () {
     it("should accept for good content type, multiple, first", function() {
       var contentType = "text/xml";
       var result = common.checkResponse({
-        statusCode: 200,
-        headers: {
-          "content-type": contentType
-        }
+        status: 200,
+        headers: makeHeaders(contentType)
       }, [contentType, "application/xml"]);
       assert.equal(false, result);
     });
@@ -296,10 +294,8 @@ describe("common", function () {
     it("should accept for good content type, multiple, last", function() {
       var contentType = "text/xml";
       var result = common.checkResponse({
-        statusCode: 200,
-        headers: {
-          "content-type": contentType
-        }
+        status: 200,
+        headers: makeHeaders(contentType)
       }, ["application/xml", contentType]);
       assert.equal(false, result);
     });
