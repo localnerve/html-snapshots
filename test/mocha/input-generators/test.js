@@ -1177,7 +1177,9 @@ describe("input-generator", function () {
         if (bad) {
           bad.forEach(badSource => {
             it(`should handle bad source ${badSource}`, function (done) {
-              this.timeout(10000);
+              // handle retries on urls (3+1) + (3+2) + (3+4)
+              const timeout = badSource.startsWith('http') ? 20000 : 10000;
+              this.timeout(timeout);
               gen.run(options.decorate({
                 source: badSource,
                 outputDir: thisOutputDir,
