@@ -7,10 +7,10 @@ const { describe, it, before } = require("node:test");
 const assert = require("node:assert");
 const path = require("node:path");
 const fs = require("node:fs");
-const factory = require("../../../lib/input-generators");
-const server = require("../../server");
-const options = require("../../helpers/options");
-const smHelper = require("../../helpers/sitemap");
+const factory = require("../../../lib/input-generators/index.js");
+const server = require("../../server/index.js");
+const options = require("../../helpers/options.js");
+const smHelper = require("../../helpers/sitemap.js");
 const { makeCallback } = require("../html-snapshots/utils.js");
 const port = 9033;
 
