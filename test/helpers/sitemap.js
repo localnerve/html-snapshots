@@ -3,14 +3,14 @@
  *
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
-var smLib = require("sitemap-xml");
-var urlLib = require("url");
-var fs = require("fs");
-var pathLib = require("path");
-var base = require("../../lib/input-generators/_base");
+const urlLib = require("node:url");
+const fs = require("node:fs");
+const pathLib = require("node:path");
+const smLib = require("sitemap-xml");
+const base = require("../../lib/input-generators/_base");
 
-var now = new Date();
-var outofDate = "2013-05-01T00:00:00.000Z";
+const now = new Date();
+const outofDate = "2013-05-01T00:00:00.000Z";
 
 /**
  * The sitemap element enum
@@ -20,7 +20,7 @@ var outofDate = "2013-05-01T00:00:00.000Z";
  *    2 means changefreq policy element is missing
  *    3 means all policy elements missing
  */
-var smElement = {
+const smElement = {
   none: 0,
   lastMod: 1,
   changeFreq: 2,
@@ -37,7 +37,7 @@ var smElement = {
  *   it is always "weekly"
  */
 function lastmodChangeFreq(current, missing) {
-  var nowDate = `${now.getFullYear()}-${(now.getMonth()+1)}-${now.getDate()}`;
+  const nowDate = `${now.getFullYear()}-${(now.getMonth()+1)}-${now.getDate()}`;
   return {
       ...(missing & smElement.lastMod) ? {} : { lastmod: current ? nowDate : outofDate },
       ...(missing & smElement.changeFreq) ? {} : { changefreq: "weekly" }
@@ -62,10 +62,10 @@ function makeLoc(url) {
  * All urls are given the priority of 0.5
  */
 function buildSitemapWithPolicy(path, urls, current, missing, cb) {
-  var sm = smLib();
+  const sm = smLib();
 
   // map given paths to url sitemap nodes
-  var urlNodes = urls.map(function(url, index) {
+  const urlNodes = urls.map(function(url, index) {
     return {
         loc: makeLoc(url),
         priority: "0.5",
@@ -74,7 +74,7 @@ function buildSitemapWithPolicy(path, urls, current, missing, cb) {
   });
 
   //fs.unlinkSync(path);
-  var writeStream = fs.createWriteStream(path, { encoding: "utf8" });
+  const writeStream = fs.createWriteStream(path, { encoding: "utf8" });
   writeStream.on("finish", cb);
 
   sm.pipe(writeStream);
@@ -90,8 +90,8 @@ function buildSitemapWithPolicy(path, urls, current, missing, cb) {
  * This mocks output from a previous run and sets a,mtimes for the files.
  */
 function makeOutputFiles(options, urlset) {
-  var html = "<!doctype html><html><head><title>test</title></head><body><h1>Hello World</h1><p>This is a test</p</body>";
-  var filePath, outputDir;
+  const html = "<!doctype html><html><head><title>test</title></head><body><h1>Hello World</h1><p>This is a test</p</body>";
+  let filePath, outputDir;
 
   urlset.forEach(function(urlObj) {
     filePath = base.outputFile(options, urlObj.loc);
@@ -118,7 +118,7 @@ function buildTestFiles(options, urls, current) {
 }
 
 module.exports = {
-  smElement: smElement,
-  buildSitemapWithPolicy: buildSitemapWithPolicy,
-  buildTestFiles: buildTestFiles
+  smElement,
+  buildSitemapWithPolicy,
+  buildTestFiles
 };

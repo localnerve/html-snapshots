@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "5.11.0",
+  "version": "6.0.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -19,20 +19,16 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "mocha test/mocha/**/*.js --exit --recursive --reporter spec",
-    "test:async": "mocha test/mocha/async/test.js --exit --reporter spec",
-    "test:common": "mocha test/mocha/common/*.js --exit --reporter spec",
-    "test:common:debug": "mocha --inspect-brk test/mocha/common/*.js --exit --reporter spec",
-    "test:browsers": "mocha test/mocha/browsers/test.js --exit --reporter spec",
-    "test:browsers:cover": "c8 -- npm run test:browsers",
-    "test:input-generators": "mocha test/mocha/input-generators/*.js --exit --reporter spec",
-    "test:input-generators:debug": "mocha --inspect-brk test/mocha/input-generators/*.js --exit --reporter spec",
-    "test:html-snapshots": "mocha test/mocha/html-snapshots/*.js --exit --reporter spec",
-    "test:html-snapshots:robots": "mocha test/mocha/html-snapshots/*.js --grep \"robots\" --exit --reporter spec",
-    "test:html-snapshots:puppeteer": "mocha test/mocha/html-snapshots/*.js --grep \"puppeteer specific\" --exit --reporter spec",
-    "test:html-snapshots:debug": "mocha --inspect-brk test/mocha/html-snapshots/*.js --exit --reporter spec",
-    "test:cover": "c8 -- npm test",
-    "validate": "npm ls"
+    "_cleancov": "node -e \"const fs=require('fs');fs.rmSync('coverage',{recursive:true,force:true});fs.mkdirSync('coverage',{recursive:true})\"",
+    "pretest": "npm run _cleancov",
+    "test": "node --test --test-force-exit --test-concurrency=1 --experimental-test-coverage 'test/suites/**/*.js' --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
+    "test:async": "node --test --test-force-exit test/suites/async/test.js --test-reporter=spec --test-reporter-destination=stdout",
+    "test:common": "node --test --test-force-exit 'test/suites/common/*.js' --test-reporter=spec --test-reporter-destination=stdout",
+    "pretest:browsers": "npm run _cleancov",
+    "test:browsers": "node --test --test-force-exit --experimental-test-coverage test/suites/browsers/test.js --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
+    "pretest:input-generators": "npm run _cleancov",
+    "test:input-generators": "node --test --test-force-exit --experimental-test-coverage 'test/suites/input-generators/*.js' --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
+    "test:html-snapshots": "node --test --test-force-exit --test-concurrency=1 'test/suites/html-snapshots/*.js' --test-reporter=spec --test-reporter-destination=stdout"
   },
   "main": "./lib/html-snapshots",
   "repository": {
@@ -54,28 +50,22 @@
     "async-lock": "1.4.1",
     "combine-errors": "3.0.3",
     "phantomjs-prebuilt": "2.1.16",
-    "puppeteer": "^24.43.0",
+    "puppeteer": "^25.0.2",
     "xml2js": "0.6.2"
   },
   "devDependencies": {
-    "eslint": "^10.3.0",
+    "eslint": "^10.4.0",
     "@eslint/js": "^10.0.1",
     "globals": "^17.6.0",
     "express": "^5.2.1",
-    "mocha": "^11.7.5",
-    "c8": "^11.0.0",
     "server-destroy": "^1.0.1",
     "sitemap-xml": "^0.1.0"
   },
   "overrides": {
-    "request": "npm:@cypress/request@4.0.0",
-    "diff": "^9.0.0",
-    "glob": "^13.0.6",
-    "serialize-javascript": "^7.0.5",
-    "brace-expansion": "^5.0.5"
+    "request": "npm:@cypress/request@4.0.0"
   },
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }

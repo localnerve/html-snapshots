@@ -1,16 +1,17 @@
-const js = require('@eslint/js');
-const globals = require('globals');
+const js = require("@eslint/js");
+const globals = require("globals");
 
 module.exports = [{
   ignores: [
-    'tmp/**',
-    'coverage/**',
-    'examples/**',
-    'test/mocha/html-snapshots/server/**'
+    "tmp/**",
+    "coverage/**",
+    "examples/**",
+    "test/suites/html-snapshots/server/**",
+    "lib/phantom/modules/*"
   ]
 }, {
   languageOptions: {
-    sourceType: 'commonjs',
+    sourceType: "commonjs",
     globals: {
       ...globals.node
     }
@@ -18,6 +19,7 @@ module.exports = [{
   files: ["**/*.js"],
   rules: {
     ...js.configs.recommended.rules,
-    "no-console": 0
+    "no-console": 0,
+    "quotes": ["error", "double"]
   }
 }];

@@ -3,6 +3,9 @@ An overview of the [Breaking Changes](#breaking-changes) and [Node Support](#nod
 
 ## Breaking Changes
 
+### Introduced in v6.0.0
+#### Dropped support for Node 20
+
 ### Introduced in v5.0.0
 #### Dropped support for Node 18
 

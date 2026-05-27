@@ -3,8 +3,8 @@
  *
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
-var pathm = require("path");
-var express = require("express");
+const pathm = require("node:path");
+const express = require("express");
 
 function setHeaders (res, path) {
   // if we are serving a sitemap.xml.gz, then content-type is application/xml
@@ -16,13 +16,13 @@ function setHeaders (res, path) {
 module.exports = {
 
   start: function (rootDir, port, cb) {
-    var server = express();
+    const server = express();
 
     server.use(express.static(rootDir, {
       setHeaders: setHeaders
     }));
 
-    var httpServer = server.listen(parseInt(port, 10), function (err) {
+    const httpServer = server.listen(parseInt(port, 10), function (err) {
       if (cb) {
         cb(err, httpServer);
       }
