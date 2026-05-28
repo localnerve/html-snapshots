@@ -3,11 +3,11 @@
  *
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
-const { describe, it, before } = require("node:test");
+const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
 const path = require("node:path");
 const factory = require("../../../lib/input-generators/index.js");
-const server = require("../../server/index.js");
+const createServer = require("../../server/index.js");
 const options = require("../../helpers/options.js");
 const { makeCallback } = require("../html-snapshots/utils.js");
 // var smHelper = require("../../helpers/sitemap");
@@ -19,6 +19,7 @@ describe("input-generator", () => {
   // This is just about specific sitemap index option processing
 
   describe("sitemap-index", () => {
+    let server;
     let gen;
     const outputDir = path.join(__dirname, "snapshots");
 
@@ -41,10 +42,15 @@ describe("input-generator", () => {
       done(new Error(msg));
     }
 
-    before(() => {
-      server.start(path.join(__dirname, "./server"), port);
+    before(async () => {
+      server = createServer();
+      await server.start(path.join(__dirname, "./server"), port);
       gen = factory.create("sitemap-index");
     });
+
+    after(async () => {
+      await server.stop();
+    })
 
     it("should handle empty sitemap-index", () => {
       return new Promise((resolve, reject) => {

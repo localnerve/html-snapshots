@@ -4,7 +4,9 @@
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
 const pathm = require("node:path");
+const { promisify } = require("node:util");
 const express = require("express");
+const enableDestroy = require("server-destroy");
 
 function setHeaders (res, path) {
   // if we are serving a sitemap.xml.gz, then content-type is application/xml
@@ -13,20 +15,50 @@ function setHeaders (res, path) {
   }
 }
 
-module.exports = {
+class LocalServer {
+  constructor () {
+    this._app = express();
+    this._server = null;
+  }
 
-  start: function (rootDir, port, cb) {
-    const server = express();
+  async start (path, port = 0) { // 0 = pick random port number
+    await this.stop();
 
-    server.use(express.static(rootDir, {
-      setHeaders: setHeaders
+    this._app.use("/", express.static(path, {
+      setHeaders
     }));
 
-    const httpServer = server.listen(parseInt(port, 10), function (err) {
-      if (cb) {
-        cb(err, httpServer);
-      }
+    return new Promise((resolve, reject) => {
+      this._server = this._app.listen(port, err => {
+        if (err) return reject(err);
+        enableDestroy(this._server);
+        resolve(this._server.address().port);
+      });
     });
   }
 
-};
+  stop () {
+    if (this._server) {
+      const server = this._server;
+      this._server = null;
+
+      // eslint-disable-next-line no-async-promise-executor
+      return new Promise(async (resolve, reject) => {
+        const destroy = promisify(server.destroy);
+        try {
+          await destroy();
+        } catch (error) {
+          return reject(error);
+        }
+        setTimeout(resolve, 10);
+      });
+    }
+    return Promise.resolve();
+  }
+}
+
+function createServer () {
+  return new LocalServer()
+}
+
+module.exports = createServer;

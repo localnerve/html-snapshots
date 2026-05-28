@@ -3,12 +3,12 @@
  *
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
-const { describe, it, before } = require("node:test");
+const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
 const path = require("node:path");
 const fs = require("node:fs");
 const factory = require("../../../lib/input-generators/index.js");
-const server = require("../../server/index.js");
+const createServer = require("../../server/index.js");
 const options = require("../../helpers/options.js");
 const smHelper = require("../../helpers/sitemap.js");
 const { makeCallback } = require("../html-snapshots/utils.js");
@@ -20,9 +20,15 @@ describe("input-generator", () => {
   // This is just about specific sitemap option processing
 
   describe("sitemap", () => {
+    let server;
 
-    before(() => {
-      server.start(path.join(__dirname, "./server"), port);
+    before(async () => {
+      server = createServer();
+      await server.start(path.join(__dirname, "./server"), port);
+    });
+
+    after(async () => {
+      await server.stop();
     });
 
     const timeToWait = 300; // milliseconds to wait to record a result

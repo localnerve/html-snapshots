@@ -21,14 +21,17 @@
     "lint": "eslint .",
     "_cleancov": "node -e \"const fs=require('fs');fs.rmSync('coverage',{recursive:true,force:true});fs.mkdirSync('coverage',{recursive:true})\"",
     "pretest": "npm run _cleancov",
-    "test": "node --test --test-force-exit --test-concurrency=1 --experimental-test-coverage \"test/suites/**/*.spec.js\" --test-coverage-exclude=\"test/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
-    "test:async": "node --test --test-force-exit \"test/suites/async/*.spec.js\" --test-reporter=spec --test-reporter-destination=stdout",
-    "test:common": "node --test --test-force-exit \"test/suites/common/*.spec.js\" --test-reporter=spec --test-reporter-destination=stdout",
+    "test": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/**/*.spec.js\" --test-coverage-exclude=\"test/**\"",
+    "pretest:async": "npm run _cleancov",
+    "test:async": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/async/*.spec.js\" --test-coverage-exclude=\"test/**\"",
+    "pretest:common": "npm run _cleancov",
+    "test:common": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/common/*.spec.js\" --test-coverage-exclude=\"test/**\"",
     "pretest:browsers": "npm run _cleancov",
-    "test:browsers": "node --test --test-force-exit --experimental-test-coverage \"test/suites/browsers/*.spec.js\" --test-coverage-exclude=\"test/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
+    "test:browsers": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/browsers/*.spec.js\" --test-coverage-exclude=\"test/**\"",
     "pretest:input-generators": "npm run _cleancov",
-    "test:input-generators": "node --test --test-force-exit --experimental-test-coverage \"test/suites/input-generators/*.spec.js\" --test-coverage-exclude=\"test/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
-    "test:html-snapshots": "node --test --test-force-exit --test-concurrency=1 \"test/suites/html-snapshots/*.spec.js\" --test-reporter=spec --test-reporter-destination=stdout"
+    "test:input-generators": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/input-generators/*.spec.js\" --test-coverage-exclude=\"test/**\"",
+    "pretest:html-snapshots": "npm run _cleancov",
+    "test:html-snapshots": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/html-snapshots/*.spec.js\" --test-coverage-exclude=\"test/**\""
   },
   "main": "./lib/html-snapshots",
   "repository": {
@@ -54,10 +57,10 @@
     "xml2js": "0.6.2"
   },
   "devDependencies": {
-    "eslint": "^10.4.0",
     "@eslint/js": "^10.0.1",
-    "globals": "^17.6.0",
+    "eslint": "^10.4.0",
     "express": "^5.2.1",
+    "globals": "^17.6.0",
     "server-destroy": "^1.0.1",
     "sitemap-xml": "^0.1.0"
   },

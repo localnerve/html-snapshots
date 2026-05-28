@@ -3,12 +3,12 @@
  * 
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
-const { before, it } = require("node:test");
+const { before, after, it } = require("node:test");
 const assert = require("node:assert");
 const path = require("node:path");
 const fs = require("node:fs");
 const spawn = require("node:child_process").spawn;
-const server = require("../../server");
+const createServer = require("../../server");
 
 const outputDir = path.join(__dirname, "tmp");
 const port = 9340;
@@ -39,9 +39,16 @@ function puppeteerTests () {
   }
 
   return function () {
-    before(() => {
-      server.start(path.join(__dirname, "./server"), port);
+    let server;
+
+    before(async () => {
+      server = createServer();
+      await server.start(path.join(__dirname, "./server"), port);
     });
+
+    after(async () => {
+      await server.stop();
+    })
     
     it("should succeed with minimal args", { timeout: successTimeout }, () => {
       fs.rmSync(outputDir, { recursive: true, force: true });

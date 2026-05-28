@@ -5,10 +5,7 @@
  */
 const { describe, before, after } = require("node:test");
 const path = require("node:path");
-const enableDestroy = require("server-destroy");
-
-const { makeCallback } = require("./utils");
-
+const createServer = require("../../server");
 const basics = require("./basics");
 const robots = require("./robots");
 const sitemap = require("./sitemap");
@@ -31,32 +28,17 @@ const localRobotsFile = path.join(__dirname, "./test_robots.txt");
  * @returns {Function} A test context with server management.
  */
 function serverContext (testSuiteFactory, port) {
-  const server = require("../../server");
 
   return function () {
-    let httpServer;
+    let server;
 
-    before(() => {
-      return new Promise((resolve, reject) => {
-        const done = makeCallback(resolve, reject);
-        server.start(path.join(__dirname, "./server"), port, (err, srv) => {
-          if (err) {
-            return done(err);
-          }
-
-          httpServer = srv;
-          enableDestroy(httpServer);
-          done();
-        });
-      });
+    before(async () => {
+      server = createServer();
+      await server.start(path.join(__dirname, "./server"), port);
     });
 
-    after(() => {
-      return new Promise(res => {
-        httpServer.destroy(() => {
-          setTimeout(res, 2000);
-        });
-      });
+    after(async () => {
+      await server.stop();
     });
 
     describe("tests", testSuiteFactory({

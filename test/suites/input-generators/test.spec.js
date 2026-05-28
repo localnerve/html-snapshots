@@ -3,21 +3,27 @@
  *
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
-const { describe, it, before } = require("node:test");
+const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
 const path = require("node:path");
 const base = require("../../../lib/input-generators/_base");
 const factory = require("../../../lib/input-generators");
 const common = require("../../../lib/common");
-const server = require("../../server");
+const createServer = require("../../server");
 const options = require("../../helpers/options");
 const { makeCallback } = require("../html-snapshots/utils");
 const port = 8033;
 
 describe("input-generator", () => {
+  let server;
 
-  before(() => {
-    server.start(path.join(__dirname, "./server"), port);
+  before(async () => {
+    server = createServer();
+    await server.start(path.join(__dirname, "./server"), port);
+  });
+
+  after(async () => {
+    await server.stop();
   });
 
   describe("null", () =>  {
