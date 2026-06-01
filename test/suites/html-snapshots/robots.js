@@ -70,7 +70,7 @@ function robotsTests (options) {
               browser
             });
 
-            const twice = after(2, cleanupSuccess.bind(null, done));
+            const twice = after(2, cleanupSuccess.bind(null, browser, done));
 
             fs.rmSync(outputDir, { recursive: true, force: true });
 
@@ -79,7 +79,7 @@ function robotsTests (options) {
               .catch(e => {
                 checkActualFiles(e.notCompleted)
                   .then(() => {
-                    cleanup(done, e);
+                    cleanup(browser, done, e);
                   });
               });
           });
@@ -93,14 +93,14 @@ function robotsTests (options) {
               browser
             });
 
-            const twice = after(2, cleanupSuccess.bind(null, done));
+            const twice = after(2, cleanupSuccess.bind(null, browser, done));
 
             ss.run(optHelp.decorate(options), twice)
               .then(testSuccess.bind(null, twice))
               .catch(e => {
                 checkActualFiles(e.notCompleted)
                   .then(() => {
-                    cleanup(done, e);
+                    cleanup(browser, done, e);
                   });
               });
           });
@@ -117,21 +117,21 @@ function robotsTests (options) {
             });
 
             if (browser === "phantomjs") {
-              const twice = after(2, cleanupError.bind(null, done, 0));
+              const twice = after(2, cleanupError.bind(null, browser, done, 0));
 
               ss.run(options, twice)
-                .then(unexpectedSuccess.bind(null, done))
+                .then(unexpectedSuccess.bind(null, browser, done))
                 .catch(twice);
             } else {
               options.timeout = utils.timeout;
-              const twice = after(2, cleanupSuccess.bind(null, done));
+              const twice = after(2, cleanupSuccess.bind(null, browser, done));
 
               ss.run(optHelp.decorate(options), twice)
               .then(testSuccess.bind(null, twice))
               .catch(e => {
                 checkActualFiles(e.notCompleted)
                   .then(() => {
-                    cleanup(done, e);
+                    cleanup(browser, done, e);
                   });
               });
             }
@@ -148,10 +148,10 @@ function robotsTests (options) {
               browser
             });
 
-            const twice = after(2, cleanupError.bind(null, done, 0));
+            const twice = after(2, cleanupError.bind(null, browser, done, 0));
 
             ss.run(optHelp.decorate(options), twice)
-              .then(unexpectedSuccess.bind(null, done))
+              .then(unexpectedSuccess.bind(null, browser, done))
               .catch(twice);
           });
         });
@@ -166,10 +166,10 @@ function robotsTests (options) {
               browser
             });
 
-            const twice = after(2, cleanupError.bind(null, done, 0));
+            const twice = after(2, cleanupError.bind(null, browser, done, 0));
 
             ss.run(optHelp.decorate(options), twice)
-              .then(unexpectedSuccess.bind(null, done))
+              .then(unexpectedSuccess.bind(null, browser, done))
               .catch(twice);
           });
         });
@@ -196,10 +196,10 @@ function robotsTests (options) {
               browser
             });
 
-            const twice = after(2, cleanupError.bind(null, done, urls - 1));
+            const twice = after(2, cleanupError.bind(null, browser, done, urls - 1));
 
             ss.run(optHelp.decorate(options), twice)
-              .then(unexpectedSuccess.bind(null, done))
+              .then(unexpectedSuccess.bind(null, browser, done))
               .catch(twice);
           });
         });

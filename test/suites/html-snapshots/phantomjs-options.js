@@ -21,6 +21,7 @@ const {
   makeCallback
 } = utils;
 
+const browser = "phantomjs";
 const outputBase = path.resolve(outputDir, "..");
 const cookiesFile = path.join(outputBase, "cookies.txt");
 
@@ -37,7 +38,7 @@ function phantomjsOptionsTests (options) {
       outputDirClean: false,
       selector: ".content-complete",
       timeout,
-      browser: "phantomjs",
+      browser,
       phantomjsOptions: `--cookies-file=${cookiesFile}`
     }
     return {
@@ -56,11 +57,11 @@ function phantomjsOptionsTests (options) {
 
         ss.run(optHelp.decorate(options))
           .then(() => {
-            cleanup(done);
+            cleanup(browser, done);
           }).catch(e => {
             checkActualFiles(e.notCompleted)
               .then(() => {
-                cleanup(done, e || unexpectedError);
+                cleanup(browser, done, e || unexpectedError);
               });
           });
       });
@@ -78,19 +79,20 @@ function phantomjsOptionsTests (options) {
             console.log(`@@@ error = ${err}, completed=${completed.join(",")}`);
           }
         })
-          .then(() => {
+          .then(async () => {
             let assertionError;
             try {
-              fs.accessSync(cookiesFile);
+              await new Promise(res => setTimeout(res, 500));
+              await fs.promises.access(cookiesFile);
             } catch (e) {
               assertionError = e;
             }
-            cleanup(done, assertionError);
+            cleanup(browser, done, assertionError);
           })
           .catch(e => {
             checkActualFiles(e.notCompleted)
               .then(function () {
-                cleanup(done, e || unexpectedError);
+                cleanup(browser, done, e || unexpectedError);
               });
           });
       });
@@ -114,19 +116,20 @@ function phantomjsOptionsTests (options) {
             console.log(`@@@ error = ${err}, completed=${completed.join(",")}`);
           }
         })
-          .then(() => {
+          .then(async () => {
             let assertionError;
             try {
-              fs.accessSync(cookiesFile);
+              await new Promise(res => setTimeout(res, 500));
+              await fs.promises.access(cookiesFile);
             } catch (e) {
               assertionError = e;
             }
-            cleanup(done, assertionError);
+            cleanup(browser, done, assertionError);
           })
           .catch(e => {
             checkActualFiles(e.notCompleted)
               .then(() => {
-                cleanup(done, e || unexpectedError);
+                cleanup(browser, done, e || unexpectedError);
               });
           });
       });
@@ -147,7 +150,7 @@ function phantomjsOptionsTests (options) {
         fs.rmSync(outputBase, { recursive: true, force: true });
 
         ss.run(optHelp.decorate(options))
-          .then(unexpectedSuccess.bind(null, done))
+          .then(unexpectedSuccess.bind(null, browser, done))
           .catch(err => {
             let assertionError;
             try {
@@ -155,7 +158,7 @@ function phantomjsOptionsTests (options) {
             } catch (e) {
               assertionError = e;
             }
-            cleanup(done, assertionError);
+            cleanup(browser, done, assertionError);
           });
       });
     });

@@ -30,13 +30,13 @@ function basicTests (options) {
       it(`no arguments should fail - ${browser}`, () => {
         return new Promise((resolve ,reject) => {
           const done = makeCallback(resolve, reject);
-          const twice = after(2, cleanupError.bind(null, done, 0));
+          const twice = after(2, cleanupError.bind(browser, null, done, 0));
 
           ss.run(optHelp.decorate({
             browser,
             puppeteerLaunchOptions
           }), twice)
-          .then(unexpectedSuccess.bind(null, done))
+          .then(unexpectedSuccess.bind(browser, null, done))
           .catch(twice);
         });
       });
@@ -44,14 +44,14 @@ function basicTests (options) {
       it(`invalid source should fail - ${browser}`, () => {
         return new Promise((resolve, reject) => {
           const done = makeCallback(resolve, reject);
-          const twice = after(2, cleanupError.bind(null, done, 0));
+          const twice = after(2, cleanupError.bind(browser, null, done, 0));
 
           ss.run(optHelp.decorate({
             source: bogusFile,
             browser,
             puppeteerLaunchOptions
           }), twice)
-          .then(unexpectedSuccess.bind(null, done))
+          .then(unexpectedSuccess.bind(browser, null, done))
           .catch(twice);
         });
       });
@@ -61,7 +61,7 @@ function basicTests (options) {
           const done = makeCallback(resolve, reject);
           const dir = path.join(__dirname, "./tmpdir");
           const file = path.join(dir, "somefile.txt");
-          const twice = after(2, cleanupError.bind(null, done, 0));
+          const twice = after(2, cleanupError.bind(browser, null, done, 0));
 
           fs.mkdirSync(dir);
           fs.writeFileSync(file, "some data");
@@ -74,7 +74,7 @@ function basicTests (options) {
             browser,
             puppeteerLaunchOptions
           }), twice)
-          .then(unexpectedSuccess.bind(null, done))
+          .then(unexpectedSuccess.bind(browser, null, done))
           .catch(twice);
 
           assert.throws(fs.accessSync.bind(null, dir));
@@ -85,14 +85,14 @@ function basicTests (options) {
         return new Promise((resolve, reject) => {
           const done = makeCallback(resolve, reject);
           const options = { source: "./bogus/file.txt", browser, puppeteerLaunchOptions };
-          const twice = after(2, cleanupError.bind(null, done, 0));
+          const twice = after(2, cleanupError.bind(browser, null, done, 0));
 
           const result = ss.run(optHelp.decorate(options), twice);
 
           assert.doesNotThrow(fs.accessSync.bind(null, options.snapshotScript));
 
           result
-            .then(unexpectedSuccess.bind(null, done))
+            .then(unexpectedSuccess.bind(browser, null, done))
             .catch(twice);
         });
       });

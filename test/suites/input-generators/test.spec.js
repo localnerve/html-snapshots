@@ -73,7 +73,8 @@ describe("input-generator", () => {
         `http://localhost:${port}/test_robots_bad.txt`,
         `http://localhost:${port}/test_robots_sitemap_bad.txt`
       ],
-      urls: 5
+      urls: 5,
+      multiUrls: 22 // The number of urls processed in test_robots_sitemap_multi.txt
     },
     {
       name: "textfile",
@@ -185,16 +186,16 @@ describe("input-generator", () => {
             gen.run(options.decorate({
               source: "./bogus/file.txt",
               outputDir: thisOutputDir,
-              _abort: function(err) {
+              _abort: err => {
                 assert.equal(true, !!err);
                 doneCalled = true;
                 done();
               }
-            }), function () {
+            }), () => {
               assert.fail("input callback should not have been called, unexpected input processed");
             });
 
-            setTimeout(function () {
+            setTimeout(() => {
               if (!doneCalled) {
                 done("abort was not called as expected");
               }
@@ -211,19 +212,18 @@ describe("input-generator", () => {
             const result = gen.run(options.decorate({
               source: source,
               outputDir: thisOutputDir
-            }), function () {
+            }), () => {
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
-              .then(function () {
-                assert.ok(true);
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
               })
-              .catch(function (err) {
+              .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -259,17 +259,16 @@ describe("input-generator", () => {
               assert.equal(defaults.verbose, input.verbose);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -288,21 +287,19 @@ describe("input-generator", () => {
               source: source,
               outputDir: thisOutputDir,
               timeout: theTimeout
-            }),
-            function (input) {
+            }), input => {
               assert.equal(theTimeout, input.timeout);
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
-              .then(function () {
-                assert.ok(true);
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
               })
-              .catch(function (err) {
+              .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -323,7 +320,7 @@ describe("input-generator", () => {
             };
             const timeouts = globalUrl ? globalTimeouts : localTimeouts;
 
-            const timeoutFn = function (url) {
+            const timeoutFn = url => {
               return timeouts[url];
             };
 
@@ -333,8 +330,7 @@ describe("input-generator", () => {
               source: source,
               outputDir: thisOutputDir,
               timeout: timeoutFn
-            }),
-            function (input) {
+            }), input => {
               const testTimeout =
                   timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;
 
@@ -342,17 +338,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
-              .then(function () {
-                assert.ok(true);
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
               })
-              .catch(function (err) {
+              .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -387,17 +382,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -430,17 +424,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               })
           });
         });
@@ -459,21 +452,19 @@ describe("input-generator", () => {
               source: source,
               outputDir: thisOutputDir,
               selector: selector
-            }),
-            function (input) {
+            }), input => {
               assert.equal(input.selector, selector);
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
-              .then(function () {
-                assert.ok(true);
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
               })
-              .catch(function (err) {
+              .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -510,17 +501,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.selector: "+input.selector+" != testSelector: "+testSelector);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -555,17 +545,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.selector: "+input.selector+" != testSelector: "+testSelector);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -585,19 +574,18 @@ describe("input-generator", () => {
               outputDir: thisOutputDir,
               useJQuery: useJQuery
             }), input => {
-                assert.equal(input.useJQuery, useJQuery);
-                count++;
-                if (count === urls) {
-                  done();
-                }
+              assert.equal(input.useJQuery, useJQuery);
+              count++;
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -631,17 +619,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -676,17 +663,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -708,17 +694,16 @@ describe("input-generator", () => {
             }), input => {
                 assert.equal(input.verbose, verbose);
                 count++;
-                if (count === urls) {
-                  done();
-                }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -752,17 +737,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.verbose: "+input.verbose+" != testVerbose: "+testOption);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err =>{
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -797,17 +781,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.verbose: "+input.verbose+" != testUseVerbose: "+testOption);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -827,22 +810,20 @@ describe("input-generator", () => {
               outputDir: thisOutputDir,
               phantomjsOptions: phantomjsOption
             }), input => {
+              assert.equal(input.phantomjsOptions, phantomjsOption,
+                input.__page+":\ninput.phantomjsOptions should be equal to the original input");
 
-                assert.equal(input.phantomjsOptions, phantomjsOption,
-                  input.__page+":\ninput.phantomjsOptions should be equal to the original input");
-
-                count++;
-                if (count === urls) {
-                  done();
-                }
+              count++;
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -858,26 +839,24 @@ describe("input-generator", () => {
               outputDir: thisOutputDir,
               phantomjsOptions: phantomjsOption
             }), input => {
+              assert.equal(typeof input.phantomjsOptions, typeof phantomjsOption,
+                input.__page+":\ninput.phantomjsOptions should be an array:\n"+
+                require("util").inspect(input.phantomjsOptions));
 
-                assert.equal(typeof input.phantomjsOptions, typeof phantomjsOption,
-                  input.__page+":\ninput.phantomjsOptions should be an array:\n"+
-                  require("util").inspect(input.phantomjsOptions));
+              assert.deepEqual(input.phantomjsOptions, phantomjsOption,
+                input.__page+":\ninput.phantomjsOptions should be equal to the original input");
 
-                assert.deepEqual(input.phantomjsOptions, phantomjsOption,
-                  input.__page+":\ninput.phantomjsOptions should be equal to the original input");
-
-                count++;
-                if (count === urls) {
-                  done();
-                }
+              count++;
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -915,17 +894,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.phantomjsOptions: "+input.phantomjsOptions+" != testPhantomJSOption: "+testOption);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -964,17 +942,16 @@ describe("input-generator", () => {
                 input.__page+":\ninput.phantomjsOptions: "+input.phantomjsOptions+" != testPhantomJSOption: "+testOption);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1012,17 +989,16 @@ describe("input-generator", () => {
                 `${input.__page}:\ninput.puppeteerLaunchOptions should be equal to the original input`);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1061,17 +1037,16 @@ describe("input-generator", () => {
                 `${input.__page}:\ninput.puppeteerLaunchOptions: ${input.puppeteerLaunchOptions} != testPuppeteerLaunchOption: ${testOption}`);
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1098,17 +1073,16 @@ describe("input-generator", () => {
                 assert.equal(match === null, true);
               }
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1132,17 +1106,16 @@ describe("input-generator", () => {
                 assert.equal(match === null, true);
               }
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1166,17 +1139,16 @@ describe("input-generator", () => {
                 assert.equal(match === null, true);
               }
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1200,17 +1172,16 @@ describe("input-generator", () => {
                 assert.equal(match === null, true);
               }
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1225,23 +1196,26 @@ describe("input-generator", () => {
                 const result = gen.run(options.decorate({
                   source: remoteUrl,
                   outputDir: thisOutputDir,
-                  _abort: function (err) {
+                  _abort: err => {
                     assert.fail(`${remoteUrl} should not have aborted: ${err.toString()}`);
                   }
                 }), input => {
                   assert(true, common.isUrl(input.url));
                   count++;
-                  if (count === urls) {
-                    done();
-                  }
                 });
 
                 result
                   .then(() => {
-                    assert.ok(true);
+                    let fixtureUrls = urls;
+                    if (remoteUrl.includes("multi")) {
+                      fixtureUrls = inputGeneratorTest.multiUrls;
+                    }
+                    assert.strictEqual(count, fixtureUrls);
+                    done();
                   })
                   .catch(err => {
                     assert.fail(`Run should not fail: ${err.toString()}`);
+                    done(err);
                   });
               });
             });
@@ -1289,17 +1263,16 @@ describe("input-generator", () => {
             }), input => {
               assert.equal(input.checkInterval, checkInterval);
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1322,17 +1295,16 @@ describe("input-generator", () => {
               const match = re.exec(input.outputFile);
               assert.equal(match[1], snapshotDir);
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1367,17 +1339,16 @@ describe("input-generator", () => {
               assert.equal(true, match[1] === snapshotDir && match[2] === urlToPath(pages[input.__page]));
 
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1416,17 +1387,16 @@ describe("input-generator", () => {
               const match = re.exec(input.outputFile);
               assert.equal(match[1], urlToPath(pages[input.__page]));
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });
@@ -1464,17 +1434,16 @@ describe("input-generator", () => {
               const match = re.exec(input.outputFile);
               assert.equal(match[1], urlToPath(pages[input.__page]));
               count++;
-              if (count === urls) {
-                done();
-              }
             });
 
             result
               .then(() => {
-                assert.ok(true);
+                assert.strictEqual(count, urls);
+                done();
               })
               .catch(err => {
                 assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
               });
           });
         });

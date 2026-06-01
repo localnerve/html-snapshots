@@ -117,13 +117,13 @@ function snapshotScriptTests (options) {
         ss.run(optHelp.decorate(options))
           .then(completed => {
             snapshotScriptTest.prove(completed, e => {
-              cleanup(done, e);
+              cleanup(snapshotScriptTest.browser, done, e);
             });
           })
           .catch(err => {
             checkActualFiles(err.notCompleted)
               .then(() => {
-                cleanup(done, err);
+                cleanup(snapshotScriptTest.browser, done, err);
               });
           });
       }
@@ -132,7 +132,7 @@ function snapshotScriptTests (options) {
         it(`snapshot script ${scriptName}, ${snapshotScriptTests[i].browser}`, () => {
           return new Promise((resolve, reject) => {
             const done = makeCallback(resolve, reject);
-            setTimeout(snapshotScriptTestDefinition, 3000, done);
+            snapshotScriptTestDefinition(done);
           });
         });
       });
@@ -153,6 +153,7 @@ function snapshotScriptTests (options) {
         };
         return {
           ...defaultOptions,
+          ...{ browser: "puppeteer" }, // for explicit test reference, below
           ...newOptions
         };
       }
@@ -198,9 +199,9 @@ function snapshotScriptTests (options) {
           return new Promise((resolve, reject) => {
             const done = makeCallback(resolve, reject);
             const options = createOptions(driver.options);
-            const twice = after(2, cleanupError.bind(null, done, 0));
+            const twice = after(2, cleanupError.bind(null, options.browser, done, 0));
             ss.run(optHelp.decorate(options), twice)
-              .then(unexpectedSuccess.bind(null, done))
+              .then(unexpectedSuccess.bind(null, options.browser, done))
               .catch(twice);
           });
         });

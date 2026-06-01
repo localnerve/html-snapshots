@@ -16,9 +16,10 @@ function setHeaders (res, path) {
 }
 
 class LocalServer {
-  constructor () {
+  constructor (routes = null) {
     this._app = express();
     this._server = null;
+    this._routes = routes;
   }
 
   async start (path, port = 0) { // 0 = pick random port number
@@ -27,6 +28,12 @@ class LocalServer {
     this._app.use("/", express.static(path, {
       setHeaders
     }));
+
+    if (this._routes && this._routes.length > 0) {
+      for (const route of this._routes) {
+        this._app.use(route.path, route.handler);
+      }
+    }
 
     return new Promise((resolve, reject) => {
       this._server = this._app.listen(port, err => {
@@ -57,8 +64,8 @@ class LocalServer {
   }
 }
 
-function createServer () {
-  return new LocalServer()
+function createServer (routes = null) {
+  return new LocalServer(routes)
 }
 
 module.exports = createServer;

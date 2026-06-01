@@ -32,33 +32,36 @@ function processLimitTests (options) {
     browsers,
     puppeteerLaunchOptions
   } = options;
+  const testOptions = {
+    timeout: process.env.CI ? 60000 : 45000
+  };
   const pollInterval = 50;
-  let phantomCount = 0;
+  let processCount = 0;
   let timer;
 
-  function completeTest (done, processLimit, e, files) {
-    const countError = phantomCount ?
-      new Error(`${phantomCount} exceeded processLimit ${processLimit}`) :
+  function completeTest (browser, done, processLimit, e, files) {
+    const countError = processCount ?
+      new Error(`${processCount} exceeded processLimit ${processLimit}`) :
       undefined;
 
     clearInterval(timer);
 
     if (files) {
       checkActualFiles(files).then(() => {
-        cleanup(done, multiError(e, countError));
+        cleanup(browser, done, multiError(e, countError));
       });
     } else {
-      cleanup(done, multiError(e, countError));
+      cleanup(browser, done, multiError(e, countError));
     }
   }
 
-  return function () {
+  return () => {
     browsers.forEach(browser => {
-      it(`should limit as expected - ${browser}`, () => {
+      it(`should limit as expected - ${browser}`, testOptions, () => {
         return new Promise((resolve, reject) => {
           const done = makeCallback(resolve, reject);
           const processLimit = urls - 1;
-          const complete = completeTest.bind(null, done, processLimit);
+          const complete = completeTest.bind(null, browser, done, processLimit);
 
           if (process.platform === "win32") {
             assert.ok(true, "Skipping posix compliant tests for processLimit");
@@ -66,7 +69,7 @@ function processLimitTests (options) {
           } else {
             fs.rmSync(outputDir, { recursive: true, force: true });
 
-            killSpawnedProcesses(function (err) {
+            killSpawnedProcesses(browser, err => {
               const options = {
                 source: inputFile,
                 hostname: "localhost",
@@ -93,10 +96,9 @@ function processLimitTests (options) {
                 });
 
               timer = setInterval(() => {
-                countSpawnedProcesses(function (count) {
-                  // console.log("@@@ DEBUG @@@ phantom count: "+count);
+                countSpawnedProcesses(browser, count => {
                   if (count > processLimit) {
-                    phantomCount = count;
+                    processCount = count;
                     clearInterval(timer);
                   }
                 });
@@ -106,11 +108,11 @@ function processLimitTests (options) {
         });
       });
 
-      it(`should limit to just one process - ${browser}`, () => {
+      it(`should limit to just one process - ${browser}`, testOptions, () => {
         return new Promise((resolve, reject) => {
           const done = makeCallback(resolve, reject);
           const processLimit = 1;
-          const complete = completeTest.bind(null, done, processLimit);
+          const complete = completeTest.bind(null, browser, done, processLimit);
 
           if (process.platform === "win32") {
             assert.ok(true, "Skipping posix compliant tests for processLimit");
@@ -118,7 +120,7 @@ function processLimitTests (options) {
           } else {
             fs.rmSync(outputDir, { recursive: true, force: true });
 
-            killSpawnedProcesses(function (err) {
+            killSpawnedProcesses(browser, err => {
               const options = {
                 source: inputFile,
                 hostname: "localhost",
@@ -144,11 +146,10 @@ function processLimitTests (options) {
                   complete(e || unexpectedError, e.notCompleted);
                 });
 
-              timer = setInterval(function () {
-                countSpawnedProcesses(function (count) {
-                  // console.log("@@@ DEBUG @@@ phantom count: "+count);
+              timer = setInterval(() => {
+                countSpawnedProcesses(browser, count => {
                   if (count > processLimit) {
-                    phantomCount = count;
+                    processCount = count;
                     clearInterval(timer);
                   }
                 });

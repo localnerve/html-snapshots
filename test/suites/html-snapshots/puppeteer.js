@@ -40,7 +40,7 @@ function puppeteerTests (options) {
           }
         };
 
-        const success = testSuccess.bind(null, cleanupSuccess.bind(null, done));
+        const success = testSuccess.bind(null, cleanupSuccess.bind(null, "puppeteer", done));
 
         // TODO: check for headless: false chrome invocation
         ss.run(optHelp.decorate(options))

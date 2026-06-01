@@ -67,12 +67,12 @@ function useJQueryTests (options) {
             } catch (e) {
               assertionError = e;
             }
-            cleanup(done, assertionError);
+            cleanup(options.browser, done, assertionError);
           })
           .catch(e => {
             checkActualFiles(e.notCompleted)
               .then(() => {
-                cleanup(done, e || unexpectedError);
+                cleanup(options.browser, done, e || unexpectedError);
               });
           });
       });
@@ -100,12 +100,12 @@ function useJQueryTests (options) {
             } catch (e) {
               assertionError = e;
             }
-            cleanup(done, assertionError);
+            cleanup(options.browser, done, assertionError);
           })
           .catch(e => {
             checkActualFiles(e.notCompleted)
               .then(() => {
-                cleanup(done, e || unexpectedError);
+                cleanup(options.browser, done, e || unexpectedError);
               });
           });
       });
@@ -119,10 +119,10 @@ function useJQueryTests (options) {
           timeout: 4000
         });
 
-        const twice = after(2, cleanupError.bind(null, done, 0));
+        const twice = after(2, cleanupError.bind(null, options.browser, done, 0));
 
         ss.run(optHelp.decorate(options), twice)
-          .then(unexpectedSuccess.bind(null, done))
+          .then(unexpectedSuccess.bind(null, options.browser, done))
           .catch(twice);
       });
     });
@@ -135,10 +135,10 @@ function useJQueryTests (options) {
           timeout: 4000
         });
 
-        const twice = after(2, cleanupError.bind(null, done, 0));
+        const twice = after(2, cleanupError.bind(null, options.browser, done, 0));
 
         ss.run(optHelp.decorate(options), twice)
-          .then(unexpectedSuccess.bind(null, done))
+          .then(unexpectedSuccess.bind(null, options.browser, done))
           .catch(twice);
       });
     });

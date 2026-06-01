@@ -60,10 +60,10 @@ function sitemapTests (options) {
             browser
           });
 
-          const twice = after(2, cleanupError.bind(null, done, 0));
+          const twice = after(2, cleanupError.bind(null, browser, done, 0));
 
           ss.run(optHelp.decorate(options), twice)
-            .then(unexpectedSuccess.bind(null, done))
+            .then(unexpectedSuccess.bind(null, browser, done))
             .catch(twice);
         });
       });
@@ -80,7 +80,7 @@ function sitemapTests (options) {
             browser
           });
           
-          const twice = after(2, cleanupSuccess.bind(null, done));
+          const twice = after(2, cleanupSuccess.bind(null, browser, done));
           const success = (err, completed) => {
             assert.equal(completed.length, urls);
             testSuccess(twice, completed);
@@ -91,7 +91,7 @@ function sitemapTests (options) {
             .catch(e => {
               checkActualFiles(e.notCompleted)
                 .then(() => {
-                  cleanup(done, e);
+                  cleanup(browser, done, e);
                 });
             });
         });

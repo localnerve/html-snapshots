@@ -20,16 +20,17 @@
   "scripts": {
     "lint": "eslint .",
     "_cleancov": "node -e \"const fs=require('fs');fs.rmSync('coverage',{recursive:true,force:true});fs.mkdirSync('coverage',{recursive:true})\"",
+    "_test": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\"",
     "pretest": "npm run _cleancov",
-    "test": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/**/*.spec.js\" --test-coverage-exclude=\"test/**\"",
+    "test": "npm run _test -- \"test/suites/**/*.spec.js\" --test-coverage-exclude=\"test/**\"",
     "pretest:async": "npm run _cleancov",
-    "test:async": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/async/*.spec.js\" --test-coverage-exclude=\"test/**\"",
+    "test:async": "npm run _test -- \"test/suites/async/*.spec.js\" --test-coverage-exclude=\"test/**\"",
     "pretest:common": "npm run _cleancov",
-    "test:common": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/common/*.spec.js\" --test-coverage-exclude=\"test/**\"",
+    "test:common": "npm run _test -- \"test/suites/common/*.spec.js\" --test-coverage-exclude=\"test/**\"",
     "pretest:browsers": "npm run _cleancov",
-    "test:browsers": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/browsers/*.spec.js\" --test-coverage-exclude=\"test/**\"",
+    "test:browsers": "npm run _test -- \"test/suites/browsers/*.spec.js\" --test-coverage-exclude=\"test/**\"",
     "pretest:input-generators": "npm run _cleancov",
-    "test:input-generators": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/input-generators/*.spec.js\" --test-coverage-exclude=\"test/**\"",
+    "test:input-generators": "npm run _test -- \"test/suites/input-generators/*.spec.js\" --test-coverage-exclude=\"test/**\"",
     "pretest:html-snapshots": "npm run _cleancov",
     "test:html-snapshots": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=\"coverage/lcov.info\" \"test/suites/html-snapshots/*.spec.js\" --test-coverage-exclude=\"test/**\""
   },
@@ -51,7 +52,6 @@
   "dependencies": {
     "async": "3.2.6",
     "async-lock": "1.4.1",
-    "combine-errors": "3.0.3",
     "phantomjs-prebuilt": "2.1.16",
     "puppeteer": "^25.0.2",
     "xml2js": "0.6.2"

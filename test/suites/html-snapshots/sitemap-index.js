@@ -73,12 +73,12 @@ function sitemapIndexTests (options) {
               } catch (e) {
                 assertionError = e;
               }
-              cleanup(done, assertionError);
+              cleanup(browser, done, assertionError);
             })
             .catch(err => {
               checkActualFiles(err.notCompleted)
                 .then(() => {
-                  cleanup(done, err || unexpectedError);
+                  cleanup(browser, done, err || unexpectedError);
                 });
             });
         });
@@ -93,9 +93,10 @@ function sitemapIndexTests (options) {
             source: `http://localhost:${port}/${sitemapIndexFile3}`,
             browser
           });
+          const errOnSuccess = unexpectedSuccess.bind(null, browser, done);
 
           ss.run(optHelp.decorate(options))
-            .then(unexpectedSuccess)
+            .then(errOnSuccess)
             .catch(err => {
               let assertionError;
               try {
@@ -105,7 +106,7 @@ function sitemapIndexTests (options) {
               } catch (e) {
                 assertionError = e;
               }
-              cleanup(done, assertionError);
+              cleanup(browser, done, assertionError);
             });
         });
       });
@@ -124,9 +125,10 @@ function sitemapIndexTests (options) {
             },
             browser
           });
+          const errOnSuccess = unexpectedSuccess.bind(null, browser, done);
 
           ss.run(optHelp.decorate(options))
-            .then(unexpectedSuccess)
+            .then(errOnSuccess)
             .catch(err => {
               let assertionError;
               try {
@@ -137,7 +139,7 @@ function sitemapIndexTests (options) {
               } catch (e) {
                 assertionError = e;
               }
-              cleanup(done, assertionError);
+              cleanup(browser, done, assertionError);
             });
         });
       });

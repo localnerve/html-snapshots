@@ -3,10 +3,13 @@
  *
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
-const { describe, it } = require("node:test");
+const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
 const path = require("node:path");
-const common = require("../../../lib/common");
+const createServer = require("../../server/index.js");
+const common = require("../../../lib/common/index.js");
+
+const port = 9039;
 
 describe("common", () => {
 
@@ -298,6 +301,60 @@ describe("common", () => {
         headers: makeHeaders(contentType)
       }, ["application/xml", contentType]);
       assert.equal(false, result);
+    });
+  });
+
+  describe("simpleFetch", () => {
+    let server;
+    const localhost = `http://localhost:${port}`;
+    const path500 = "/path500";
+    let reqCount = 0;
+    const pathRecover = "/path500recover";
+
+    before(async () => {
+      server = createServer([{
+        path: path500,
+        handler: (req, res) => {
+          res.status(500).send("error");
+        }
+      }, {
+        path: pathRecover,
+        handler: (req, res) => {
+          if (reqCount > 1) {
+            res.status(200).send("success");
+          } else {
+            res.status(500).send("error");
+          }
+          reqCount++;
+        }
+      }]);
+      await server.start(path.join(__dirname, "./server"), port);
+    });
+
+    after(async () => {
+      await server.stop();
+    });
+
+    it("should get a simple document", async () => {
+      const response = await common.get(localhost);
+      assert.ok(response.ok);
+    });
+
+    it("should fail not found as expected", async () => {
+      const response = await common.get(`${localhost}/notfound`);
+      assert.ok(!response.ok);
+      assert.strictEqual(response.status, 404);
+    });
+
+    it("should fail five hundred as expected", async () => {
+      const response = await common.get(`${localhost}${path500}`);
+      assert.ok(!response.ok);
+      assert.strictEqual(response.status, 500);
+    });
+
+    it("should handle failure and recovery as expected", async () => {
+      const response = await common.get(`${localhost}${pathRecover}`);
+      assert.ok(response.ok);
     });
   });
 });

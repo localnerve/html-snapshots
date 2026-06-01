@@ -7,20 +7,31 @@
 > Takes html snapshots of your site's crawlable pages when an element you select is rendered.
 
 ## Contents
-+ [Overview](#overview)
-+ [Getting Started](#getting-started)
-+ [Grunt Task](https://github.com/localnerve/grunt-html-snapshots)
-+ [More Information](#more-information)
-+ [API Reference](#api)
-+ [Example Usage](#example-usage)
-+ [Option Reference](#options)
-  + [Input Options](#input-control-options)
-  + [Output Options](#output-control-options)
-  + [Snapshot Options](#snapshot-control-options)
-  + [Process Options](#process-control-options)
-+ [Rewrite and Middleware Examples](#example-rewrite-rule)
-+ [Worker Process and Middleware Article and Examples](/docs/example-heroku-redis.md)
-+ [License](#license)
+- [html-snapshots](#html-snapshots)
+  - [Contents](#contents)
+  - [Overview](#overview)
+  - [Getting Started](#getting-started)
+    - [Installation](#installation)
+    - [Gulp Task](#gulp-task)
+    - [Grunt Task](#grunt-task)
+  - [More Information](#more-information)
+    - [Process Model](#process-model)
+  - [API](#api)
+    - [*Promise* run (options\[, callback\])](#promise-run-options-callback)
+      - [Callback](#callback)
+  - [Example Usage](#example-usage)
+    - [Quick Example](#quick-example)
+  - [Options](#options)
+    - [Input Control Options](#input-control-options)
+        - [Sitemap Only Input Options](#sitemap-only-input-options)
+        - [Origin Options](#origin-options)
+    - [Output Control Options](#output-control-options)
+    - [Snapshot Control Options](#snapshot-control-options)
+    - [Process Control Options](#process-control-options)
+  - [Example Rewrite Rule](#example-rewrite-rule)
+    - [Connect-modrewrite](#connect-modrewrite)
+    - [Middleware Example](#middleware-example)
+  - [License](#license)
 
 ## Overview
 html-snapshots is a flexible html snapshot library that uses a headless browser to take html snapshots of your webpages served from your site. A snapshot is only taken when a specified selector is detected visible in the output html. This tool is useful when your site is largely ajax content, or an SPA, and you want your dynamic content indexed by search engines.
@@ -63,7 +74,7 @@ htmlSnapshots.run(options[, callback])
   // `completed` is an array of paths to the completed snapshots.
 })
 .catch(errorObject => {
-  // `errorObject` is an instance of Error
+  // `errorObject` is an instance of Error or AggregateError
   // `errorObject.completed` is an array of paths to the snapshots that did successfully complete.
   // `errorObject.notCompleted` is an array of paths to files that DID NOT successfully complete.
 });

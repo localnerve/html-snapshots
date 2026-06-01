@@ -193,25 +193,22 @@ describe("input-generator", () => {
     // After sitemap made, process the input calling the given `inputCallback`.
     // After input processing started, evaluate the result calling `resultCallback`.
     function dynSMIP (gen, urls, current, missing, inputCallback, resultCallback) {
-      smHelper.buildSitemapWithPolicy(gen._testFile, urls, current, missing,
-        function () {
+      smHelper.buildSitemapWithPolicy(gen._testFile, urls, current, missing, () => {
         resultCallback( gen.input.run(gen.options, inputCallback) );
       });
     }
 
     // Create a callback that tests for a truthy result
     function trueResult (limit, done) {
-      return function (result) {
-        result
-          .then(function () {
-            assert.ok(true);
-          })
-          .catch(function (err) {
-            assert.fail("run", "fail", err.toString(), "should not");
-          })
-        if (limit === 0) {
-          setTimeout(done, timeToWait);
-        }
+      return result => {
+        result.then(() => {
+          if (limit === 0) {
+            setTimeout(done, timeToWait);
+          }
+        }).catch(err => {
+          assert.fail("run", "fail", err.toString(), "should not");
+          done(err);
+        });
       };
     }
 
@@ -224,11 +221,11 @@ describe("input-generator", () => {
       let counter = 0;
       let cb;
       if (limit === 0) {
-        cb = function () {
+        cb = () => {
           assert.fail("unexpected", "callback", "input was processed unexpectedly", "function");
         };
       } else {
-       cb = function () {
+       cb = () => {
           assert.equal(true, counter++ < limit);
           if (counter === limit) {
             setTimeout(done, timeToWait);
@@ -240,9 +237,9 @@ describe("input-generator", () => {
 
     sitemapInputGenerators.forEach(gen => {
 
-      describe("policy option true, "+gen.name+",", () => {
+      describe("policy option true, "+gen.name, () => {
 
-        describe("no previous run output,", () => {
+        describe("no previous run output", () => {
 
           before(() => {
             // don't let previous run output interfere
@@ -251,7 +248,7 @@ describe("input-generator", () => {
 
           casesPreviousNo.forEach(testCase => {
 
-            describe("missing "+testCase.name+",", () => {
+            describe("missing "+testCase.name, () => {
 
               it("should process some of the expected number of out-of-date urls", () => {
                 return new Promise((resolve, reject) => {
@@ -291,7 +288,7 @@ describe("input-generator", () => {
 
           casesPreviousYes.forEach(testCase => {
 
-            describe("missing "+testCase.name+",", () => {
+            describe("missing "+testCase.name, () => {
 
               it("should process some of the expected number of out-of-date urls", () => {
                 return new Promise((resolve, reject) => {
