@@ -18,7 +18,6 @@ const {
   cleanupSuccess,
   cleanupError,
   testSuccess,
-  bogusFile,
   unexpectedSuccess,
   checkActualFiles,
   makeCallback
@@ -103,38 +102,6 @@ function robotsTests (options) {
                     cleanup(browser, done, e);
                   });
               });
-          });
-        });
-
-        it(`should fail with bad phantomjs process to spawn, succeed otherwise, ${browser}, ${inputFile}`, () => {
-          return new Promise((resolve, reject) => {
-            const done = makeCallback(resolve, reject);
-            const options = createOptions({
-              source: inputFile,
-              browser,
-              phantomjs: bogusFile,
-              timeout: 1000
-            });
-
-            if (browser === "phantomjs") {
-              const twice = after(2, cleanupError.bind(null, browser, done, 0));
-
-              ss.run(options, twice)
-                .then(unexpectedSuccess.bind(null, browser, done))
-                .catch(twice);
-            } else {
-              options.timeout = utils.timeout;
-              const twice = after(2, cleanupSuccess.bind(null, browser, done));
-
-              ss.run(optHelp.decorate(options), twice)
-              .then(testSuccess.bind(null, twice))
-              .catch(e => {
-                checkActualFiles(e.notCompleted)
-                  .then(() => {
-                    cleanup(browser, done, e);
-                  });
-              });
-            }
           });
         });
 

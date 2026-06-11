@@ -797,54 +797,36 @@ describe("input-generator", () => {
 
       });
 
-      describe("phantomjsOptions option", () => {
-
-        it("should accept a single string and apply globally", () => {
+      describe("playwrightLaunchOptions option", () => {
+        it("should accept a single object and apply globally", () => {
           return new Promise((resolve, reject) => {
             const done = makeCallback(resolve, reject);
-            const phantomjsOption = "--version";
             let count = 0;
+            const playwrightLaunchOptions = {
+              browserType: "chromium",
+              one: "one",
+              two: 2,
+              three: ["three", "four", "five"],
+              six: {
+                seven: "seven"
+              }
+            };
 
             const result = gen.run(options.decorate({
-              source: source,
-              outputDir: thisOutputDir,
-              phantomjsOptions: phantomjsOption
+              source,
+              playwrightLaunchOptions,
+              outputDir: thisOutputDir
             }), input => {
-              assert.equal(input.phantomjsOptions, phantomjsOption,
-                input.__page+":\ninput.phantomjsOptions should be equal to the original input");
+              const classString = Object.prototype.toString;
 
-              count++;
-            });
+              assert.equal(classString.call(input.playwrightLaunchOptions), classString.call(playwrightLaunchOptions),
+                `${input.__page}:\ninput.playwrightLaunchOptions should be an object:\n${
+                  require("util").inspect(input.playwrightLaunchOptions)
+                }`
+              );
 
-            result
-              .then(() => {
-                assert.strictEqual(count, urls);
-                done();
-              })
-              .catch(err => {
-                assert.fail(`Run should not fail: ${err.toString()}`);
-                done(err);
-              });
-          });
-        });
-
-        it("should accept a single array and apply globally", () => {
-          return new Promise((resolve, reject) => {
-            const done = makeCallback(resolve, reject);
-            const phantomjsOption = ["--version", "--help"];
-            let count = 0;
-
-            const result = gen.run(options.decorate({
-              source: source,
-              outputDir: thisOutputDir,
-              phantomjsOptions: phantomjsOption
-            }), input => {
-              assert.equal(typeof input.phantomjsOptions, typeof phantomjsOption,
-                input.__page+":\ninput.phantomjsOptions should be an array:\n"+
-                require("util").inspect(input.phantomjsOptions));
-
-              assert.deepEqual(input.phantomjsOptions, phantomjsOption,
-                input.__page+":\ninput.phantomjsOptions should be equal to the original input");
+              assert.deepEqual(input.playwrightLaunchOptions, playwrightLaunchOptions,
+                `${input.__page}:\ninput.playwrightLaunchOptions should be equal to the original input`);
 
               count++;
             });
@@ -864,21 +846,21 @@ describe("input-generator", () => {
         it("should accept an object and apply per url", () => {
           return new Promise((resolve, reject) => {
             const done = makeCallback(resolve, reject);
-            const phantomjsOption1 = "--version",
-                phantomjsOption2 = ["--help"],
-                phantomjsOption3 = ["--another-option=somevalue", "--some-other-option=someother"];
+            const plo1 = { browserType: "chromium" },
+              plo2 = { browserType: "firefox" },
+              plo3 = { headless: true };
 
             const globalOptions = {
-              "/": phantomjsOption1,
-              "/contact": phantomjsOption2,
-              "/services/carpets": phantomjsOption3,
-              "__default": ""
+              "/": plo1,
+              "/contact": plo2,
+              "/services/carpets": plo3,
+              "__default": {}
             };
             const localOptions = {
-              "http://northstar.local/": phantomjsOption1,
-              "http://northstar.local/contact": phantomjsOption2,
-              "http://northstar.local/services/carpets": phantomjsOption3,
-              "__default": ""
+              "http://northstar.local/": plo1,
+              "http://northstar.local/contact": plo2,
+              "http://northstar.local/services/carpets": plo3,
+              "__default": {}
             };
             const opts = globalUrl ? globalOptions : localOptions;
             let count = 0;
@@ -886,12 +868,59 @@ describe("input-generator", () => {
             const result = gen.run(options.decorate({
               source: source,
               outputDir: thisOutputDir,
-              phantomjsOptions: opts
+              playwrightLaunchOptions: opts
             }), input => {
               const testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+              const inputOption = input.playwrightLaunchOptions[input.__page] !== void 0 ? input.playwrightLaunchOptions[input.__page]: input.playwrightLaunchOptions.__default;
 
-              assert.deepEqual(input.phantomjsOptions, testOption,
-                input.__page+":\ninput.phantomjsOptions: "+input.phantomjsOptions+" != testPhantomJSOption: "+testOption);
+              assert.deepEqual(inputOption, testOption,
+                `${input.__page}:\ninput.playwrightLaunchOptions: ${JSON.stringify(inputOption)} != testPlaywrightLaunchOption: ${JSON.stringify(testOption)}`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept an object and apply per url, with missing __default", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const plo1 = { browserType: "chromium" },
+              plo2 = { browserType: "firefox" },
+              plo3 = { headless: true };
+
+            const globalOptions = {
+              "/": plo1,
+              "/contact": plo2,
+              "/services/carpets": plo3
+            };
+            const localOptions = {
+              "http://northstar.local/": plo1,
+              "http://northstar.local/contact": plo2,
+              "http://northstar.local/services/carpets": plo3
+            };
+            const opts = globalUrl ? globalOptions : localOptions;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              playwrightLaunchOptions: opts
+            }), input => {
+              const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).playwrightLaunchOptions;
+              const inputOption = input.playwrightLaunchOptions[input.__page] ? input.playwrightLaunchOptions[input.__page] : {};
+
+              assert.deepEqual(inputOption, testOption,
+                `${input.__page}:\ninput.playwrightLaunchOptions: ${JSON.stringify(inputOption)} != testPlaywrightLaunchOption: ${JSON.stringify(testOption)}`);
 
               count++;
             });
@@ -911,35 +940,35 @@ describe("input-generator", () => {
         it("should accept a function and apply per url", () => {
           return new Promise((resolve, reject) => {
             const done = makeCallback(resolve, reject);
-            const phantomjsOption1 = "--version",
-                phantomjsOption2 = ["--help"],
-                phantomjsOption3 = ["--another-option=somevalue", "--some-other-option=someother"];
+            const plo1 = { browserType: "chromium" },
+              plo2 = { browserType: "firefox" },
+              plo3 = { headless: true };
 
             const globalOptions = {
-              "/": phantomjsOption1,
-              "/contact": phantomjsOption2,
-              "/services/carpets": phantomjsOption3
+              "/": plo1,
+              "/contact": plo2,
+              "/services/carpets": plo3
             };
             const localOptions = {
-              "http://northstar.local/": phantomjsOption1,
-              "http://northstar.local/contact": phantomjsOption2,
-              "http://northstar.local/services/carpets": phantomjsOption3
+              "http://northstar.local/": plo1,
+              "http://northstar.local/contact": plo2,
+              "http://northstar.local/services/carpets": plo3
             };
             const opts = globalUrl ? globalOptions : localOptions;
             let count = 0;
-            const phantomjsFn = url => {
+            const ploFn = url => {
               return opts[url];
             };
 
             const result = gen.run(options.decorate({
               source: source,
               outputDir: thisOutputDir,
-              phantomjsOptions: phantomjsFn
+              playwrightLaunchOptions: ploFn
             }), input => {
-              const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).phantomjsOptions;
+              const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).playwrightLaunchOptions;
 
-              assert.deepEqual(input.phantomjsOptions, testOption,
-                input.__page+":\ninput.phantomjsOptions: "+input.phantomjsOptions+" != testPhantomJSOption: "+testOption);
+              assert.deepEqual(input.playwrightLaunchOptions, testOption,
+                `${input.__page}:\ninput.playwrightLaunchOptions: ${JSON.stringify(input.playwrightLaunchOptions)} != testPlaywrightLaunchOption: ${JSON.stringify(testOption)}`);
 
               count++;
             });
@@ -956,6 +985,48 @@ describe("input-generator", () => {
           });
         });
 
+        it("should accept a function returning browserType per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalBrowserTypes = {
+              "/": "chromium",
+              "/contact": "firefox",
+              "/services/carpets": "webkit"
+            };
+            const localBrowserTypes = {
+              "http://northstar.local/": "chromium",
+              "http://northstar.local/contact": "firefox",
+              "http://northstar.local/services/carpets": "webkit"
+            };
+            const browserTypes = globalUrl ? globalBrowserTypes : localBrowserTypes;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              playwrightLaunchOptions: url => ({
+                browserType: browserTypes[url] || "chromium"
+              })
+            }), input => {
+              const expectedBrowserType = browserTypes[input.__page] || "chromium";
+
+              assert.equal(input.playwrightLaunchOptions.browserType, expectedBrowserType,
+                `${input.__page}:\nexpected browserType ${expectedBrowserType}, got ${input.playwrightLaunchOptions.browserType}`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
       });
 
       describe("puppeteerLaunchOptions option", () => {
@@ -1188,7 +1259,7 @@ describe("input-generator", () => {
 
         if (remote) {
           remote.forEach(remoteUrl => {
-            it(`should process remote source url ${remoteUrl}`, { timeout: 10000 }, () => {
+            it(`should process remote source url ${remoteUrl}`, { timeout: 20000 }, () => {
               return new Promise((resolve, reject) => {
                 const done = makeCallback(resolve, reject);
                 let count = 0;

@@ -11,9 +11,8 @@ const robots = require("./robots");
 const sitemap = require("./sitemap");
 const sitemapIndex = require("./sitemap-index");
 const processLimit = require("./process-limit");
-const useJQuery = require("./use-jquery");
 const snapshotScripts = require("./snapshot-scripts");
-const phantomJSOptions = require("./phantomjs-options");
+const playwrightOptions = require("./playwright-options");
 const puppeteer = require("./puppeteer");
 
 const localRobotsFile = path.join(__dirname, "./test_robots.txt");
@@ -46,7 +45,7 @@ function serverContext (testSuiteFactory, port) {
     }, testSuiteFactory({
       port,
       localRobotsFile,
-      browsers: ["phantomjs", "puppeteer"],
+      browsers: ["playwright", "puppeteer"],
       puppeteerLaunchOptions: {
         args: [
           "--no-sandbox"
@@ -64,7 +63,7 @@ describe("html-snapshots", {
   describe("run basics", serverContext(basics.testSuite, 8034));
 
   describe(
-    "phantomjsOptions option", serverContext(phantomJSOptions.testSuite, 8035)
+    "playwrightLaunchOptions option", serverContext(playwrightOptions.testSuite, 8035)
   );
 
   describe(
@@ -73,10 +72,6 @@ describe("html-snapshots", {
 
   describe(
     "additional snapshot scripts", serverContext(snapshotScripts.testSuite, 8036)
-  );
-
-  describe(
-    "useJQuery option", serverContext(useJQuery.testSuite, 8037)
   );
 
   describe(
@@ -93,8 +88,6 @@ describe("html-snapshots", {
     "sitemap-index", serverContext(sitemapIndex.testSuite, 8040)
   );
 
-  // This apparently can't work. Always fails puppeter limit=1.
-  // Investigation continues...
   describe.skip(
     "processLimit option", serverContext(processLimit.testSuite, 8041)
   );

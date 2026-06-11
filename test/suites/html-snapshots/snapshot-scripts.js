@@ -1,5 +1,5 @@
 /**
- * Library tests focused on the phantomjsOptions option.
+ * Library tests focused on the snapshotScript option.
  *
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
@@ -36,9 +36,7 @@ function snapshotScriptTests (options) {
       option: {
         script: "removeScripts"
       },
-      browser: "phantomjs",
       prove: (completed, done) => {
-        // console.log("@@@ removeScripts prove @@@");
         let content, err;
         for (var i = 0; i < completed.length; i++) {
           content = fs.readFileSync(completed[i], { encoding: "utf8" });
@@ -56,12 +54,9 @@ function snapshotScriptTests (options) {
         script: "customFilter",
         module: path.join(__dirname, "myFilter.js")
       },
-      browser: "phantomjs",
       prove: (completed, done) => {
-        // console.log("@@@ customFilter prove @@@");
         let content, err;
         for (let i = 0; i < completed.length; i++) {
-          // console.log("@@@ readFile "+completed[i]);
           content = fs.readFileSync(completed[i], { encoding: "utf8" });
           // this is dependent on myFilter.js adding someattrZZQy anywhere
           if (content.indexOf("someattrZZQy") < 0) {
@@ -180,7 +175,6 @@ function snapshotScriptTests (options) {
       }, {
         name: "should fail if a customFilter is defined and bogus module",
         options: {
-          browser: "phantomjs",
           snapshotScript: {
             script: "customFilter",
             module: bogusFile
@@ -190,6 +184,7 @@ function snapshotScriptTests (options) {
       const driverOptions = browsers.map(browser => {
         return testOptions.map(test => {
           test.options.browser = browser;
+          test.name += ` - ${browser}`;
           return JSON.parse(JSON.stringify(test));
         });
       }).flat();

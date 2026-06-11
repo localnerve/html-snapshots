@@ -83,16 +83,44 @@ function multiError (...errors) {
 // ---------------------------------------------------------------------------
 
 /**
- * Return the chromium/chrome executable name used by Puppeteer on this
- * platform so we can match it in `ps` output.
+ * Return the chromium/chrome executable name pattern used by Puppeteer and
+ * Playwright on this platform so we can match it in `ps` output.
  */
 function chromiumPattern () {
-  // Puppeteer on macOS unpacks "Chromium" or "Google Chrome for Testing";
+  // Puppeteer/Playwright on macOS unpacks "Chromium" or "Google Chrome for Testing";
   // on Linux the binary is typically "chrome" or "chromium".
   if (process.platform === "darwin") {
     return "(Chromium|chrome|Google Chrome for Testing)";
   }
   return "(chrome|chromium|Chromium)";
+}
+
+/**
+ * Return the Firefox executable name pattern used by Playwright on this platform.
+ */
+function firefoxPattern () {
+  if (process.platform === "darwin") {
+    return "(firefox|Firefox)";
+  }
+  return "(firefox|Firefox)";
+}
+
+/**
+ * Return the WebKit executable name pattern used by Playwright on this platform.
+ */
+function webkitPattern () {
+  if (process.platform === "darwin") {
+    return "(WebKit|WebContent)";
+  }
+  return "(webkit2gtk|WebProcess)";
+}
+
+/**
+ * Return the combined browser process pattern for playwright.
+ * Playwright can use chromium, firefox, or webkit depending on configuration.
+ */
+function playwrightPattern () {
+  return `(${chromiumPattern()}|${firefoxPattern()}|${webkitPattern()})`;
 }
 
 /**
@@ -142,14 +170,14 @@ function psDescendants (cb) {
 /**
  * Count spawned web-renderer processes currently alive under this test runner.
  *
- * For PhantomJS:  matches the `phantomjs` binary name directly.
  * For Puppeteer:  matches Chromium/Chrome binaries in our process subtree.
- *                 We intentionally exclude Node children so the test runner
- *                 and its worker threads don't pollute the count.
+ * For Playwright: matches Chromium, Firefox, or WebKit binaries depending on
+ *                 the configured browserType. We intentionally exclude Node children
+ *                 so the test runner and its worker threads don't pollute the count.
  *
  * Calls cb(err, count) — count is always a plain Number.
  *
- * @param {"phantomjs"|"puppeteer"} browser
+ * @param {"puppeteer"|"playwright"} browser
  * @param {function(Error|null, number): void} cb
  */
 function countSpawnedProcesses (browser, cb) {
@@ -157,8 +185,9 @@ function countSpawnedProcesses (browser, cb) {
     if (err) return cb(err, 0);
 
     let pattern;
-    if (browser === "phantomjs") {
-      pattern = /^phantomjs$/i;
+    if (browser === "playwright") {
+      // Playwright: match chromium, firefox, or webkit processes.
+      pattern = new RegExp(playwrightPattern(), "i");
     } else {
       // Puppeteer: count top-level Chromium launcher processes only.
       // Exclude --type=* renderer/gpu/utility subprocesses to avoid
@@ -175,7 +204,7 @@ function countSpawnedProcesses (browser, cb) {
  * Kill all spawned web-renderer processes that are children of this process.
  * Waits 2 s after killing to let the OS reclaim PIDs before a new test starts.
  *
- * @param {"phantomjs"|"puppeteer"} browser
+ * @param {"puppeteer"|"playwright"} browser
  * @param {function(Error|null): void} cb
  */
 function killSpawnedProcesses (browser, cb) {
@@ -183,9 +212,11 @@ function killSpawnedProcesses (browser, cb) {
     if (err) return cb(err);
 
     let pattern;
-    if (browser === "phantomjs") {
-      pattern = /^phantomjs$/i;
+    if (browser === "playwright") {
+      // Playwright: match chromium, firefox, or webkit processes.
+      pattern = new RegExp(playwrightPattern(), "i");
     } else {
+      // Puppeteer: match Chromium/Chrome processes only.
       pattern = new RegExp(chromiumPattern(), "i");
     }
 
@@ -205,42 +236,6 @@ function killSpawnedProcesses (browser, cb) {
     cb();
   });
 }
-
-// ---------------------------------------------------------------------------
-/*
-// Count actual phantomjs processes in play, requires pgrep
-function countSpawnedProcesses (cb) {
-  let wc, pgrep;
-  // std mac pgrep doesn't have a count option. How stupid is that?
-  if (process.platform === "darwin") {
-    wc = spawn("wc", ["-l"]);
-    pgrep = spawn("pgrep", [spawnedProcessPattern]);
-    pgrep.stdout.on("data", data => {
-      wc.stdin.write(data);
-    });
-    pgrep.stdout.on("end", () => {
-      wc.stdin.end();
-    });
-    wc.stdout.on("data", cb);
-  } else {
-    pgrep = spawn("pgrep", [spawnedProcessPattern, "-c"]);
-    pgrep.stdout.on("data", cb);
-  }
-}
-
-// Clear any lingering browser processes in play
-function killSpawnedProcesses (cb) {
-  const pkill = spawn("pkill", [spawnedProcessPattern]);
-  const guardedCb = common.once(cb);
-
-  pkill.on("exit", () => {
-    setTimeout(guardedCb, 2000);
-  });
-  pkill.on("error", () => {
-    guardedCb(new Error("failed to kill browser processes"));
-  });
-}
-*/
 
 // Complete a test and kill any spawned processes.
 function cleanup (browser, done, arg) {

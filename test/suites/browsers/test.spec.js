@@ -5,7 +5,9 @@
  */
 const { describe } = require("node:test");
 const puppeteer = require("./puppeteer");
+const playwright = require("./playwright");
 
 describe("browser process tests", () => {
   describe("puppeteer", puppeteer.testSuite());
+  describe("playwright", playwright.testSuite());
 });

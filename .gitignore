@@ -11,3 +11,4 @@ coverage
 *.tgz
 html-snapshots.sublime-project
 html-snapshots.sublime-workspace
+.DS_Store
