@@ -20,6 +20,7 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest # ensure npm 11.5.1 or later
       - run: npm ci
+      - run: npx playwright install
       - name: Lint
         run: npm run lint
       - name: Test
