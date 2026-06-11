@@ -88,7 +88,7 @@ describe("html-snapshots", {
     "sitemap-index", serverContext(sitemapIndex.testSuite, 8040)
   );
 
-  describe.skip(
+  describe(
     "processLimit option", serverContext(processLimit.testSuite, 8041)
   );
 });
