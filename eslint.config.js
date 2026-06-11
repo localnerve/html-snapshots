@@ -6,8 +6,7 @@ module.exports = [{
     "tmp/**",
     "coverage/**",
     "examples/**",
-    "test/suites/html-snapshots/server/**",
-    "lib/phantom/modules/*"
+    "test/suites/html-snapshots/server/**"
   ]
 }, {
   languageOptions: {
