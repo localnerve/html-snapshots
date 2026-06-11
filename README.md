@@ -12,7 +12,6 @@
   - [Overview](#overview)
   - [Getting Started](#getting-started)
     - [Installation](#installation)
-    - [Gulp Task](#gulp-task)
     - [Grunt Task](#grunt-task)
   - [More Information](#more-information)
     - [Process Model](#process-model)
@@ -38,21 +37,16 @@ html-snapshots is a flexible html snapshot library that uses a headless browser 
 
 html-snapshots gets urls to process from either a robots.txt, sitemap.xml, or sitemap-index.xml. Alternatively, you can supply an array with completely arbitrary urls, or a line delimited textfile with arbitrary host-relative paths.
 
+## Change History
+This is an old project that has evolved since 2013. I've endeavored to keep it easy to use and upgrade. However, before upgrading, please review the release notes and the [history](HISTORY.md) for breaking changes.
+
 ## Getting Started
 
 ### Installation
 The simplest way to install html-snapshots is to use [npm](http://npmjs.org), just `npm
 install html-snapshots` will download html-snapshots and all dependencies.
 
-By default, html-snapshots uses **Puppeteer** under the hood. You can optionally configure it to use **Playwright** instead by setting the [`browser`](#process-control-options) option to `"playwright"`. When using Playwright, you must also install the `playwright` package and its browsers:
-
-```bash
-npm install playwright
-npx playwright install chromium
-```
-
-### Gulp Task
-This is a node library that just works with gulp as-is.
+By default, html-snapshots uses **Puppeteer** under the hood. You can optionally configure it to use **Playwright** instead by setting the [`browser`](#process-control-options) option to `"playwright"`.
 
 ### Grunt Task
 If you are interested in the grunt task that uses this library, check out [grunt-html-snapshots](http://github.com/localnerve/grunt-html-snapshots).
@@ -91,9 +85,9 @@ The callback is optional because the run method returns a Promise that resolves 
 
 Signature of the optional callback:
 ```javascript
-callback (errorObject, arrayOfPathsToCompletedSnapshots)
+callback (errorOrAggregateErrorObject, arrayOfPathsToCompletedSnapshots)
 ```
-*For the callback, in the error case, the errorObject does not have the new extra properties `completed` and `notCompleted`. However, `arrayOfPathsToCompletedSnapshots` is supplied, and contains the paths to the snapshots that successfully completed.*
+*For the callback, in the error \(or AggregateError\) case, the errorObject does not have the new extra properties `completed` and `notCompleted`. However, `arrayOfPathsToCompletedSnapshots` is supplied, and contains the paths to the snapshots that successfully completed.*
 
 ## Example Usage
 This example reads the pages from a mix of sitemap or sitemap-index files found in the robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site. Once this selector is visible in a page, the html snapshot is taken and saved to ./snapshots.

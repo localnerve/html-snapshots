@@ -1,18 +1,15 @@
 # Examples
 
-+ [Per-page Selectors](#example---per-page-selectors-and-timeouts)
-+ [Per-page Output Paths](#example---per-page-special-output-paths)
-+ [Per-page jQuery](#example---per-page-selectors-and-jquery)
-+ [Array Input](#example---array)
-+ [More Array Input](./simple-promise/)
-+ [Array Input DRY](./html5rocks/)
-+ [Sitemap Index](./sitemap-index/)
-+ [Process Limit](./process-limit/)
-+ [Script Removal](#example---remote-robotstxt-remove-script-tags-from-html-snapshots)
-+ [Custom Filters](./custom/)
-+ [Debug PhantomJS w/Verbose Output](./verbose/)
-+ [Debug PhantomJS w/Attach](./debug-phantomjs/)
-+ [Debug Puppeteer in devtools](./debug-puppeteer/)
+- [Per-page Selectors](#example---per-page-selectors-and-timeouts)
+- [Per-page Output Paths](#example---per-page-special-output-paths)
+- [Array Input](#example---array)
+- [More Array Input](./simple-promise/)
+- [Array Input DRY](./html5rocks/)
+- [Sitemap Index](./sitemap-index/)
+- [Process Limit](./process-limit/)
+- [Script Removal](#example---remote-robotstxt-remove-script-tags-from-html-snapshots)
+- [Custom Filters](./custom/)
+- [Debug Puppeteer in devtools](./debug-puppeteer/)
 
 ### Example - Per page selectors and timeouts
 ```javascript
@@ -67,34 +64,6 @@ htmlSnapshots.run({
 ```
 This example implies there are a couple of pages with query strings in sitemap.xml, and we don't want html-snapshots to create directories with query string characters in the names. We would also have a rewrite rule that reflects this same mapping when `_escaped_fragment_` shows up in the querystring of a request so we serve the snapshot from the appropriate directory.
 
-### Example - Per page selectors and jQuery
-```javascript
-const htmlSnapshots = require('html-snapshots');
-htmlSnapshots.run({
-  source: '/path/to/robots.txt',
-  hostname: 'mysite.com',
-  outputDir: './snapshots',
-  outputDirClean: true,
-  browser: 'phantomjs',
-  selector: {
-    '__default': '#dynamic-content',
-    '/jqpage': 'A-Selector-Not-Supported-By-querySelector'
-  },
-  useJQuery: {
-    '/jqpage': true,
-    '__default': false
-  }
-})
-.then(completed => {
-  // completed is an array of full file paths to the completed snapshots.
-})
-.catch(error => {
-  // error is an Error instance.
-  // error.completed is an array of snapshot file paths that were completed.
-  // error.notCompleted is an array of file paths that did NOT complete.
-});
-```
-This reads the urls from your robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site except in "/jqpage", where a selector not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector) is used. Further, "/jqpage" loads jQuery itself \(required\). All the other pages don't need to use special selectors, so the default is set to `false`. Notice that since a robots.txt input is used, full URLs are **not** used to match selectors. Instead, paths \(and QueryStrings and any Hashes\) are used, just as specified in the robots.txt file itself.
 
 ### Example - Array
 ```javascript

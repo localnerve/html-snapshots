@@ -5,6 +5,9 @@ An overview of the [Breaking Changes](#breaking-changes) and [Node Support](#nod
 
 ### Introduced in v6.0.0
 #### Dropped support for Node 20
+#### Dropped support for Phantomjs
+#### Added Playwright as a secondary browser choice
+#### Added standard AggregateError usage for multi-error reporting
 
 ### Introduced in v5.0.0
 #### Dropped support for Node 18
