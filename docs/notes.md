@@ -6,7 +6,7 @@ The whole reason I created this library was so that I could be certain I snapsho
 ## What if I Don't Know About The Rendered Page Content?
 If you aren't interested in exact snapshots, or just want to explore because you don't know about the content detail yet, try this:
   1. Use `"body"` as the `selector` option value (every page will probably have a body).
-  2. Set the `checkInterval` option high to give the page some time to render before it is written out. `checkInterval` is the time the phantomjs script waits to check for `selector`, so consider this "render time".
+  2. Set the `checkInterval` option high to give the page some time to render before it is written out. `checkInterval` is the time the browser script waits to check for `selector`, so consider this "render time".
   3. Set the `pollInterval` option higher than `checkInterval`.
   4. Set the `timeout` option much higher to give the whole thing time to transpire. Consider `timeout` as a multiple of `pollInterval`.
 
@@ -22,21 +22,14 @@ The intention of this library is to take a snapshot when dynamic content has bee
 
 ### Each Snapshot is Created in a Separate Process
 html-snapshots creates a new process for each page to snapshot, and they run in parallel.
-To control the parallel processing load, you can specify the `processLimit` option to limit the size of the process pool. In other words, you can limit the number of pages being processed in parallel at any one time. The default pool size is set to 4 PhantomJS processes at a time.
+To control the parallel processing load, you can specify the `processLimit` option to limit the size of the process pool. In other words, you can limit the number of pages being processed in parallel at any one time. The default pool size is set to 4 browser processes at a time.
 
 ### The Default Snapshot Scripts
 The default snapshot scripts are:
-  - ["default"](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/default.js)
-  - ["removeScripts"](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/removeScripts.js)
-  - ["customFilter"](https://github.com/localnerve/html-snapshots/blob/master/lib/phantom/customFilter.js)
+  - ["puppeteer"](https://github.com/localnerve/html-snapshots/blob/master/lib/puppeteer/index.js)
+  - ["playwright"](https://github.com/localnerve/html-snapshots/blob/master/lib/playwright/index.js)
 
-As of v0.6.x, these do not rely on jQuery unless you specify a true `useJQuery` option. If you set `useJQuery` to true \(globally or per-page\), the page being snapshotted **must load jQuery itself**.
-
-#### When Using jQuery
-When using jQuery, the default snapshot scripts use jQuery is(:visible) on your supplied selector to determine document readiness \(and then triggers the snapshot\). Last I checked, this is only available in Zepto by building in a special [selector module](https://github.com/madrobby/zepto/issues/323).
-
-#### When Not Using jQuery
-When not using jQuery \(the new default behavior, from v0.6.x\), [document.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector) is used to select the element using your supplied selector. The element selected must be an HTMLElement, and is considered visible \(triggering a snapshot\) if both offsetWidth and offsetHeight exist.
+Each come with a "removeScripts" companion that you can reference by **name** alone. They also allow a custom filter to be supplied. Details [here](../README.md#snapshot-control-options).
 
 ### Override the Default Snapshot Scripts
-To override the default snapshot scripts, supply a path to your own phantomjs script using the `snapshotScript` option.
+To override the default snapshot scripts, supply a path to your own script using the `snapshotScript` option.

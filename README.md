@@ -57,6 +57,7 @@ Here are some [background and other notes](/docs/notes.md) regarding this projec
   + [How To Use Without Knowing About Page Content](/docs/notes.md#what-if-i-dont-know-about-the-rendered-page-content)
   + [Caveats](/docs/notes.md#caveats)
   + [Support History](HISTORY.md)
+  + [Web Automation & Building AI agents](/docs/web-automation-building.md)
 
 ### Process Model
 html-snapshots takes snapshots in parallel, each page getting its own browser process. Each browser process dies after snapshotting one page. You can limit the number of browser processes that can ever run at once with the `processLimit` option. This effectively sets up a process pool for browser instances. The default processLimit is 4 browser instances. When a browser process dies, and another snapshot needs to be taken, a new browser process is spawned to take the vacant slot. This continues until a `processLimit` number of processes are running at once.
