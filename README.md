@@ -44,7 +44,7 @@ This is an old project that has evolved since 2013. I've endeavored to keep it e
 
 ### Installation
 The simplest way to install html-snapshots is to use [npm](http://npmjs.org). `npm
-install html-snapshots` will download html-snapshots and all dependencies. To install the browsers required by playwright, you must also run `npx playwright install`.
+install html-snapshots` will download html-snapshots and all dependencies. To install the browsers required by playwright, you must also run `npx playwright install`. See [Playwright Docs](https://playwright.dev/docs/browsers) for additional details.
 
 By default, html-snapshots uses **Puppeteer** under the hood. You can optionally configure it to use **Playwright** instead by setting the [`browser`](#process-control-options) option to `"playwright"`.
 
