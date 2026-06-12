@@ -7,34 +7,46 @@
 > Takes html snapshots of your site's crawlable pages when an element you select is rendered.
 
 ## Contents
-+ [Overview](#overview)
-+ [Getting Started](#getting-started)
-+ [Grunt Task](https://github.com/localnerve/grunt-html-snapshots)
-+ [More Information](#more-information)
-+ [API Reference](#api)
-+ [Example Usage](#example-usage)
-+ [Option Reference](#options)
-  + [Input Options](#input-control-options)
-  + [Output Options](#output-control-options)
-  + [Snapshot Options](#snapshot-control-options)
-  + [Process Options](#process-control-options)
-+ [Rewrite and Middleware Examples](#example-rewrite-rule)
-+ [Worker Process and Middleware Article and Examples](/docs/example-heroku-redis.md)
-+ [License](#license)
+- [html-snapshots](#html-snapshots)
+  - [Contents](#contents)
+  - [Overview](#overview)
+  - [Getting Started](#getting-started)
+    - [Installation](#installation)
+    - [Grunt Task](#grunt-task)
+  - [More Information](#more-information)
+    - [Process Model](#process-model)
+  - [API](#api)
+    - [*Promise* run (options\[, callback\])](#promise-run-options-callback)
+      - [Callback](#callback)
+  - [Example Usage](#example-usage)
+    - [Quick Example](#quick-example)
+  - [Options](#options)
+    - [Input Control Options](#input-control-options)
+        - [Sitemap Only Input Options](#sitemap-only-input-options)
+        - [Origin Options](#origin-options)
+    - [Output Control Options](#output-control-options)
+    - [Snapshot Control Options](#snapshot-control-options)
+    - [Process Control Options](#process-control-options)
+  - [Example Rewrite Rule](#example-rewrite-rule)
+    - [Connect-modrewrite](#connect-modrewrite)
+    - [Middleware Example](#middleware-example)
+  - [License](#license)
 
 ## Overview
 html-snapshots is a flexible html snapshot library that uses a headless browser to take html snapshots of your webpages served from your site. A snapshot is only taken when a specified selector is detected visible in the output html. This tool is useful when your site is largely ajax content, or an SPA, and you want your dynamic content indexed by search engines.
 
 html-snapshots gets urls to process from either a robots.txt, sitemap.xml, or sitemap-index.xml. Alternatively, you can supply an array with completely arbitrary urls, or a line delimited textfile with arbitrary host-relative paths.
 
+## Change History
+This is an old project that has evolved since 2013. I've endeavored to keep it easy to use and upgrade. However, before upgrading, please review the release notes and the [history](HISTORY.md) for breaking changes.
+
 ## Getting Started
 
 ### Installation
-The simplest way to install html-snapshots is to use [npm](http://npmjs.org), just `npm
-install html-snapshots` will download html-snapshots and all dependencies.
+The simplest way to install html-snapshots is to use [npm](http://npmjs.org). `npm
+install html-snapshots` will download html-snapshots and all dependencies. To install the browsers required by playwright, you must also run `npx playwright install`. See [Playwright Docs](https://playwright.dev/docs/browsers) for additional details.
 
-### Gulp Task
-This is a node library that just works with gulp as-is.
+By default, html-snapshots uses **Puppeteer** under the hood. You can optionally configure it to use **Playwright** instead by setting the [`browser`](#process-control-options) option to `"playwright"`.
 
 ### Grunt Task
 If you are interested in the grunt task that uses this library, check out [grunt-html-snapshots](http://github.com/localnerve/grunt-html-snapshots).
@@ -45,6 +57,7 @@ Here are some [background and other notes](/docs/notes.md) regarding this projec
   + [How To Use Without Knowing About Page Content](/docs/notes.md#what-if-i-dont-know-about-the-rendered-page-content)
   + [Caveats](/docs/notes.md#caveats)
   + [Support History](HISTORY.md)
+  + [Web Automation & Building AI agents](/docs/web-automation-building.md)
 
 ### Process Model
 html-snapshots takes snapshots in parallel, each page getting its own browser process. Each browser process dies after snapshotting one page. You can limit the number of browser processes that can ever run at once with the `processLimit` option. This effectively sets up a process pool for browser instances. The default processLimit is 4 browser instances. When a browser process dies, and another snapshot needs to be taken, a new browser process is spawned to take the vacant slot. This continues until a `processLimit` number of processes are running at once.
@@ -63,7 +76,7 @@ htmlSnapshots.run(options[, callback])
   // `completed` is an array of paths to the completed snapshots.
 })
 .catch(errorObject => {
-  // `errorObject` is an instance of Error
+  // `errorObject` is an instance of Error or AggregateError
   // `errorObject.completed` is an array of paths to the snapshots that did successfully complete.
   // `errorObject.notCompleted` is an array of paths to files that DID NOT successfully complete.
 });
@@ -73,9 +86,9 @@ The callback is optional because the run method returns a Promise that resolves 
 
 Signature of the optional callback:
 ```javascript
-callback (errorObject, arrayOfPathsToCompletedSnapshots)
+callback (errorOrAggregateErrorObject, arrayOfPathsToCompletedSnapshots)
 ```
-*For the callback, in the error case, the errorObject does not have the new extra properties `completed` and `notCompleted`. However, `arrayOfPathsToCompletedSnapshots` is supplied, and contains the paths to the snapshots that successfully completed.*
+*For the callback, in the error \(or AggregateError\) case, the errorObject does not have the new extra properties `completed` and `notCompleted`. However, `arrayOfPathsToCompletedSnapshots` is supplied, and contains the paths to the snapshots that successfully completed.*
 
 ## Example Usage
 This example reads the pages from a mix of sitemap or sitemap-index files found in the robots.txt and produces snapshots in the ./snapshots directory. In this example, a selector named "#dynamic-content" appears in all pages across the site. Once this selector is visible in a page, the html snapshot is taken and saved to ./snapshots.
@@ -202,7 +215,7 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
 
         `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a string.
 
-    NOTE: By default, selectors must conform to [this spec](http://www.w3.org/TR/selectors-api/#grammar), as they are used by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). If you need selectors not supported by this, you must specify the `useJQuery` option, and load jQuery in your page.
+    NOTE: By default, selectors must conform to [this spec](http://www.w3.org/TR/selectors-api/#grammar), as they are used by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). If you need selectors not supported by this, you must load jQuery in your page and use a custom snapshot script.
 
   * **snapshotScript** {String|Object}
     + default: This library's default snapshot script. Which one is used is determined by the [`browser`](#process-control-options) option.
@@ -212,18 +225,6 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
 
         `"string"` If the value is a string, it must an absolute path to a custom script you supply.  
          
-        + `browser: "phantomjs"`:  
-        html-snapshots will spawn a separate phantomjs process to run your snapshot script and give it the following [arguments](http://phantomjs.org/api/system/property/args.html):  
-          + `system.args[0]` The path to your PhantomJS script.
-          + `system.args[1]` The output file path.
-          + `system.args[2]` The url to snapshot.
-          + `system.args[3]` The selector to watch for to signal page completion.
-          + `system.args[4]` The overall timeout \(milliseconds\).
-          + `system.args[5]` The interval \(milliseconds\) to watch for the selector.
-          + `system.args[6]` A flag indicating jQuery selectors should be supported.
-          + `system.args[7]` A flag indicating verbose output is desired.
-          + `system.args[8]` A custom module to load.  
-
         + `browser: "puppeteer"`:  
         html-snapshots will spawn your script as a separate process and give it the following arguments:  
           + `process.argv[0]` The path to NodeJS.
@@ -237,11 +238,24 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
           + `process.argv[8]` A slowMo time \(milliseconds\) to slow the browser down.
           + `process.argv[9]` Stringified Puppeteer launch options.
 
+        + `browser: "playwright"`:  
+        html-snapshots will spawn your script as a separate process and give it the following arguments:  
+          + `process.argv[0]` The path to NodeJS.
+          + `process.argv[1]` The path to your snapshot script.
+          + `process.argv[2]` The output file path.
+          + `process.argv[3]` The url to snapshot.
+          + `process.argv[4]` The selector to wait for to signal page completion.
+          + `process.argv[5]` The overall timeout \(milliseconds\).
+          + `process.argv[6]` The path to a custom NodeJS module that returns a filter function.
+          + `process.argv[7]` A debug flag to kick the browser into headed, slowMo mode.
+          + `process.argv[8]` A slowMo time \(milliseconds\) to slow the browser down.
+          + `process.argv[9]` Stringified Playwright launch options. May include a `browserType` key (`"chromium"`, `"firefox"`, or `"webkit"`). Defaults to `"chromium"`.
+
         `"object"` If an object is supplied, it has the following properties:  
         + `script` This must be one of the following values:  
-          + `"removeScripts"` This runs the default snapshot script with an output filter that removes all script tags are removed from the html snapshot before it is saved.
+          + `"removeScripts"` This runs the default snapshot script with an output filter that removes all script tags from the html snapshot before it is saved.
           + `"customFilter"` This runs the default snapshot script, but allows you to supply any output filter.
-        + `module` This property is required only if you supplied a value of `"customFilter"` for the `script` property. This must be an absolute path to a PhantomJS module you supply. Your module will be `require`d and called as a function to filter the html snapshot output. Your module's function will receive the entire raw html content as a single input string, and must return the filtered html content.
+        + `module` This property is required only if you supplied a value of `"customFilter"` for the `script` property. This must be an absolute path to a NodeJS module you supply. Your module will be `require`d and called as a function to filter the html snapshot output. Your module's function will receive the entire raw html content as a single input string, and must return the filtered html content.
 
         customFilter Example:
         ```javascript
@@ -261,43 +275,14 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
         A more complete example using custom options is available [here](/examples/custom).  
 
   * **debug** {Object}
-    > This options is only supported with the puppeteer browser script.  
     + default: `{ flag: false, slowMo: 500 }`  
-    + Setting the `debug.flag` to true starts chrome in headed mode with devtools open. `debug.slowMo` is a time in milliseconds to reduce browser processing speed (larger numbers slows down chrome more). Recommended use is with a single problem page input using an Array source.
-
-  * **useJQuery** {Boolean|Object|Function}
-    > This option is only supported with the phantomjs browser script.  
-    + default: `false`  
-    + Specifies to use jQuery selectors to detect when to snapshot a page. Please note that you cannot use these selectors if the page to be snapshotted does not load jQuery itself. To return to the behavior prior to v0.6.x, set this to `true`.  
-
-        The value can be one of these *javascript types*:
-
-        `"boolean"` If the value is a boolean, it is used for every page. Note that if it is any scalar type such as "string" or "number", it will be interpreted as a boolean using javascript rules. Coerced string values "true", "yes", and "1" are specifically true, all others are false.
-
-        `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify the use of jQuery for individual pages. The reserved key "__default" allows you to specify a default jQuery usage so you don't have to specify usage for every individual page.
-
-        `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a boolean.
-
-    NOTE: You do not *have to* use this option if your page uses jQuery. You only need this if your selector is not supported by [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/document.querySelector). However, if you do use this option, the page being snapshotted must load jQuery itself.
-
-  * **verbose** {Boolean|Object|Function}
-    > This option is only used with the phantomjs browser script
-    + default: `false`
-    + Specifies to turn on extended console output in the PhantomJS process for debugging purposes. Can be applied to all pages, or just specific page(s). It is recommended to do this one page at a time, as the output can be large, and interleaved with parallel processes. See following explanation of types for how to debug just one page, and also [this example](/examples/verbose).
-
-        The value can be one of these *javascript types*:
-
-        `"boolean"` If the value is a boolean, it is used for every page. Note that if it is any scalar type such as "string" or "number", it will be interpreted as a boolean using javascript rules. Coerced string values "true", "yes", and "1" are specifically true, all others are false.
-
-        `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify the use of verbose output for individual pages. The reserved key "__default" allows you to specify the default `verbose` usage so you don't have to specify usage for every individual page.
-
-        `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be a boolean.
+    + Supported with both puppeteer and playwright browser scripts. Setting the `debug.flag` to true starts the browser in headed mode with devtools open (devtools is only supported for chromium-based browsers). `debug.slowMo` is a time in milliseconds to reduce browser processing speed (larger numbers slows down the browser more). Recommended use is with a single problem page input using an Array source.
 
 ### Process Control Options
 
   * **browser** {String}
     + default: `"puppeteer"`
-    + Specifies which browser process to use in the crawl. Can be one of "phantomjs" or "puppeteer".  
+    + Specifies which browser process to use in the crawl. Can be one of `"puppeteer"` or `"playwright"`.  
 
   * **timeout** {Number|Object|Function}
     + default: 10000 \(milliseconds\)
@@ -313,19 +298,14 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
 
   * **processLimit** {Number}
     + default: 4
-    + Limits the number of child PhantomJS processes that can ever be actively running in parallel. A value of 1 effectively forces the snapshots to be taken in series (only one at a time). Useful if you need to limit the number of processes spawned by this library. Experiment with what works best. One guideline suggests about [4 per CPU](http://stackoverflow.com/questions/9961254/how-to-manage-a-pool-of-phantomjs-instances).
+    + Limits the number of child browser processes that can ever be actively running in parallel. A value of 1 effectively forces the snapshots to be taken in series (only one at a time). Useful if you need to limit the number of processes spawned by this library. Experiment with what works best. One guideline suggests about [4 per CPU](http://stackoverflow.com/questions/9961254/how-to-manage-a-pool-of-phantomjs-instances).
 
   * **pollInterval** {Number}
     + default: 500 \(milliseconds\)
     + Specifies the rate at which html-snapshots checks to see if a browser script has completed. Applies to all pages.
 
-  * **checkInterval** {Number}
-    > This option is only used with the phantomjs browser script
-    + default: 250 (milliseconds)
-    + Specifies the rate at which the PhantomJS script checks to see if the selector is visible yet. Applies to all pages.
-
   * **puppeteerLaunchOptions** {Object|Function}
-    > This options is only used with the puppeteer browser script
+    > This option is only used with the puppeteer browser script
     + default: {}
     + Specifies launch options to give to Puppeteer. Can specify per page or for all pages. Puppeteer function options (like targetFilter) are not supported. Launch options will override any puppeteer debug options supplied.
     
@@ -335,46 +315,26 @@ An older (version 0.13.2), more in depth usage example is located in this [artic
 
         "`function`" If the value is a function, it is called for every page and passed a single argument that is the url found in the input. The function must return puppeteer launch options to use for the page it is given. The value returned for a given page must be an object to be given directly to `puppeter.launch`.
 
-  * **phantomjsOptions** {String|Array|Object|Function}
-    > This option is only used with the phantomjs browser script
-    + default: ""
-    + Specifies options to give to PhantomJS. Can specify per page or for all pages. Since PhantomJS instances run per page, it is possible to specify different PhantomJS options per page. Useful for debugging PhantomJS scripts on a specific page.
-    For PhantomJS options syntax, checkout the [current options](http://phantomjs.org/api/command-line.html).
-    Checkout [the source](https://github.com/ariya/phantomjs/blob/master/src/config.cpp#L49) for PhantomJS options coming next.
-
+  * **playwrightLaunchOptions** {Object|Function}
+    > This option is only used with the playwright browser script
+    + default: {}
+    + Specifies launch options to give to Playwright. Can specify per page or for all pages. The object may include a `browserType` key (`"chromium"`, `"firefox"`, or `"webkit"`) to select which browser engine to use. Defaults to `"chromium"`. Launch options will override any playwright debug options supplied.
+    
         The value can be one of these *javascript types*:
 
-        `"string"` If the value is a string, it is a single option string used for every page.
+        `"object"` If the value is an object, it can contain any playwright launch options, and is applied for all pages. The object (minus `browserType`) will be given directly to `browserType.launch`.
 
-        `"array"` If the value is an array, it can contain multiple option strings used for every page.
+        "`function`" If the value is a function, it is called for every page and passed a single argument that is the url found in the input. The function must return playwright launch options to use for the page it is given. The value returned for a given page must be an object to be given directly to `browserType.launch`.
 
-        `"object"` If the value is an object, it is interpreted as key/value pairs where the key must match the url (or path in the case of robots.txt style) found by the input generator. This allows you to specify PhantomJS options for individual pages. The reserved key "__default" allows you to specify default options so you don't have to specify options for every individual page. The values can be either a string \(for a single option\), or an array \(for multiple options \).
-
-        `"function"` If the value is a function, it is called for every page and passed a single argument that is the url (or path in the case of robots.txt style) found in the input. The function must return a value to use for this option for the page it is given. The value returned for a given page must be either a string or an array.
-
-        Multiple Options Examples:
+        Example using Firefox:
         ```javascript
-        // option snippet showing multiple options for all pages
         {
-          phantomjsOptions: ["--load-images=false", "--ignore-ssl-errors=true"]
-        }
-
-        // option snippet showing multiple options for one page only (object notation)
-        {
-          phantomjsOptions: {
-            // key must exactly match the page as defined in the input (sitemap, array, robots, etc)
-            "http://mysite.com/mypage": ["--load-images=false", "--ignore-ssl-errors=true"],
+          browser: "playwright",
+          playwrightLaunchOptions: {
+            browserType: "firefox"
           }
         }
         ```
-        An example demonstrating how to **debug** a PhantomJS script is available [here](/examples/debug-phantomjs). It also demonstrates per-page option usage.
-
-  * **phantomjs** {String}
-    > This option is only used with the phantomjs browser script
-    + default: A package local reference to PhantomJS.
-    + Specifies the PhantomJS executable to run. Applies to all pages. Override this if you want to supply a path to a different version of PhantomJS. To reference PhantomJS globally in your environment, just use the value, "phantomjs". Remember, it must be found in your environment path to execute.
-  See [PhantomJS](http://phantomjs.org/) for more information.
-  Also [PhantomJS 2](https://github.com/ariya/phantomjs/wiki/PhantomJS-2).
 
 ## Example Rewrite Rule
 Here is an example apache rewrite rule for rewriting \_escaped\_fragment\_ requests to the snapshots directory on your server.

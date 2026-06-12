@@ -1,0 +1,111 @@
+/**
+ * Library tests that use sitemap.
+ *
+ * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
+ */
+const { it } = require("node:test");
+const assert = require("node:assert");
+const path = require("node:path");
+const optHelp = require("../../helpers/options");
+const { after } = require("../../helpers/func");
+const ss = require("../../../lib/html-snapshots");
+const utils = require("./utils");
+
+// missing destructuring, will write postcard...
+const {
+  outputDir,
+  cleanup,
+  cleanupError,
+  cleanupSuccess,
+  unexpectedSuccess,
+  testSuccess,
+  checkActualFiles,
+  makeCallback
+} = utils;
+
+// Sitemap constants
+const inputFile = path.join(__dirname, "./test_sitemap.xml");
+const urls = 3; // must match public/page_sitemap.xml
+
+function sitemapTests (options) {
+  const {
+    port,
+    browsers,
+    puppeteerLaunchOptions
+  } = options;
+
+  return function () {
+    function createOptions(newOptions) {
+      const defaultOptions = {
+        input: "sitemap",
+        source: `http://localhost:${port}/index.html`,
+        selector: "#dynamic-content",
+        outputDirClean: true,
+        timeout: 4000,
+        outputDir,
+        port,
+        puppeteerLaunchOptions
+      };
+      return {
+        ...defaultOptions,
+        ...newOptions
+      };
+    }
+
+    browsers.forEach(browser => {
+      it(`should all fail, bad remote sitemap - ${browser}`, () => {
+        return new Promise((resolve, reject) => {
+          const done = makeCallback(resolve, reject);
+          const options = createOptions({
+            browser
+          });
+
+          const twice = after(2, cleanupError.bind(null, browser, done, 0));
+
+          ss.run(optHelp.decorate(options), twice)
+            .then(unexpectedSuccess.bind(null, browser, done))
+            .catch(twice);
+        });
+      });
+
+      it("TODO: write more failure tests", () => {
+        assert.ok(true, "TODO");
+      });
+
+      it(`should succeed simple case - ${browser}`, () => {
+        return new Promise((resolve, reject) => {
+          const done = makeCallback(resolve, reject);
+          const options = createOptions({
+            source: `http://localhost:${port}/public/page-sitemap.xml`,
+            browser
+          });
+          
+          const twice = after(2, cleanupSuccess.bind(null, browser, done));
+          const success = (err, completed) => {
+            assert.equal(completed.length, urls);
+            testSuccess(twice, completed);
+          };
+
+          ss.run(optHelp.decorate(options), success)
+            .then(success.bind(null, undefined))
+            .catch(e => {
+              checkActualFiles(e.notCompleted)
+                .then(() => {
+                  cleanup(browser, done, e);
+                });
+            });
+        });
+      });
+
+      it("TODO: write more success tests", () => {
+        assert.ok(true, "TODO");
+      });
+    });
+  };
+}
+
+module.exports = {
+  testSuite: sitemapTests,
+  inputFile: inputFile,
+  urlCount: urls
+};

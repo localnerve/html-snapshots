@@ -2,29 +2,32 @@ name: Verify
 on:
   pull_request:
     branches: [ master ]
-
 jobs:
   verify:
-
     runs-on: ubuntu-22.04
-
     strategy:
       matrix:
-        node-version: [20.x, 22.x, 24.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+        node-version: [22.x, 24.x, 26.x] # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 6.0.2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # 6.3.0
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - name: Lint, Test, And Coverage
-      run: npm run lint && xvfb-run -a npm run test:cover
-    - name: Coverage Upload
-      if: ${{ success() }}
-      uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # 2.3.6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./coverage/lcov.info
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # 6.0.3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # 6.4.0
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npx playwright install
+      - name: Lint
+        run: npm run lint
+      - name: Test And Coverage (node 22 only)
+        if: startsWith(matrix.node-version, '22')
+        run: xvfb-run -a npm test
+      - name: Test and Coverage (node 24+)
+        if: "!startsWith(matrix.node-version, '22')"
+        run: xvfb-run -a npm run test:24
+      - name: Coverage Upload
+        if: ${{ success() }}
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # 2.3.6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./coverage/lcov.info
+          fail-on-error: false

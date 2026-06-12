@@ -1,0 +1,56 @@
+/**
+ * Tests unique to the puppeteer browser.
+ * 
+ * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
+ */
+const { it } = require("node:test");
+const optHelp = require("../../helpers/options");
+const ss = require("../../../lib/html-snapshots");
+const {
+  outputDir,
+  cleanupSuccess,
+  testSuccess,
+  makeCallback
+} = require("./utils");
+
+function puppeteerTests (options) {
+  const {
+    port
+  } = options;
+
+  return function () {
+
+    it("should launch debugger when requested", () => {
+      return new Promise((resolve, reject) => {
+        const done = makeCallback(resolve, reject);
+        const options = {
+          source: [
+            `http://localhost:${port}/contact`
+          ],
+          outputDir,
+          timeout: 5000,
+          debug: {
+            flag: true,
+            slowMo: 50
+          },
+          puppeteerLaunchOptions: {
+            args: [
+              "--no-sandbox"
+            ]
+          }
+        };
+
+        const success = testSuccess.bind(null, cleanupSuccess.bind(null, "puppeteer", done));
+
+        // TODO: check for headless: false chrome invocation
+        ss.run(optHelp.decorate(options))
+          .then(success)
+          .catch(done);
+      });
+    });
+  };
+}
+
+module.exports = {
+  testSuite: puppeteerTests
+};

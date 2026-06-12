@@ -1,0 +1,1575 @@
+/**
+ * General input generator tests.
+ *
+ * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
+ */
+const { describe, it, before, after } = require("node:test");
+const assert = require("node:assert");
+const path = require("node:path");
+const base = require("../../../lib/input-generators/_base");
+const factory = require("../../../lib/input-generators");
+const common = require("../../../lib/common");
+const createServer = require("../../server");
+const options = require("../../helpers/options");
+const { makeCallback } = require("../html-snapshots/utils");
+const port = 8033;
+
+describe("input-generator", () => {
+  let server;
+
+  before(async () => {
+    server = createServer();
+    await server.start(path.join(__dirname, "./server"), port);
+  });
+
+  after(async () => {
+    await server.stop();
+  });
+
+  describe("null", () =>  {
+    it("'index' should return a null generator", () => {
+      assert.equal(true, factory.isNull(factory.create("index")));
+    });
+
+    it("'_common' should return a null generator", () => {
+      assert.equal(true, factory.isNull(factory.create("_base")));
+    });
+
+    it("'_any' should return a null generator", () => {
+      assert.equal(true, factory.isNull(factory.create("_any")));
+    });
+
+    it("'notvalid' should return a null generator", () => {
+      assert.equal(true, factory.isNull(factory.create("notvalid")));
+    });
+
+    it("no input should return a null generator", () => {
+      assert.equal(true, factory.isNull(factory.create()));
+    });
+
+    it("should have a run method", () => {
+      assert.equal(true, typeof factory.create().run === "function");
+    });
+
+    it("run method should return an empty array", () => {
+      assert.equal(true, factory.create().run().length === 0);
+    });
+  });
+
+  const thisOutputDir = path.join(__dirname, "snapshots");
+
+  const inputGenerators = [
+    {
+      name: "robots",
+      input: factory.create("robots"),
+      source: path.join(__dirname, "test_robots.txt"),
+      remote: [
+        `http://localhost:${port}/test_robots.txt`,
+        `http://localhost:${port}/test_robots_sitemap.txt`,
+        `http://localhost:${port}/test_robots_sitemap_multi.txt`
+      ],
+      bad: [
+        path.join(__dirname, "test_robots_bad.txt"),
+        `http://localhost:${port}/test_robots_bad.txt`,
+        `http://localhost:${port}/test_robots_sitemap_bad.txt`
+      ],
+      urls: 5,
+      multiUrls: 22 // The number of urls processed in test_robots_sitemap_multi.txt
+    },
+    {
+      name: "textfile",
+      input: factory.create("textfile"),
+      source: path.join(__dirname, "test_line.txt"),
+      urls: 5
+    },
+    { name: "array", input: factory.create("array"), source:
+      // same as urls in sitemap
+      [
+        "http://northstar.local/",
+        "http://northstar.local/contact",
+        "http://northstar.local/services/carpets",
+        "http://northstar.local/services/test?arg=one",
+        "https://northstar.local/services/#hash"
+      ],
+      urls: 5
+    },
+    {
+      name: "sitemap",
+      input: factory.create("sitemap"),
+      source: path.join(__dirname, "test_sitemap.xml"),
+      remote: [`http://localhost:${port}/test_sitemap.xml`],
+      urls: 5
+    },
+    {
+      name: "sitemap-gzip",
+      input: factory.create("sitemap"),
+      source: path.join(__dirname, "test_sitemap.xml.gz"),
+      remote: [`http://localhost:${port}/test_sitemap.xml.gz`],
+      bad: [
+        path.join(__dirname, "test_sitemap_bad.xml.gz"),
+        `http://localhost:${port}/test_sitemap_bad.xml.gz`
+      ],
+      urls: 5
+    },
+    {
+      name: "sitemap-index",
+      input: factory.create("sitemap-index"),
+      source: path.join(__dirname, "test_sitemap_index.xml"),
+      remote: [`http://localhost:${port}/test_sitemap_index.xml`],
+      // this is the total number of pages referenced by sitemaps in test_sitemap_index.
+      urls: 17
+    },
+    {
+      name: "sitemap-index-gzip",
+      input: factory.create("sitemap-index"),
+      source: path.join(__dirname, "test_sitemap_index.xml.gz"),
+      remote: [`http://localhost:${port}/test_sitemap_index.xml.gz`],
+      // this is the total number of pages referenced by sitemaps in test_sitemap_index.
+      urls: 17
+    }
+  ];
+
+  /**
+   * Escape a string for usage in a regular expression.
+   */
+  function regexEscape(s) {
+    return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+  }
+
+  function pathToRe (component) {
+    return regexEscape(component);
+  }
+
+  function urlToPath (url) {
+    let result = url;
+    if (process.platform === "win32") {
+      result = url.replace(/\//g, "\\");
+    }
+    return result;
+  }
+
+  function urlToPathRe (url) {
+    let result = url;
+    if (process.platform === "win32") {
+      result = url.replace(/\//g, "\\\\");
+    }
+    return result;
+  }
+
+  inputGenerators.forEach(inputGeneratorTest => {
+
+    describe(inputGeneratorTest.name, () => {
+
+      const globalUrl = inputGeneratorTest.name === "robots" || inputGeneratorTest.name === "textfile";
+      const remote = inputGeneratorTest.remote;
+      const gen = inputGeneratorTest.input;
+      const source = inputGeneratorTest.source;
+      const bad = inputGeneratorTest.bad;
+      const urls = inputGeneratorTest.urls;
+
+      describe("general behavior", () => {
+
+        it("should return false for null", () => {
+          assert.equal(false, factory.isNull(gen));
+        });
+
+        it("should have a run method", () => {
+          assert.equal(true, typeof gen.run === "function");
+        });
+
+        // requires inputFile not found
+        it("should produce no input for defaults and a bogus file", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            let doneCalled = false;
+
+            gen.run(options.decorate({
+              source: "./bogus/file.txt",
+              outputDir: thisOutputDir,
+              _abort: err => {
+                assert.equal(true, !!err);
+                doneCalled = true;
+                done();
+              }
+            }), () => {
+              assert.fail("input callback should not have been called, unexpected input processed");
+            });
+
+            setTimeout(() => {
+              if (!doneCalled) {
+                done("abort was not called as expected");
+              }
+            }, 200);
+          });
+        });
+
+        // requires source to have 'urls' valid entries
+        it("should produce input with all defaults and a valid source", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir
+            }), () => {
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        // this test has to match the base generator defaults
+        it("base defaults should exist in input when requested", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const defaults = base.defaults({});
+            defaults.outputDir = thisOutputDir;
+
+            let count = 0;
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir
+            }), input => {
+              const re1 = new RegExp("^("+defaults.protocol+")://("+defaults.hostname+")/");
+              const re2 = new RegExp("^("+pathToRe(defaults.outputDir)+")"+pathToRe(path.sep));
+
+              const m1 = re1.exec(input.url);
+              const m2 = re2.exec(input.outputFile);
+
+              if (globalUrl) {
+                assert.equal(m1[1], defaults.protocol);
+                assert.equal(m1[2], defaults.hostname);
+              }
+
+              assert.equal(m2[1], defaults.outputDir);
+              assert.equal(defaults.selector, input.selector);
+              assert.equal(defaults.timeout, input.timeout);
+              assert.equal(defaults.checkInterval, input.checkInterval);
+              assert.equal(defaults.useJQuery, input.useJQuery);
+              assert.equal(defaults.verbose, input.verbose);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+      });
+
+      describe("timeout option", () => {
+
+        it("should accept scalar and apply globally", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            let count = 0;
+            const theTimeout = 500;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              timeout: theTimeout
+            }), input => {
+              assert.equal(theTimeout, input.timeout);
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        // requires source to contain specific urls
+        it("should accept function and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalTimeouts = {
+              "/": 1,
+              "/contact": 2,
+              "/services/carpets": 3
+            };
+            const localTimeouts = {
+              "http://northstar.local": 1,
+              "http://northstar.local/contact": 2,
+              "http://northstar.local/services/carpets": 3
+            };
+            const timeouts = globalUrl ? globalTimeouts : localTimeouts;
+
+            const timeoutFn = url => {
+              return timeouts[url];
+            };
+
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              timeout: timeoutFn
+            }), input => {
+              const testTimeout =
+                  timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;
+
+              assert.equal(input.timeout, testTimeout,
+                input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept object and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalTimeouts = {
+              "/": 1,
+              "/contact": 2,
+              "/services/carpets": 3,
+              "__default": 4
+            };
+            const localTimeouts = {
+              "http://northstar.local": 470,
+              "http://northstar.local/contact": 480,
+              "http://northstar.local/services/carpets": 490,
+              "__default": 500
+            };
+            const timeouts = globalUrl ? globalTimeouts : localTimeouts;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              timeout: timeouts
+            }), input => {
+              const testTimeout =
+                  timeouts[input.__page] ? timeouts[input.__page] : timeouts.__default;
+
+              assert.equal(input.timeout, testTimeout,
+                input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept object and apply per url, with missing __default", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalTimeouts = {
+              "/": 1,
+              "/contact": 2,
+              "/services/carpets": 3
+            };
+            const localTimeouts = {
+              "http://northstar.local": 1,
+              "http://northstar.local/contact": 2,
+              "http://northstar.local/services/carpets": 3
+            };
+            const timeouts = globalUrl ? globalTimeouts : localTimeouts;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              timeout: timeouts
+            }), input => {
+              const testTimeout =
+                  timeouts[input.__page] ? timeouts[input.__page] : base.defaults({}).timeout;
+
+              assert.equal(input.timeout, testTimeout,
+                input.__page+":\ninput.timeout: "+input.timeout+" != testTimeout: "+testTimeout);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              })
+          });
+        });
+
+      });
+
+      describe("selector option", () => {
+
+        it("should accept scalar and apply globally", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const selector = "foo";
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              selector: selector
+            }), input => {
+              assert.equal(input.selector, selector);
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        // requires source to contain specific urls
+        it("should accept function and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalSelectors = {
+              "/": "1",
+              "/contact": "2",
+              "/services/carpets": "3"
+            };
+            const localSelectors = {
+              "http://northstar.local/": "1",
+              "http://northstar.local/contact": "2",
+              "http://northstar.local/services/carpets": "3"
+            };
+            const selectors = globalUrl ? globalSelectors : localSelectors;
+            const selectorFn = url => {
+              return selectors[url];
+            };
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              selector: selectorFn
+            }), input => {
+              const testSelector =
+                  selectors[input.__page] ? selectors[input.__page] : base.defaults({}).selector;
+
+              assert.equal(input.selector, testSelector,
+                input.__page+":\ninput.selector: "+input.selector+" != testSelector: "+testSelector);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept object and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalSelectors = {
+              "/": "1",
+              "/contact": "2",
+              "/services/carpets": "3",
+              "__default": "50"
+            };
+            const localSelectors = {
+              "http://northstar.local/": "1",
+              "http://northstar.local/contact": "2",
+              "http://northstar.local/services/carpets": "3",
+              "__default": "50"
+            };
+            const selectors = globalUrl ? globalSelectors : localSelectors;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              selector: selectors
+            }), input => {
+              const testSelector =
+                selectors[input.__page] ? selectors[input.__page] : selectors.__default;
+
+              assert.equal(input.selector, testSelector,
+                input.__page+":\ninput.selector: "+input.selector+" != testSelector: "+testSelector);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+      });
+
+      describe("useJQuery option", () => {
+
+        it("should accept a scalar and apply globally", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const useJQuery = true;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              useJQuery: useJQuery
+            }), input => {
+              assert.equal(input.useJQuery, useJQuery);
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept an object and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalOptions = {
+              "/": false,
+              "/contact": true,
+              "/services/carpets": false,
+              "__default": true
+            };
+            const localOptions = {
+              "http://northstar.local/": false,
+              "http://northstar.local/contact": true,
+              "http://northstar.local/services/carpets": false,
+              "__default": true
+            };
+            const opts = globalUrl ? globalOptions : localOptions;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              useJQuery: opts
+            }), input => {
+              const testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+
+              assert.equal(input.useJQuery, testOption,
+                input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept a function and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalOptions = {
+              "/": false,
+              "/contact": true,
+              "/services/carpets": false
+            };
+            const localOptions = {
+              "http://northstar.local/": false,
+              "http://northstar.local/contact": true,
+              "http://northstar.local/services/carpets": false
+            };
+            let count = 0;
+            const opts = globalUrl ? globalOptions : localOptions;
+            const useJQFn = url => {
+              return opts[url];
+            };
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              useJQuery: useJQFn
+            }), input => {
+              const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).useJQuery;
+
+              assert.equal(input.useJQuery, testOption,
+                input.__page+":\ninput.useJQuery: "+input.useJQuery+" != testUseJQuery: "+testOption);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+      });
+
+      describe("verbose option", () => {
+
+        it("should accept a scalar and apply globally", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const verbose = true;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              verbose: verbose
+            }), input => {
+                assert.equal(input.verbose, verbose);
+                count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept an object and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalOptions = {
+              "/": false,
+              "/contact": true,
+              "/services/carpets": false,
+              "__default": true
+            };
+            const localOptions = {
+              "http://northstar.local/": false,
+              "http://northstar.local/contact": true,
+              "http://northstar.local/services/carpets": false,
+              "__default": true
+            };
+            const opts = globalUrl ? globalOptions : localOptions;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              verbose: opts
+            }), input => {
+              const testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+
+              assert.equal(input.verbose, testOption,
+                input.__page+":\ninput.verbose: "+input.verbose+" != testVerbose: "+testOption);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err =>{
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept a function and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalOptions = {
+              "/": false,
+              "/contact": true,
+              "/services/carpets": false
+            };
+            const localOptions = {
+              "http://northstar.local/": false,
+              "http://northstar.local/contact": true,
+              "http://northstar.local/services/carpets": false
+            };
+            let count = 0;
+            const opts = globalUrl ? globalOptions : localOptions;
+            const useVerboseFn = url => {
+              return opts[url];
+            };
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              verbose: useVerboseFn
+            }), input => {
+              const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).verbose;
+
+              assert.equal(input.verbose, testOption,
+                input.__page+":\ninput.verbose: "+input.verbose+" != testUseVerbose: "+testOption);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+      });
+
+      describe("playwrightLaunchOptions option", () => {
+        it("should accept a single object and apply globally", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            let count = 0;
+            const playwrightLaunchOptions = {
+              browserType: "chromium",
+              one: "one",
+              two: 2,
+              three: ["three", "four", "five"],
+              six: {
+                seven: "seven"
+              }
+            };
+
+            const result = gen.run(options.decorate({
+              source,
+              playwrightLaunchOptions,
+              outputDir: thisOutputDir
+            }), input => {
+              const classString = Object.prototype.toString;
+
+              assert.equal(classString.call(input.playwrightLaunchOptions), classString.call(playwrightLaunchOptions),
+                `${input.__page}:\ninput.playwrightLaunchOptions should be an object:\n${
+                  require("util").inspect(input.playwrightLaunchOptions)
+                }`
+              );
+
+              assert.deepEqual(input.playwrightLaunchOptions, playwrightLaunchOptions,
+                `${input.__page}:\ninput.playwrightLaunchOptions should be equal to the original input`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept an object and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const plo1 = { browserType: "chromium" },
+              plo2 = { browserType: "firefox" },
+              plo3 = { headless: true };
+
+            const globalOptions = {
+              "/": plo1,
+              "/contact": plo2,
+              "/services/carpets": plo3,
+              "__default": {}
+            };
+            const localOptions = {
+              "http://northstar.local/": plo1,
+              "http://northstar.local/contact": plo2,
+              "http://northstar.local/services/carpets": plo3,
+              "__default": {}
+            };
+            const opts = globalUrl ? globalOptions : localOptions;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              playwrightLaunchOptions: opts
+            }), input => {
+              const testOption = opts[input.__page] !== void 0 ? opts[input.__page] : opts.__default;
+              const inputOption = input.playwrightLaunchOptions[input.__page] !== void 0 ? input.playwrightLaunchOptions[input.__page]: input.playwrightLaunchOptions.__default;
+
+              assert.deepEqual(inputOption, testOption,
+                `${input.__page}:\ninput.playwrightLaunchOptions: ${JSON.stringify(inputOption)} != testPlaywrightLaunchOption: ${JSON.stringify(testOption)}`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept an object and apply per url, with missing __default", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const plo1 = { browserType: "chromium" },
+              plo2 = { browserType: "firefox" },
+              plo3 = { headless: true };
+
+            const globalOptions = {
+              "/": plo1,
+              "/contact": plo2,
+              "/services/carpets": plo3
+            };
+            const localOptions = {
+              "http://northstar.local/": plo1,
+              "http://northstar.local/contact": plo2,
+              "http://northstar.local/services/carpets": plo3
+            };
+            const opts = globalUrl ? globalOptions : localOptions;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              playwrightLaunchOptions: opts
+            }), input => {
+              const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).playwrightLaunchOptions;
+              const inputOption = input.playwrightLaunchOptions[input.__page] ? input.playwrightLaunchOptions[input.__page] : {};
+
+              assert.deepEqual(inputOption, testOption,
+                `${input.__page}:\ninput.playwrightLaunchOptions: ${JSON.stringify(inputOption)} != testPlaywrightLaunchOption: ${JSON.stringify(testOption)}`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept a function and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const plo1 = { browserType: "chromium" },
+              plo2 = { browserType: "firefox" },
+              plo3 = { headless: true };
+
+            const globalOptions = {
+              "/": plo1,
+              "/contact": plo2,
+              "/services/carpets": plo3
+            };
+            const localOptions = {
+              "http://northstar.local/": plo1,
+              "http://northstar.local/contact": plo2,
+              "http://northstar.local/services/carpets": plo3
+            };
+            const opts = globalUrl ? globalOptions : localOptions;
+            let count = 0;
+            const ploFn = url => {
+              return opts[url];
+            };
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              playwrightLaunchOptions: ploFn
+            }), input => {
+              const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).playwrightLaunchOptions;
+
+              assert.deepEqual(input.playwrightLaunchOptions, testOption,
+                `${input.__page}:\ninput.playwrightLaunchOptions: ${JSON.stringify(input.playwrightLaunchOptions)} != testPlaywrightLaunchOption: ${JSON.stringify(testOption)}`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept a function returning browserType per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const globalBrowserTypes = {
+              "/": "chromium",
+              "/contact": "firefox",
+              "/services/carpets": "webkit"
+            };
+            const localBrowserTypes = {
+              "http://northstar.local/": "chromium",
+              "http://northstar.local/contact": "firefox",
+              "http://northstar.local/services/carpets": "webkit"
+            };
+            const browserTypes = globalUrl ? globalBrowserTypes : localBrowserTypes;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              playwrightLaunchOptions: url => ({
+                browserType: browserTypes[url] || "chromium"
+              })
+            }), input => {
+              const expectedBrowserType = browserTypes[input.__page] || "chromium";
+
+              assert.equal(input.playwrightLaunchOptions.browserType, expectedBrowserType,
+                `${input.__page}:\nexpected browserType ${expectedBrowserType}, got ${input.playwrightLaunchOptions.browserType}`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+      });
+
+      describe("puppeteerLaunchOptions option", () => {
+        it("should accept a single object and apply globally", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            let count = 0;
+            const puppeteerLaunchOptions = {
+              one: "one",
+              two: 2,
+              three: ["three", "four", "five"],
+              six: {
+                seven: "seven"
+              }
+            };
+
+            const result = gen.run(options.decorate({
+              source,
+              puppeteerLaunchOptions,
+              outputDir: thisOutputDir
+            }), input => {
+              const classString = Object.prototype.toString;
+
+              assert.equal(classString.call(input.puppeteerLaunchOptions), classString.call(puppeteerLaunchOptions),
+                `${input.__page}:\ninput.puppeteerLaunchOptions should be an object:\n${
+                  require("util").inspect(input.puppeteerLaunchOptions)
+                }`
+              );
+
+              assert.deepEqual(input.puppeteerLaunchOptions, puppeteerLaunchOptions,
+                `${input.__page}:\ninput.puppeteerLaunchOptions should be equal to the original input`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should accept a function and apply per url", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const plo1 = { one: "one" },
+              plo2 = { two: "two" },
+              plo3 = { three: "three" };
+
+            const globalOptions = {
+              "/": plo1,
+              "/contact": plo2,
+              "/services/carpets": plo3
+            };
+            const localOptions = {
+              "http://northstar.local/": plo1,
+              "http://northstar.local/contact": plo2,
+              "http://northstar.local/services/carpets": plo3
+            };
+            const opts = globalUrl ? globalOptions : localOptions;
+            let count = 0;
+            const ploFn = url => {
+              return opts[url];
+            };
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              puppeteerLaunchOptions: ploFn
+            }), input => {
+              const testOption = opts[input.__page] ? opts[input.__page] : base.defaults({}).puppeteerLaunchOptions;
+
+              assert.deepEqual(input.puppeteerLaunchOptions, testOption,
+                `${input.__page}:\ninput.puppeteerLaunchOptions: ${input.puppeteerLaunchOptions} != testPuppeteerLaunchOption: ${testOption}`);
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+      });
+
+      describe("url behavior", () => {
+
+        it("should replace the default hostname in results", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const hostname = "foo";
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              hostname: hostname
+            }), input =>  {
+              const re = new RegExp(`http://(${hostname})/`);
+              const match = re.exec(input.url);
+              if (globalUrl) {
+                assert.equal(match[1], hostname);
+              } else {
+                assert.equal(match === null, true);
+              }
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should replace the default protocol in results", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const proto = "file";
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              protocol: proto
+            }), input => {
+              const re = new RegExp(`^(${proto})://`);
+              const match = re.exec(input.url);
+              if (globalUrl) {
+                assert.equal(match[1], proto);
+              } else {
+                assert.equal(match === null, true);
+              }
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should contain a port in the url if one is specified", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const port = 8080;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              port: port
+            }), input =>  {
+              const re = new RegExp(`^http://localhost\\:(${port})/`);
+              const match = re.exec(input.url);
+              if (globalUrl) {
+                assert.equal(match[1], port);
+              } else {
+                assert.equal(match === null, true);
+              }
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should contain an auth in the url if one is specified", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const auth = "user:pass";
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              auth: auth
+            }), input => {
+              const re = new RegExp(`^http://(${auth})@localhost/`);
+              const match = re.exec(input.url);
+              if (globalUrl) {
+                assert.equal(match[1], auth);
+              } else {
+                assert.equal(match === null, true);
+              }
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        if (remote) {
+          remote.forEach(remoteUrl => {
+            it(`should process remote source url ${remoteUrl}`, { timeout: 20000 }, () => {
+              return new Promise((resolve, reject) => {
+                const done = makeCallback(resolve, reject);
+                let count = 0;
+
+                const result = gen.run(options.decorate({
+                  source: remoteUrl,
+                  outputDir: thisOutputDir,
+                  _abort: err => {
+                    assert.fail(`${remoteUrl} should not have aborted: ${err.toString()}`);
+                  }
+                }), input => {
+                  assert(true, common.isUrl(input.url));
+                  count++;
+                });
+
+                result
+                  .then(() => {
+                    let fixtureUrls = urls;
+                    if (remoteUrl.includes("multi")) {
+                      fixtureUrls = inputGeneratorTest.multiUrls;
+                    }
+                    assert.strictEqual(count, fixtureUrls);
+                    done();
+                  })
+                  .catch(err => {
+                    assert.fail(`Run should not fail: ${err.toString()}`);
+                    done(err);
+                  });
+              });
+            });
+          });
+        }
+
+        if (bad) {
+          bad.forEach(badSource => {
+            // handle retries on urls (3+1) + (3+2) + (3+4)
+            const timeout = badSource.startsWith("http") ? 20000 : 10000;
+            it(`should handle bad source ${badSource}`, { timeout }, () => {
+              return new Promise((resolve, reject) => {
+                const done = makeCallback(resolve, reject);
+                gen.run(options.decorate({
+                  source: badSource,
+                  outputDir: thisOutputDir,
+                  _abort: err => {
+                    // console.log(`@@@ ${badSource} should have aborted with error`);
+                    assert.equal(true, !!err, `${badSource} should have aborted with error`);
+                    done();
+                  }
+                }), () => {
+                  //console.log("@@@ bad input:\n"+require("util").inspect(input));
+                  assert.fail(`Input handler was called unexpectedly for badSource: ${badSource}`);
+                  done(true);
+                });
+              });
+            });
+          });
+        }
+      });
+
+      describe("checkInterval option", () => {
+
+        it("should replace the default checkInterval globally", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const checkInterval = 1;
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              checkInterval: checkInterval
+            }), input => {
+              assert.equal(input.checkInterval, checkInterval);
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+      });
+
+      describe("output file behavior", () => {
+
+        it("should contain the snapshot directory in output outfile spec", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const snapshotDir = "foo";
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: path.join(thisOutputDir, snapshotDir)
+            }), input => {
+              const re = new RegExp("\\"+path.sep+"("+snapshotDir+")"+"\\"+path.sep);
+              const match = re.exec(input.outputFile);
+              assert.equal(match[1], snapshotDir);
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        // requires inputFile to contain specific urls
+        it("should contain the page structure in the output file spec", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const snapshotDir = "foo";
+            const pages = !globalUrl ? {
+              "http://northstar.local/": "/",
+              "http://northstar.local/contact": "/contact",
+              "http://northstar.local/services/carpets": "/services/carpets",
+              "http://northstar.local/services/test?arg=one": "/services/test",
+              "https://northstar.local/services/#hash": "/services"
+            } : {
+              "/": "/",
+              "/contact": "/contact",
+              "/services/carpets": "/services/carpets",
+              "/services/test?arg=one": "/services/test",
+              "/services/#hash": "/services"
+            };
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: path.join(thisOutputDir, snapshotDir)
+            }), input => {
+              const re = new RegExp("("+snapshotDir+")("+urlToPathRe(pages[input.__page])+")");
+              const match = re.exec(input.outputFile);
+
+              assert.equal(true, match[1] === snapshotDir && match[2] === urlToPath(pages[input.__page]));
+
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+      });
+
+      describe("outputPath option", () => {
+        it("should lookup an outputPath (per page from a function) if one is specified", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const argOne = "/services/test/arg/one";
+            const hash = "/services/hash";
+            const pages = !globalUrl ? {
+              "http://northstar.local/": "/",
+              "http://northstar.local/contact": "/contact",
+              "http://northstar.local/services/carpets": "/services/carpets",
+              "http://northstar.local/services/test?arg=one": argOne,
+              "https://northstar.local/services/#hash": hash
+            } : {
+              "/": "/",
+              "/contact": "/contact",
+              "/services/carpets": "/services/carpets",
+              "/services/test?arg=one": argOne,
+              "/services/#hash": hash
+            };
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputPath: p => {
+                return pages[p];
+              },
+              outputDir: thisOutputDir
+            }), input => {
+              const re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
+              const match = re.exec(input.outputFile);
+              assert.equal(match[1], urlToPath(pages[input.__page]));
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should lookup an outputPath (from a hash) and find it in the outputFile spec", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            const argOne = "/services/test/arg/one";
+            const hash = "/services/hash";
+            const outputPath = !globalUrl ? {
+              "http://northstar.local/services/test?arg=one": argOne,
+              "https://northstar.local/services/#hash": hash
+            } : { "/services/test?arg=one": argOne, "/services/#hash": hash };
+            const pages = !globalUrl ? {
+              "http://northstar.local/": "/",
+              "http://northstar.local/contact": "/contact",
+              "http://northstar.local/services/carpets": "/services/carpets",
+              "http://northstar.local/services/test?arg=one": argOne,
+              "https://northstar.local/services/#hash": hash
+            } : {
+              "/": "/",
+              "/contact": "/contact",
+              "/services/carpets": "/services/carpets",
+              "/services/test?arg=one": argOne,
+              "/services/#hash": hash
+            };
+            let count = 0;
+
+            const result = gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              outputPath: outputPath
+            }), input => {
+              const re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
+              const match = re.exec(input.outputFile);
+              assert.equal(match[1], urlToPath(pages[input.__page]));
+              count++;
+            });
+
+            result
+              .then(() => {
+                assert.strictEqual(count, urls);
+                done();
+              })
+              .catch(err => {
+                assert.fail(`Run should not fail: ${err.toString()}`);
+                done(err);
+              });
+          });
+        });
+
+        it("should return false if a snapshot can't be created", () => {
+          return new Promise((resolve, reject) => {
+            const done = makeCallback(resolve, reject);
+            let aborted = false;
+            let count = 0;
+            const argOne = "/services/test/arg/one";
+            const hash = "/services/hash";
+            const pages = !globalUrl ? {
+                // this causes the problem
+                //"http://northstar.local/": "/",
+                "http://northstar.local/contact": "/contact",
+                "http://northstar.local/services/carpets": "/services/carpets",
+                "http://northstar.local/services/test?arg=one": argOne,
+                "https://northstar.local/services/#hash": hash
+            } : {
+              // this causes the problem
+              //"/": "/",
+              "/contact": "/contact",
+              "/services/carpets": "/services/carpets",
+              "/services/test?arg=one": argOne,
+              "/services/#hash": hash
+            };
+
+            gen.run(options.decorate({
+              source: source,
+              outputDir: thisOutputDir,
+              _abort: err => {
+                assert.equal(!!err, true);
+                aborted = true;
+                done();
+              },
+              outputPath: p => {
+                return pages[p];
+              }
+            }), input => {
+              if (!aborted) {
+                const re = new RegExp("("+urlToPathRe(pages[input.__page])+")");
+                const match = re.exec(input.outputFile);
+                assert.equal(match[1], urlToPath(pages[input.__page]));
+                count++;
+                if (count === (urls-1)) {
+                  done();
+                }
+              }
+            });
+          });
+        });
+
+      });
+
+    });
+  });
+
+});

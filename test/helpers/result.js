@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2013 - 2025, Alex Grant, LocalNerve, contributors
  */
-var assert = require("assert");
+const assert = require("node:assert");
 
 /**
  * NodeJS v8 ifError throws if value is truthy
@@ -28,5 +28,5 @@ function mustBeError (err) {
 }
 
 module.exports = {
-  mustBeError: mustBeError
+  mustBeError
 };
