@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -41,6 +41,16 @@
     "type": "git",
     "url": "https://github.com/localnerve/html-snapshots.git"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/localnerve"
+    },
+    {
+      "type": "paypal",
+      "url": "https://www.paypal.com/ncp/payment/DHCB5GUYMGX5U"
+    }
+  ],
   "keywords": [
     "SEO",
     "html",
@@ -54,13 +64,14 @@
   "dependencies": {
     "async": "3.2.6",
     "async-lock": "1.4.1",
-    "playwright": "1.60.0",
+    "playwright": "1.61.0",
     "puppeteer": "25.1.0",
     "xml2js": "0.6.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.4.1",
+    "eslint": "^10.5.0",
+    "eslint-plugin-n": "18.1.0",
     "express": "^5.2.1",
     "globals": "^17.6.0",
     "server-destroy": "^1.0.1",

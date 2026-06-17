@@ -8,3 +8,5 @@ tmp
 .c8*
 .eslint*
 .jshint*
+eslint.config.js
+.nvmrc
