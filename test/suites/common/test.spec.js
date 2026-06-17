@@ -184,6 +184,74 @@ describe("common", () => {
     })
   });
 
+  describe("parseUrl", () => {
+    const proto = "https:";
+    const hostname = "muh.host";
+    const port = "1212";
+    const pathname = "/im/a/path";
+    const search = "?wazz=up";
+    const hash = "#hash";
+    const user = "user";
+    const pass = "pass";
+    let fullUrl;
+    let relUrl;
+    let protoRel;
+    let noisyUrl;
+    let brokenUrl;
+
+    before(() => {
+      fullUrl = `${proto}//${user}:${pass}@${hostname}:${port}${pathname}${search}${hash}`;
+      relUrl = `${pathname}${search}${hash}`;
+      protoRel = `//${hostname}${pathname}`;
+      brokenUrl = `http\n\t://${hostname}:foo`;
+      noisyUrl = `${proto.slice(0, -1)}\n\t://${hostname}:${port}`;
+    });
+
+    it("should parse url string to url object", () => {
+      const url = common.parseUrl(fullUrl);
+      assert.ok(url instanceof URL);
+      assert.strictEqual(url.protocol, proto);
+      assert.strictEqual(url.hostname, hostname);
+      assert.strictEqual(url.port, port);
+      assert.strictEqual(url.pathname, pathname);
+      assert.strictEqual(url.search, search);
+      assert.strictEqual(url.hash, hash);
+      assert.strictEqual(url.username, user);
+      assert.strictEqual(url.password, pass);
+      assert.strictEqual(url.auth, `${url.username}:${url.password}`);
+    });
+
+    it("should parse a relative url", () => {
+      const url = common.parseUrl(relUrl);
+      assert.ok(url instanceof URL);
+      assert.strictEqual(url.pathname, pathname);
+      assert.strictEqual(url.hostname, "");
+      assert.strictEqual(url.search, search);
+      assert.strictEqual(url.hash, hash);
+    });
+
+    it("should parse a protocol relative url", () => {
+      const url = common.parseUrl(protoRel);
+      assert.ok(url instanceof URL);
+      assert.strictEqual(url.hostname, hostname);
+      assert.strictEqual(url.pathname, pathname);
+    });
+
+    it("should parse a broken url as legacy", () => {
+      const url = common.parseUrl(brokenUrl);
+      assert.ok(url instanceof URL === false);
+      assert.ok(url.path);
+    });
+
+    it("should parse a noisy url", () => {
+      const url = common.parseUrl(noisyUrl);
+      assert.ok(url instanceof URL);
+      assert.strictEqual(url.protocol, proto);
+      assert.strictEqual(url.hostname, hostname);
+      assert.strictEqual(url.port, port);
+    });
+  });
+
   describe("prependMsgToErr", () => {
 
     it("should return undefined if given falsy error", () => {
