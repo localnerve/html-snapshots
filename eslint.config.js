@@ -1,8 +1,8 @@
-/* eslint-disable n/no-unpublished-require */
+ 
 const js = require("@eslint/js");
 const globals = require("globals");
 const { default: nodePlugin } = require("eslint-plugin-n");
-/* eslint-enable n/no-unpublished-require */
+ 
 
 const nodeRules = nodePlugin.configs["flat/recommended"].rules;
 
