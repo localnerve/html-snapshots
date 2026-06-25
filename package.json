@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "6.2.0",
+  "version": "6.2.1",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -64,8 +64,8 @@
   "dependencies": {
     "async": "3.2.6",
     "async-lock": "1.4.1",
-    "playwright": "1.61.0",
-    "puppeteer": "25.2.0",
+    "playwright": "1.61.1",
+    "puppeteer": "25.2.1",
     "xml2js": "0.6.2"
   },
   "devDependencies": {
@@ -80,5 +80,8 @@
   "license": "MIT",
   "engines": {
     "node": ">=22"
+  },
+  "allowScripts": {
+    "puppeteer@25.2.1": true
   }
 }
