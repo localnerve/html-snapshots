@@ -2,13 +2,9 @@ node_modules
 test/suites/input-generators/server/test_sitemap_dynamic.xml
 test/suites/input-generators/snapshots/
 test/suites/async/files
-npm-debug.log
 tmp
 report
 coverage
-.jshint*
-.validate.json
 *.tgz
-html-snapshots.sublime-project
-html-snapshots.sublime-workspace
+*.log
 .DS_Store
