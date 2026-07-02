@@ -1,8 +1,7 @@
  
 const js = require("@eslint/js");
 const globals = require("globals");
-const { default: nodePlugin } = require("eslint-plugin-n");
- 
+const nodePlugin = require("eslint-plugin-n");
 
 const nodeRules = nodePlugin.configs["flat/recommended"].rules;
 
