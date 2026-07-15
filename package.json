@@ -71,7 +71,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.6.0",
-    "eslint-plugin-n": "18.2.1",
+    "eslint-plugin-n": "18.2.2",
     "express": "^5.2.1",
     "globals": "^17.7.0",
     "server-destroy": "^1.0.1",
