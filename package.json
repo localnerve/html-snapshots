@@ -64,7 +64,7 @@
   "dependencies": {
     "async": "3.2.6",
     "async-lock": "1.4.1",
-    "playwright": "1.61.1",
+    "playwright": "1.62.0",
     "puppeteer": "25.3.0",
     "xml2js": "0.6.2"
   },
