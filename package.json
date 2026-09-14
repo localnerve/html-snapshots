@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "6.10.0",
+  "version": "6.11.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -64,13 +64,13 @@
   "dependencies": {
     "async": "3.2.6",
     "async-lock": "1.4.1",
-    "playwright": "1.62.1",
-    "puppeteer": "^25.10.0",
+    "playwright": "1.63.0",
+    "puppeteer": "^25.11.0",
     "xml2js": "0.6.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.9.1",
+    "eslint": "^10.10.0",
     "eslint-plugin-n": "18.3.0",
     "express": "^5.2.1",
     "globals": "^17.12.0",
