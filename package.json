@@ -1,6 +1,6 @@
 {
   "name": "html-snapshots",
-  "version": "6.15.0",
+  "version": "6.16.0",
   "author": {
     "name": "Alex Grant",
     "email": "alex@localnerve.com",
@@ -65,7 +65,7 @@
     "async": "3.2.6",
     "async-lock": "1.4.1",
     "playwright": "1.64.1",
-    "puppeteer": "25.15.0",
+    "puppeteer": "25.16.0",
     "xml2js": "0.6.2"
   },
   "devDependencies": {
